@@ -1,10 +1,6 @@
 # ggvenn
 
-Venn Diagram by ggplot2
-
-# ggvenn
-
-Venn Diagram by ggplot2
+Venn Diagram by ggplot2. This package is inspired by [Venny](http://bioinfogp.cnb.csic.es/tools/venny/index.html)
 
 ## Installation
 
