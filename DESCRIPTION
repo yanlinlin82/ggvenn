@@ -6,10 +6,7 @@ Authors@R: person(given = "Linlin", family = "Yan",
                   email = "yanlinlin82@gmail.com",
                   comment = c(ORCID = "0000-0002-4990-6239"))
 Description: Plot pretty venn diagram based on ggplot2.
-Depends:
-    R (>= 3.5.0),
-    ggplot2 (>= 2.0.0),
-    dplyr (>= 0.5.0)
+Depends: dplyr, grid, ggplot2
 License: MIT
 Encoding: UTF-8
 LazyData: true
