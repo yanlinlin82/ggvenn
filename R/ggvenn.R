@@ -40,8 +40,8 @@ ggvenn <- function(data, columns = NULL) {
     geom_polygon(aes(x = x, y = y, group = group, fill = NA), size = 1, color = "black") +
     scale_x_continuous(limits = c(-2, 2)) +
     scale_y_continuous(limits = c(-2, 2)) +
-    geom_text(data = venn$texts, aes(x = x, y = y, label = text)) +
-    geom_text(data = venn$labels, aes(x = x, y = y, label = text), size = 6) +
+    geom_text(data = venn$texts, aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust)) +
+    geom_text(data = venn$labels, aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust), size = 6) +
     scale_fill_manual(values = c("blue", "yellow", "green", "red")) +
     guides(fill = FALSE) +
     theme_void()
@@ -62,15 +62,15 @@ gen_circle_2 <- function() {
         gen_circle(2L, 2/3, 0, 1))
 }
 gen_text_pos_2 <- function() {
-  tribble(~name, ~x,   ~y, ~A,    ~B,
-          "A",   -0.8, 0,  TRUE,  FALSE,
-          "B",    0.8, 0,  FALSE, TRUE,
-          "AB",   0,   0,  TRUE,  TRUE)
+  tribble(~name, ~x,   ~y, ~hjust, ~vjust, ~A,    ~B,
+          "A",   -0.8, 0,  0.5,    0.5,    TRUE,  FALSE,
+          "B",    0.8, 0,  0.5,    0.5,    FALSE, TRUE,
+          "AB",   0,   0,  0.5,    0.5,    TRUE,  TRUE)
 }
 gen_label_pos_2 <- function() {
-  tribble(~name, ~x,   ~y,
-          "A",   -0.8, 1.2,
-          "B",    0.8, 1.2)
+  tribble(~name, ~x,   ~y,  ~hjust, ~vjust,
+          "A",   -0.8, 1.2, 0.5,    0,
+          "B",    0.8, 1.2, 0.5,    0)
 }
 
 gen_circle_3 <- function() {
@@ -79,20 +79,20 @@ gen_circle_3 <- function() {
         gen_circle(3L, 0, -(sqrt(3) + 2) / 6, 1))
 }
 gen_text_pos_3 <- function() {
-  tribble(~name, ~x,    ~y,   ~A,    ~B,    ~C,
-          "A",   -0.8,  0.62, TRUE,  FALSE, FALSE,
-          "B",    0.8,  0.62, FALSE, TRUE,  FALSE,
-          "C",    0,   -0.62, FALSE, FALSE, TRUE,
-          "AB",   0,    0.8,  TRUE,  TRUE,  FALSE,
-          "AC",  -0.5,  0,    TRUE,  FALSE, TRUE,
-          "BC",   0.5,  0,    FALSE, TRUE,  TRUE,
-          "ABC",  0,    0.2,  TRUE,  TRUE,  TRUE)
+  tribble(~name, ~x,    ~y,   ~hjust, ~vjust, ~A,    ~B,    ~C,
+          "A",   -0.8,  0.62, 0.5,    0.5,    TRUE,  FALSE, FALSE,
+          "B",    0.8,  0.62, 0.5,    0.5,    FALSE, TRUE,  FALSE,
+          "C",    0,   -0.62, 0.5,    0.5,    FALSE, FALSE, TRUE,
+          "AB",   0,    0.8,  0.5,    0.5,    TRUE,  TRUE,  FALSE,
+          "AC",  -0.5,  0,    0.5,    0.5,    TRUE,  FALSE, TRUE,
+          "BC",   0.5,  0,    0.5,    0.5,    FALSE, TRUE,  TRUE,
+          "ABC",  0,    0.2,  0.5,    0.5,    TRUE,  TRUE,  TRUE)
 }
 gen_label_pos_3 <- function() {
-  tribble(~name, ~x,    ~y,
-          "A",   -0.8,  1.8,
-          "B",    0.8,  1.8,
-          "C",    0,   -1.8)
+  tribble(~name, ~x,    ~y,  ~hjust, ~vjust,
+          "A",   -0.8,  1.8, 0.5,    0,
+          "B",    0.8,  1.8, 0.5,    0,
+          "C",    0,   -1.8, 0.5,    1)
 }
 
 gen_circle_4 <- function() {
@@ -102,29 +102,29 @@ gen_circle_4 <- function() {
         gen_circle(4L, .7, -1/2, .75, 1.5, -pi/4))
 }
 gen_text_pos_4 <- function() {
-  tribble(~name, ~x,    ~y,  ~A,   ~B,    ~C,    ~D,
-          "A",   -1.5,  0,   TRUE,  FALSE, FALSE, FALSE,
-          "B",   -0.6,  0.7, FALSE, TRUE,  FALSE, FALSE,
-          "C",    0.6,  0.7, FALSE, FALSE, TRUE,  FALSE,
-          "D",    1.5,  0,   FALSE, FALSE, FALSE, TRUE,
-          "AB",  -0.9,  0.3, TRUE,  TRUE,  FALSE, FALSE,
-          "BC",   0,    0.4, FALSE, TRUE,  TRUE,  FALSE,
-          "CD",   0.9,  0.3, FALSE, FALSE, TRUE,  TRUE,
-          "AC",  -0.8, -0.9, TRUE,  FALSE, TRUE,  FALSE,
-          "BD",   0.8, -0.9, FALSE, TRUE,  FALSE, TRUE,
-          "AD",   0,   -1.4, TRUE,  FALSE, FALSE, TRUE,
-          "ABC", -0.5, -0.2, TRUE,  TRUE,  TRUE,  FALSE,
-          "BCD",  0.5, -0.2, FALSE, TRUE,  TRUE,  TRUE,
-          "ACD", -0.3, -1.1, TRUE,  FALSE, TRUE,  TRUE,
-          "BCD",  0.3, -1.1, FALSE, TRUE,  TRUE,  TRUE,
-          "ABCD", 0,   -0.7, TRUE,  TRUE,  TRUE,  TRUE)
+  tribble(~name, ~x,    ~y,  ~hjust, ~vjust, ~A,   ~B,    ~C,    ~D,
+          "A",   -1.5,  0,   0.5,    0.5,    TRUE,  FALSE, FALSE, FALSE,
+          "B",   -0.6,  0.7, 0.5,    0.5,    FALSE, TRUE,  FALSE, FALSE,
+          "C",    0.6,  0.7, 0.5,    0.5,    FALSE, FALSE, TRUE,  FALSE,
+          "D",    1.5,  0,   0.5,    0.5,    FALSE, FALSE, FALSE, TRUE,
+          "AB",  -0.9,  0.3, 0.5,    0.5,    TRUE,  TRUE,  FALSE, FALSE,
+          "BC",   0,    0.4, 0.5,    0.5,    FALSE, TRUE,  TRUE,  FALSE,
+          "CD",   0.9,  0.3, 0.5,    0.5,    FALSE, FALSE, TRUE,  TRUE,
+          "AC",  -0.8, -0.9, 0.5,    0.5,    TRUE,  FALSE, TRUE,  FALSE,
+          "BD",   0.8, -0.9, 0.5,    0.5,    FALSE, TRUE,  FALSE, TRUE,
+          "AD",   0,   -1.4, 0.5,    0.5,    TRUE,  FALSE, FALSE, TRUE,
+          "ABC", -0.5, -0.2, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  FALSE,
+          "BCD",  0.5, -0.2, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
+          "ACD", -0.3, -1.1, 0.5,    0.5,    TRUE,  FALSE, TRUE,  TRUE,
+          "BCD",  0.3, -1.1, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
+          "ABCD", 0,   -0.7, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  TRUE)
 }
 gen_label_pos_4 <- function() {
-  tribble(~name, ~x,   ~y,
-          "A",   -1.5, -1.1,
-          "B",   -0.8,  1.2,
-          "C",    0.8,  1.2,
-          "D",    1.5, -1.1)
+  tribble(~name, ~x,   ~y,   ~hjust, ~vjust,
+          "A",   -1.5, -1.3, 1,      1,
+          "B",   -0.8,  1.2, 0.5,    0,
+          "C",    0.8,  1.2, 0.5,    0,
+          "D",    1.5, -1.3, 0,      1)
 }
 
 #' @rdname ggvenn
@@ -171,11 +171,11 @@ GeomVenn <- ggproto("GeomVenn", Geom,
           gp = gpar(col = d$color, fill = NA, lwd = d$size * .pt, lty = d$linetype)),
         textGrob(
           d1$text, d1$x, d1$y, default.units = "native",
-          hjust = 0.5, vjust = 0.5,
+          hjust = d1$hjust, vjust = d1$vjust,
           gp = gpar(col = "black")),
         textGrob(
           self$set_names, d2$x, d2$y, default.units = "native",
-          hjust = 0.5, vjust = 0.5,
+          hjust = d1$hjust, vjust = d2$vjust,
           gp = gpar(col = "black", fontsize = 6 * .pt))
       )
     )
