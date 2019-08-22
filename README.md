@@ -41,8 +41,14 @@ d %>% ggvenn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`))
 
 ## Screenshots
 
-![Venn 2](plots/venn-2.svg)
+<p align="center">
+  <img width="400" height="400" src="plots/venn-2.svg" alt="Venn 2">
+</p>
 
-![Venn 3](plots/venn-3.svg)
+<p align="center">
+  <img width="400" height="400" src="plots/venn-3.svg" alt="Venn 3">
+</p>
 
-![Venn 4](plots/venn-4.svg)
+<p align="center">
+  <img width="400" height="400" src="plots/venn-4.svg" alt="Venn 4">
+</p>
