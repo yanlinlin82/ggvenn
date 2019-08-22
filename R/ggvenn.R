@@ -132,10 +132,21 @@ gen_label_pos_4 <- function() {
 #' @export
 geom_venn <- function(mapping = NULL, data = NULL,
                       stat = "identity", position = "identity", ...) {
-  set_names <- gsub("[~`]", "", as.character(mapping))
-  layer(mapping = mapping, data = data,
+  l <- layer(mapping = mapping, data = data,
         geom = GeomVenn, stat = stat, position = position,
-        params = list(na.rm = TRUE, set_names = set_names, ...))
+        params = list(na.rm = TRUE, ...))
+  old_compute_aesthetics <- l$compute_aesthetics
+  l$compute_aesthetics <- function(self, data, plot) {
+    self$geom$set_names <- character()
+    for (name in names(plot$mapping)) {
+      self$geom$set_names[name] <- as_label(plot$mapping[[name]])
+    }
+    for (name in names(self$mapping)) {
+      self$geom$set_names[name] <- as_label(self$mapping[[name]])
+    }
+    old_compute_aesthetics(data, plot)
+  }
+  l
 }
 
 #' @rdname ggvenn
@@ -144,9 +155,8 @@ GeomVenn <- ggproto("GeomVenn", Geom,
   required_aes = c("A", "B"),
   optional_aes = c("C", "D"),
   default_aes = aes(color = "black", fill = NA, alpha = .8, size = 1, linetype = "solid"),
-  extra_params = c("na.rm", "set_names"),
+  extra_params = c("na.rm"),
   setup_data = function(self, data, params) {
-    self$set_names <- params$set_names
     data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
   },
   draw_panel = function(self, data, panel_params, coord, ...) {
