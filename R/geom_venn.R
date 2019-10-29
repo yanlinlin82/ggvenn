@@ -1,0 +1,143 @@
+#' Plot venn diagram as a ggplot layer object. It supports only data frame as input.
+#'
+#' @name geom_venn
+#' @inheritParams ggplot2::stat_identity
+#' @param data A data.frame or a list as input data.
+#' @param columns A character vector use as index to select columns/elements.
+#' @param set_names Set names, use column names if omitted.
+#' @param fill_color Filling colors in circles.
+#' @param fill_alpha Transparency for filling circles.
+#' @param stroke_color Stroke color for drawing circles.
+#' @param stroke_alpha Transparency for drawing circles.
+#' @param stroke_size Stroke size for drawing circles.
+#' @param stroke_linetype Line type for drawing circles.
+#' @param set_name_color Text color for set names.
+#' @param set_name_size Text size for set names.
+#' @param text_color Text color for intersect contents.
+#' @param text_size Text size for intersect contents.
+#' @return The ggplot object to print or save to file.
+#' @examples
+#' library(ggvenn)
+#'
+#' # use data.frame as input
+#' d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
+#'             `Set 1` = c(T, F, T, T, F, T, F, T, F,  F,  F),
+#'             `Set 2` = c(T, F, F, T, F, F, F, T, F,  F,  T),
+#'             `Set 3` = c(T, T, F, F, F, F, T, T, F,  F,  F),
+#'             `Set 4` = c(F, F, F, F, T, T, F, F, T,  T,  F))
+#'
+#' # ggplot gramma
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`)) +
+#'   coord_fixed() +
+#'   theme_void()
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) +
+#'   coord_fixed() +
+#' theme_void()
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
+#'   coord_fixed() +
+#'   theme_void()
+#'
+#' # set fill color
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`), fill_color = c("red", "blue")) +
+#'   coord_fixed() +
+#'   theme_void()
+#' @seealso ggvenn
+#' @export
+geom_venn <- function(mapping = NULL, data = NULL,
+                      stat = "identity", position = "identity",
+                      ...,
+                      set_names = NULL,
+                      fill_color = c("blue", "yellow", "green", "red"),
+                      fill_alpha = .5,
+                      stroke_color = "black",
+                      stroke_alpha = 1,
+                      stroke_size = 1,
+                      stroke_linetype = "solid",
+                      set_name_color = "black",
+                      set_name_size = 6,
+                      text_color = "black",
+                      text_size = 4) {
+  l <- layer(mapping = mapping, data = data,
+        geom = GeomVenn, stat = stat, position = position,
+        params = list(na.rm = TRUE, ...))
+  old_compute_aesthetics <- l$compute_aesthetics
+  l$compute_aesthetics <- function(self, data, plot) {
+    if (is.null(set_names)) {
+      self$geom$set_names <- character()
+      for (name in names(plot$mapping)) {
+        self$geom$set_names[name] <- as_label(plot$mapping[[name]])
+      }
+      for (name in names(self$mapping)) {
+        self$geom$set_names[name] <- as_label(self$mapping[[name]])
+      }
+    } else {
+      self$geom$set_names <- set_names
+    }
+    self$geom$customize_attributes <- list(fill_color = fill_color,
+                                           fill_alpha = fill_alpha,
+                                           stroke_color = stroke_color,
+                                           stroke_alpha = stroke_alpha,
+                                           stroke_size = stroke_size,
+                                           stroke_linetype = stroke_linetype,
+                                           set_name_color = set_name_color,
+                                           set_name_size = set_name_size,
+                                           text_color = text_color,
+                                           text_size = text_size)
+    old_compute_aesthetics(data, plot)
+  }
+  l
+}
+
+GeomVenn <- ggproto("GeomVenn", Geom,
+  required_aes = c("A", "B"),
+  optional_aes = c("C", "D"),
+  extra_params = c("na.rm"),
+  setup_data = function(self, data, params) {
+    data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
+  },
+  draw_panel = function(self, data, panel_params, coord, ...) {
+    attr <- self$customize_attributes
+    sets <- c("A", "B", "C", "D")
+    sets <- sets[sets %in% names(data)]
+    venn <- prepare_venn_data(data, sets)
+    d0 <- coord_munch(coord, venn$shapes, panel_params)
+    d <- d0 %>%
+      filter(!duplicated(group)) %>%
+      mutate(fill_color = attr$fill_color[group],
+             fill_alpha = attr$fill_alpha,
+             stroke_color = attr$stroke_color,
+             stroke_alpha = attr$stroke_alpha,
+             stroke_size = attr$stroke_size,
+             stroke_linetype = attr$stroke_linetype)
+    d1 <- coord_munch(coord, venn$labels, panel_params)
+    d2 <- coord_munch(coord, venn$texts, panel_params)
+    ggplot2:::ggname("geom_venn",
+      grobTree(
+        polygonGrob(
+          d0$x, d0$y, default.units = "native", id = d0$group,
+          gp = gpar(col = NA,
+                    fill = alpha(d$fill_color, d$fill_alpha))),
+        polygonGrob(
+          d0$x, d0$y, default.units = "native", id = d0$group,
+          gp = gpar(col = alpha(d$stroke_color, d$stroke_alpha),
+                    fill = NA,
+                    lwd = d$stroke_size * .pt,
+                    lty = d$stroke_linetype)),
+        textGrob(
+          self$set_names, d1$x, d1$y, default.units = "native",
+          hjust = d1$hjust, vjust = d1$vjust,
+          gp = gpar(col = attr$set_name_color,
+                    fontsize = attr$set_name_size * .pt)),
+        textGrob(
+          d2$text, d2$x, d2$y, default.units = "native",
+          hjust = d2$hjust, vjust = d2$vjust,
+          gp = gpar(col = attr$text_color,
+                    fontsize = attr$text_size * .pt))
+      )
+    )
+  }
+)

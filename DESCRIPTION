@@ -1,6 +1,6 @@
 Package: ggvenn
 Title: Venn Diagram by ggplot2
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
