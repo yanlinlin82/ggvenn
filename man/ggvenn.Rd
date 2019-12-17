@@ -4,11 +4,20 @@
 \alias{ggvenn}
 \title{Plot venn diagram as an independent function. It supports both data frame and list as input.}
 \usage{
-ggvenn(data, columns = NULL, fill_color = c("blue", "yellow", "green",
-  "red"), fill_alpha = 0.5, stroke_color = "black", stroke_alpha = 1,
-  stroke_size = 1, stroke_linetype = "solid",
-  set_name_color = "black", set_name_size = 6, text_color = "black",
-  text_size = 4)
+ggvenn(
+  data,
+  columns = NULL,
+  fill_color = c("blue", "yellow", "green", "red"),
+  fill_alpha = 0.5,
+  stroke_color = "black",
+  stroke_alpha = 1,
+  stroke_size = 1,
+  stroke_linetype = "solid",
+  set_name_color = "black",
+  set_name_size = 6,
+  text_color = "black",
+  text_size = 4
+)
 }
 \arguments{
 \item{data}{A data.frame or a list as input data.}

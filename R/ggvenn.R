@@ -148,7 +148,7 @@ gen_text_pos_4 <- function() {
           "ABC", -0.5, -0.2, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  FALSE,
           "BCD",  0.5, -0.2, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
           "ACD", -0.3, -1.1, 0.5,    0.5,    TRUE,  FALSE, TRUE,  TRUE,
-          "BCD",  0.3, -1.1, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
+          "ABD",  0.3, -1.1, 0.5,    0.5,    TRUE,  TRUE,  FALSE, TRUE,
           "ABCD", 0,   -0.7, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  TRUE)
 }
 gen_label_pos_4 <- function() {
@@ -165,39 +165,42 @@ prepare_venn_data <- function(data, columns = NULL) {
       columns = data %>% select_if(is.logical) %>% names
     }
     if (length(columns) == 2) {
-      stopifnot(is.logical(data[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[2]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       d <- gen_circle_2()
       d1 <- gen_text_pos_2() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], data[,columns[[1]]])) &
-                         (!xor(d1$B[[i]], data[,columns[[2]]])))
+        d1$n[[i]] <- sum((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                         (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
       }
       d2 <- gen_label_pos_2()
     } else if (length(columns) == 3) {
-      stopifnot(is.logical(data[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[2]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[3]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       d <- gen_circle_3()
       d1 <- gen_text_pos_3() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], data[,columns[[1]]])) &
-                         (!xor(d1$B[[i]], data[,columns[[2]]])) &
-                         (!xor(d1$C[[i]], data[,columns[[3]]])))
+        d1$n[[i]] <- sum((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                         (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
+                         (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
       }
       d2 <- gen_label_pos_3()
     } else if (length(columns) == 4) {
-      stopifnot(is.logical(data[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[2]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[3]], drop = TRUE]))
-      stopifnot(is.logical(data[,columns[[4]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
+      stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
       d <- gen_circle_4()
       d1 <- gen_text_pos_4() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], data[,columns[[1]]])) &
-                         (!xor(d1$B[[i]], data[,columns[[2]]])) &
-                         (!xor(d1$C[[i]], data[,columns[[3]]])) &
-                         (!xor(d1$D[[i]], data[,columns[[4]]])))
+        d1$n[[i]] <- sum((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
+                         (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
+                         (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
+                         (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
       }
       d2 <- gen_label_pos_4()
     } else {
@@ -212,6 +215,7 @@ prepare_venn_data <- function(data, columns = NULL) {
     if (length(columns) == 2) {
       d <- gen_circle_2()
       d1 <- gen_text_pos_2() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                          (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
@@ -220,6 +224,7 @@ prepare_venn_data <- function(data, columns = NULL) {
     } else if (length(columns) == 3) {
       d <- gen_circle_3()
       d1 <- gen_text_pos_3() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                          (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
@@ -229,6 +234,7 @@ prepare_venn_data <- function(data, columns = NULL) {
     } else if (length(columns) == 4) {
       d <- gen_circle_4()
       d1 <- gen_text_pos_4() %>% mutate(n = 0)
+      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                          (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
