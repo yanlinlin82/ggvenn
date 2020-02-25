@@ -3,6 +3,7 @@
 #' @name ggvenn
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
+#' @param show_elements Show set elements instead of count/percentage.
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -39,9 +40,13 @@
 #' # set fill color
 #' ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 #'
+#' # show elements instead of count/percentage
+#' ggvenn(a, show_elements = TRUE)
+#' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
 #' @export
 ggvenn <- function(data, columns = NULL,
+                   show_elements = FALSE,
                    fill_color = c("blue", "yellow", "green", "red"),
                    fill_alpha = .5,
                    stroke_color = "black",
@@ -52,7 +57,7 @@ ggvenn <- function(data, columns = NULL,
                    set_name_size = 6,
                    text_color = "black",
                    text_size = 4) {
-  venn <- prepare_venn_data(data, columns)
+  venn <- prepare_venn_data(data, columns, show_elements)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -159,20 +164,31 @@ gen_label_pos_4 <- function() {
           "D",    1.5, -1.3, 0,      1)
 }
 
-prepare_venn_data <- function(data, columns = NULL) {
+prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
+    }
+    if (!identical(show_elements, FALSE)) {
+      stopifnot(is.character(show_elements))
+      show_elements <- show_elements[[1]]
+      if (!(show_elements %in% names(data))) {
+        stop("`show_elements` should be one column name of the data frame")
+      }
     }
     if (length(columns) == 2) {
       stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       d <- gen_circle_2()
-      d1 <- gen_text_pos_2() %>% mutate(n = 0)
+      d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                         (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
+        idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
+        d1$n[[i]] <- sum(idx)
+        if (!identical(show_elements, FALSE)) {
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+        }
       }
       d2 <- gen_label_pos_2()
     } else if (length(columns) == 3) {
@@ -180,12 +196,16 @@ prepare_venn_data <- function(data, columns = NULL) {
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       d <- gen_circle_3()
-      d1 <- gen_text_pos_3() %>% mutate(n = 0)
+      d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                         (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
-                         (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
+        idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
+                (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
+        d1$n[[i]] <- sum(idx)
+        if (!identical(show_elements, FALSE)) {
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+        }
       }
       d2 <- gen_label_pos_3()
     } else if (length(columns) == 4) {
@@ -194,19 +214,24 @@ prepare_venn_data <- function(data, columns = NULL) {
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
       d <- gen_circle_4()
-      d1 <- gen_text_pos_4() %>% mutate(n = 0)
+      d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
-                         (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
-                         (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
-                         (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
+        idx <- ((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
+                (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
+                (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
+                (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
+        d1$n[[i]] <- sum(idx)
+        if (!identical(show_elements, FALSE)) {
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+        }
       }
       d2 <- gen_label_pos_4()
     } else {
       stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
     }
     d2 <- d2 %>% mutate(text = columns)
+    show_elements <- !identical(show_elements, FALSE)
   } else if (is.list(data)) {
     if (is.null(columns)) {
       columns <- names(data) %>% head(4)
@@ -214,32 +239,38 @@ prepare_venn_data <- function(data, columns = NULL) {
     a2 <- unique(unlist(data[columns]))
     if (length(columns) == 2) {
       d <- gen_circle_2()
-      d1 <- gen_text_pos_2() %>% mutate(n = 0)
+      d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                         (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
+        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
+        d1$n[[i]] <- sum(idx)
+        d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
       d2 <- gen_label_pos_2()
     } else if (length(columns) == 3) {
       d <- gen_circle_3()
-      d1 <- gen_text_pos_3() %>% mutate(n = 0)
+      d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                         (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                         (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
+        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
+        d1$n[[i]] <- sum(idx)
+        d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
       d2 <- gen_label_pos_3()
     } else if (length(columns) == 4) {
       d <- gen_circle_4()
-      d1 <- gen_text_pos_4() %>% mutate(n = 0)
+      d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
       stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
-        d1$n[[i]] <- sum((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                         (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                         (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
-                         (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
+        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
+                (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
+        d1$n[[i]] <- sum(idx)
+        d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
       d2 <- gen_label_pos_4()
     } else {
@@ -249,6 +280,8 @@ prepare_venn_data <- function(data, columns = NULL) {
   } else {
     stop("`data` should be a list")
   }
-  d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
+  if (!show_elements) {
+    d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
+  }
   list(shapes = d, texts = d1, labels = d2)
 }

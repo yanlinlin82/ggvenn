@@ -45,6 +45,12 @@
 #'   geom_venn(aes(A = `Set 1`, B = `Set 2`), fill_color = c("red", "blue")) +
 #'   coord_fixed() +
 #'   theme_void()
+#'
+#' # show elements instead of count/percentage
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`, label = value)) +
+#'   coord_fixed() +
+#'   theme_void()
 #' @seealso ggvenn
 #' @export
 geom_venn <- function(mapping = NULL, data = NULL,
@@ -94,7 +100,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
 
 GeomVenn <- ggproto("GeomVenn", Geom,
   required_aes = c("A", "B"),
-  optional_aes = c("C", "D"),
+  optional_aes = c("C", "D", "label"),
   extra_params = c("na.rm"),
   setup_data = function(self, data, params) {
     data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
@@ -103,7 +109,11 @@ GeomVenn <- ggproto("GeomVenn", Geom,
     attr <- self$customize_attributes
     sets <- c("A", "B", "C", "D")
     sets <- sets[sets %in% names(data)]
-    venn <- prepare_venn_data(data, sets)
+    show_elements <- NA
+    if ("label" %in% names(data)) {
+      show_elements <- "label"
+    }
+    venn <- prepare_venn_data(data, sets, show_elements)
     d0 <- coord_munch(coord, venn$shapes, panel_params)
     d <- d0 %>%
       filter(!duplicated(group)) %>%

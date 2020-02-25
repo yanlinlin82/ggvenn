@@ -98,6 +98,12 @@ ggplot(d) +
   geom_venn(aes(A = `Set 1`, B = `Set 2`), fill_color = c("red", "blue")) +
   coord_fixed() +
   theme_void()
+
+# show elements instead of count/percentage
+ggplot(d) +
+  geom_venn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`, label = value)) +
+  coord_fixed() +
+  theme_void()
 }
 \seealso{
 ggvenn

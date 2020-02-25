@@ -7,6 +7,7 @@
 ggvenn(
   data,
   columns = NULL,
+  show_elements = FALSE,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -23,6 +24,8 @@ ggvenn(
 \item{data}{A data.frame or a list as input data.}
 
 \item{columns}{A character vector use as index to select columns/elements.}
+
+\item{show_elements}{Show set elements instead of count/percentage.}
 
 \item{fill_color}{Filling colors in circles.}
 
@@ -75,6 +78,9 @@ ggvenn(d)
 # set fill color
 ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 
+# show elements instead of count/percentage
+ggvenn(a, show_elements = TRUE)
+ggvenn(d, show_elements = "value")
 }
 \seealso{
 geom_venn
