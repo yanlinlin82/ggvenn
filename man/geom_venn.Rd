@@ -74,10 +74,10 @@ library(ggvenn)
 
 # use data.frame as input
 d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-            `Set 1` = c(T, F, T, T, F, T, F, T, F,  F,  F),
-            `Set 2` = c(T, F, F, T, F, F, F, T, F,  F,  T),
-            `Set 3` = c(T, T, F, F, F, F, T, T, F,  F,  F),
-            `Set 4` = c(F, F, F, F, T, T, F, F, T,  T,  F))
+            `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
+            `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
+            `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
+            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
 
 # ggplot gramma
 ggplot(d) +
