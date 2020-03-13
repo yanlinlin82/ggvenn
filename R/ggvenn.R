@@ -4,6 +4,7 @@
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param show_elements Show set elements instead of count/percentage.
+#' @param value_type Display "count" data only or "both" counts and percentages
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -29,10 +30,10 @@
 #'
 #' # use data.frame as input
 #' d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-#'             `Set 1` = c(T, F, T, T, F, T, F, T, F,  F,  F),
-#'             `Set 2` = c(T, F, F, T, F, F, F, T, F,  F,  T),
-#'             `Set 3` = c(T, T, F, F, F, F, T, T, F,  F,  F),
-#'             `Set 4` = c(F, F, F, F, T, T, F, F, T,  T,  F))
+#'             `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
+#'             `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
+#'             `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
+#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
 #' ggvenn(d, c("Set 1", "Set 2"))
 #' ggvenn(d, c("Set 1", "Set 2", "Set 3"))
 #' ggvenn(d)
@@ -47,6 +48,7 @@
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
+                   value_type = "both",
                    fill_color = c("blue", "yellow", "green", "red"),
                    fill_alpha = .5,
                    stroke_color = "black",
@@ -57,7 +59,7 @@ ggvenn <- function(data, columns = NULL,
                    set_name_size = 6,
                    text_color = "black",
                    text_size = 4) {
-  venn <- prepare_venn_data(data, columns, show_elements)
+  venn <- prepare_venn_data(data, columns, show_elements, value_type)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -88,10 +90,10 @@ gen_circle <- function(group, x_offset = 0, y_offset = 0, radius = 1,
                        radius_b = radius, theta_offset = 0, length.out = 100) {
   tibble(group = group,
          theta = seq(0, 2 * pi, length.out = length.out)) %>%
-  mutate(x_raw = radius * cos(theta),
-         y_raw = radius_b * sin(theta),
-         x = x_offset + x_raw * cos(theta_offset) - y_raw * sin(theta_offset),
-         y = y_offset + x_raw * sin(theta_offset) + y_raw * cos(theta_offset))
+    mutate(x_raw = radius * cos(theta),
+           y_raw = radius_b * sin(theta),
+           x = x_offset + x_raw * cos(theta_offset) - y_raw * sin(theta_offset),
+           y = y_offset + x_raw * sin(theta_offset) + y_raw * cos(theta_offset))
 }
 
 gen_circle_2 <- function() {
@@ -164,7 +166,7 @@ gen_label_pos_4 <- function() {
           "D",    1.5, -1.3, 0,      1)
 }
 
-prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
+prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE, value_type = "both") {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -184,7 +186,7 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
+                  (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
@@ -200,8 +202,8 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
-                (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
+                  (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
+                  (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
@@ -218,9 +220,9 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
-                (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
-                (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
-                (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
+                  (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
+                  (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
+                  (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
@@ -243,7 +245,7 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
+                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
         d1$n[[i]] <- sum(idx)
         d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
@@ -254,8 +256,8 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
+                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                  (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
         d1$n[[i]] <- sum(idx)
         d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
@@ -266,9 +268,9 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
       stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
-                (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
+                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                  (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
+                  (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
         d1$n[[i]] <- sum(idx)
         d1$text[[i]] <- paste(a2[idx], collapse = ",")
       }
@@ -281,7 +283,17 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE) {
     stop("`data` should be a list")
   }
   if (!show_elements) {
-    d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
+    
+    if(value_type == "both"){
+      d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
+    }
+    if(value_type == "count"){
+      d1 <- d1 %>% mutate(text = sprintf("%d", n, 100 * n / sum(n)))
+    }
+    
+    
   }
+  
+  
   list(shapes = d, texts = d1, labels = d2)
 }
