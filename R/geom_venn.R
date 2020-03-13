@@ -5,6 +5,7 @@
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param set_names Set names, use column names if omitted.
+#' @param show_percentage Show percentage for each set.
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -20,11 +21,11 @@
 #' library(ggvenn)
 #'
 #' # use data.frame as input
-#' d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-#'             `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
-#'             `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
-#'             `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
-#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
+#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
+#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
+#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
+#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
+#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
 #'
 #' # ggplot gramma
 #' ggplot(d) +
@@ -46,6 +47,12 @@
 #'   coord_fixed() +
 #'   theme_void()
 #'
+#'#' # hide percentage
+#' ggplot(d) +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`), show_percentage = FALSE) +
+#'   coord_fixed() +
+#'   theme_void()
+#'
 #' # show elements instead of count/percentage
 #' ggplot(d) +
 #'   geom_venn(aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`, label = value)) +
@@ -57,6 +64,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
                       stat = "identity", position = "identity",
                       ...,
                       set_names = NULL,
+                      show_percentage = TRUE,
                       fill_color = c("blue", "yellow", "green", "red"),
                       fill_alpha = .5,
                       stroke_color = "black",
@@ -83,7 +91,8 @@ geom_venn <- function(mapping = NULL, data = NULL,
     } else {
       self$geom$set_names <- set_names
     }
-    self$geom$customize_attributes <- list(fill_color = fill_color,
+    self$geom$customize_attributes <- list(show_percentage = show_percentage,
+                                           fill_color = fill_color,
                                            fill_alpha = fill_alpha,
                                            stroke_color = stroke_color,
                                            stroke_alpha = stroke_alpha,
@@ -109,11 +118,12 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                       attr <- self$customize_attributes
                       sets <- c("A", "B", "C", "D")
                       sets <- sets[sets %in% names(data)]
-                      show_elements <- NA
+                      show_elements <- FALSE
                       if ("label" %in% names(data)) {
                         show_elements <- "label"
                       }
-                      venn <- prepare_venn_data(data, sets, show_elements)
+                      show_percentage <- attr$show_percentage
+                      venn <- prepare_venn_data(data, sets, show_elements, show_percentage)
                       d0 <- coord_munch(coord, venn$shapes, panel_params)
                       d <- d0 %>%
                         filter(!duplicated(group)) %>%

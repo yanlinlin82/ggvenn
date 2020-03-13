@@ -4,7 +4,7 @@
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param show_elements Show set elements instead of count/percentage.
-#' @param value_type Display "count" data only or "both" counts and percentages
+#' @param show_percentage Show percentage for each set.
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -29,17 +29,20 @@
 #' ggvenn(a)
 #'
 #' # use data.frame as input
-#' d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-#'             `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
-#'             `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
-#'             `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
-#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
+#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
+#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
+#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
+#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
+#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
 #' ggvenn(d, c("Set 1", "Set 2"))
 #' ggvenn(d, c("Set 1", "Set 2", "Set 3"))
 #' ggvenn(d)
 #'
 #' # set fill color
 #' ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
+#'
+#' # hide percentage
+#' ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
 #'
 #' # show elements instead of count/percentage
 #' ggvenn(a, show_elements = TRUE)
@@ -48,7 +51,7 @@
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
-                   value_type = "both",
+                   show_percentage = TRUE,
                    fill_color = c("blue", "yellow", "green", "red"),
                    fill_alpha = .5,
                    stroke_color = "black",
@@ -59,7 +62,7 @@ ggvenn <- function(data, columns = NULL,
                    set_name_size = 6,
                    text_color = "black",
                    text_size = 4) {
-  venn <- prepare_venn_data(data, columns, show_elements, value_type)
+  venn <- prepare_venn_data(data, columns, show_elements, show_percentage)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -166,7 +169,8 @@ gen_label_pos_4 <- function() {
           "D",    1.5, -1.3, 0,      1)
 }
 
-prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE, value_type = "both") {
+prepare_venn_data <- function(data, columns = NULL,
+                              show_elements = FALSE, show_percentage = TRUE) {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -283,17 +287,11 @@ prepare_venn_data <- function(data, columns = NULL, show_elements = FALSE, value
     stop("`data` should be a list")
   }
   if (!show_elements) {
-    
-    if(value_type == "both"){
+    if (show_percentage) {
       d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
-    }
-    if(value_type == "count"){
+    } else {
       d1 <- d1 %>% mutate(text = sprintf("%d", n, 100 * n / sum(n)))
     }
-    
-    
   }
-  
-  
   list(shapes = d, texts = d1, labels = d2)
 }

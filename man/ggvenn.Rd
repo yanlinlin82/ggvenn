@@ -8,7 +8,7 @@ ggvenn(
   data,
   columns = NULL,
   show_elements = FALSE,
-  value_type = "both",
+  show_percentage = TRUE,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -28,7 +28,7 @@ ggvenn(
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
-\item{value_type}{Display "count" data only or "both" counts and percentages}
+\item{show_percentage}{Show percentage for each set.}
 
 \item{fill_color}{Filling colors in circles.}
 
@@ -69,17 +69,20 @@ ggvenn(a, c("Set 1", "Set 2", "Set 3"))
 ggvenn(a)
 
 # use data.frame as input
-d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-            `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
-            `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
-            `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
-            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
+d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
+            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
+            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
+            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
+            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
 ggvenn(d, c("Set 1", "Set 2"))
 ggvenn(d, c("Set 1", "Set 2", "Set 3"))
 ggvenn(d)
 
 # set fill color
 ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
+
+# hide percentage
+ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
 
 # show elements instead of count/percentage
 ggvenn(a, show_elements = TRUE)

@@ -11,6 +11,7 @@ geom_venn(
   position = "identity",
   ...,
   set_names = NULL,
+  show_percentage = TRUE,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -40,6 +41,8 @@ often aesthetics, used to set an aesthetic to a fixed value, like
 to the paired geom/stat.}
 
 \item{set_names}{Set names, use column names if omitted.}
+
+\item{show_percentage}{Show percentage for each set.}
 
 \item{fill_color}{Filling colors in circles.}
 
@@ -73,11 +76,11 @@ Plot venn diagram as a ggplot layer object. It supports only data frame as input
 library(ggvenn)
 
 # use data.frame as input
-d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-            `Set 1` = c(TRUE, FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, FALSE,  FALSE,  FALSE),
-            `Set 2` = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE,  FALSE,  TRUE),
-            `Set 3` = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE,  FALSE,  FALSE),
-            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE,  TRUE,  FALSE))
+d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
+            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
+            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
+            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
+            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
 
 # ggplot gramma
 ggplot(d) +
@@ -96,6 +99,12 @@ ggplot(d) +
 # set fill color
 ggplot(d) +
   geom_venn(aes(A = `Set 1`, B = `Set 2`), fill_color = c("red", "blue")) +
+  coord_fixed() +
+  theme_void()
+
+#' # hide percentage
+ggplot(d) +
+  geom_venn(aes(A = `Set 1`, B = `Set 2`), show_percentage = FALSE) +
   coord_fixed() +
   theme_void()
 
