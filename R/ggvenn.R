@@ -48,6 +48,7 @@
 #' ggvenn(a, show_elements = TRUE)
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
+#' @importFrom dplyr count
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,

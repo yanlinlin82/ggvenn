@@ -2,3 +2,4 @@
 
 export(geom_venn)
 export(ggvenn)
+importFrom(dplyr,count)
