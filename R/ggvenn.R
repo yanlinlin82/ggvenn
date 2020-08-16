@@ -188,7 +188,7 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       d <- gen_circle_2()
       d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
                   (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
@@ -204,7 +204,7 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       d <- gen_circle_3()
       d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
                   (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
@@ -222,7 +222,7 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
       d <- gen_circle_4()
       d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C, D, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
                   (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
@@ -247,7 +247,7 @@ prepare_venn_data <- function(data, columns = NULL,
     if (length(columns) == 2) {
       d <- gen_circle_2()
       d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                   (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
@@ -258,7 +258,7 @@ prepare_venn_data <- function(data, columns = NULL,
     } else if (length(columns) == 3) {
       d <- gen_circle_3()
       d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                   (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
@@ -270,7 +270,7 @@ prepare_venn_data <- function(data, columns = NULL,
     } else if (length(columns) == 4) {
       d <- gen_circle_4()
       d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C, D, wt = 1) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                   (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
