@@ -12,6 +12,7 @@ geom_venn(
   ...,
   set_names = NULL,
   show_percentage = TRUE,
+  label_sep = ",",
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -43,6 +44,8 @@ to the paired geom/stat.}
 \item{set_names}{Set names, use column names if omitted.}
 
 \item{show_percentage}{Show percentage for each set.}
+
+\item{label_sep}{separator character for displaying elements.}
 
 \item{fill_color}{Filling colors in circles.}
 

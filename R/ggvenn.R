@@ -62,8 +62,9 @@ ggvenn <- function(data, columns = NULL,
                    set_name_color = "black",
                    set_name_size = 6,
                    text_color = "black",
-                   text_size = 4) {
-  venn <- prepare_venn_data(data, columns, show_elements, show_percentage)
+                   text_size = 4,
+                   label_sep = ",") {
+  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, label_sep)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -171,7 +172,8 @@ gen_label_pos_4 <- function() {
 }
 
 prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE, show_percentage = TRUE) {
+                              show_elements = FALSE, show_percentage = TRUE,
+                              label_sep = ",") {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -194,7 +196,7 @@ prepare_venn_data <- function(data, columns = NULL,
                   (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
       d2 <- gen_label_pos_2()
@@ -211,7 +213,7 @@ prepare_venn_data <- function(data, columns = NULL,
                   (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
       d2 <- gen_label_pos_3()
@@ -230,7 +232,7 @@ prepare_venn_data <- function(data, columns = NULL,
                   (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
         d1$n[[i]] <- sum(idx)
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = ",")
+          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
       d2 <- gen_label_pos_4()
@@ -252,7 +254,7 @@ prepare_venn_data <- function(data, columns = NULL,
         idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
                   (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
         d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = ",")
+        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
       d2 <- gen_label_pos_2()
     } else if (length(columns) == 3) {
@@ -264,7 +266,7 @@ prepare_venn_data <- function(data, columns = NULL,
                   (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
                   (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
         d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = ",")
+        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
       d2 <- gen_label_pos_3()
     } else if (length(columns) == 4) {
@@ -277,7 +279,7 @@ prepare_venn_data <- function(data, columns = NULL,
                   (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
                   (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
         d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = ",")
+        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
       d2 <- gen_label_pos_4()
     } else {

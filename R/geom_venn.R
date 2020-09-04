@@ -6,6 +6,7 @@
 #' @param columns A character vector use as index to select columns/elements.
 #' @param set_names Set names, use column names if omitted.
 #' @param show_percentage Show percentage for each set.
+#' @param label_sep separator character for displaying elements.
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -65,6 +66,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
                       ...,
                       set_names = NULL,
                       show_percentage = TRUE,
+                      label_sep = ",",
                       fill_color = c("blue", "yellow", "green", "red"),
                       fill_alpha = .5,
                       stroke_color = "black",
@@ -92,6 +94,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
       self$geom$set_names <- set_names
     }
     self$geom$customize_attributes <- list(show_percentage = show_percentage,
+                                           label_sep = label_sep,
                                            fill_color = fill_color,
                                            fill_alpha = fill_alpha,
                                            stroke_color = stroke_color,
@@ -123,7 +126,8 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                         show_elements <- "label"
                       }
                       show_percentage <- attr$show_percentage
-                      venn <- prepare_venn_data(data, sets, show_elements, show_percentage)
+                      label_sep <- attr$label_sep
+                      venn <- prepare_venn_data(data, sets, show_elements, show_percentage, label_sep)
                       d0 <- coord_munch(coord, venn$shapes, panel_params)
                       d <- d0 %>%
                         filter(!duplicated(group)) %>%

@@ -18,7 +18,8 @@ ggvenn(
   set_name_color = "black",
   set_name_size = 6,
   text_color = "black",
-  text_size = 4
+  text_size = 4,
+  label_sep = ","
 )
 }
 \arguments{
