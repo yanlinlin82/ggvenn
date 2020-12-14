@@ -9,6 +9,7 @@ ggvenn(
   columns = NULL,
   show_elements = FALSE,
   show_percentage = TRUE,
+  digits = 1,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -30,6 +31,8 @@ ggvenn(
 \item{show_elements}{Show set elements instead of count/percentage.}
 
 \item{show_percentage}{Show percentage for each set.}
+
+\item{digits}{The desired number of digits after the decimal point}
 
 \item{fill_color}{Filling colors in circles.}
 
@@ -84,6 +87,9 @@ ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 
 # hide percentage
 ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
+
+# change precision of percentages
+ggvenn(d, c("Set 1", "Set 2"), digits = 2)
 
 # show elements instead of count/percentage
 ggvenn(a, show_elements = TRUE)

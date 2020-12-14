@@ -12,6 +12,7 @@ geom_venn(
   ...,
   set_names = NULL,
   show_percentage = TRUE,
+  digits = 1,
   label_sep = ",",
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
@@ -44,6 +45,8 @@ to the paired geom/stat.}
 \item{set_names}{Set names, use column names if omitted.}
 
 \item{show_percentage}{Show percentage for each set.}
+
+\item{digits}{The desired number of digits after the decimal point}
 
 \item{label_sep}{separator character for displaying elements.}
 
@@ -105,9 +108,15 @@ ggplot(d) +
   coord_fixed() +
   theme_void()
 
-#' # hide percentage
+# hide percentage
 ggplot(d) +
   geom_venn(aes(A = `Set 1`, B = `Set 2`), show_percentage = FALSE) +
+  coord_fixed() +
+  theme_void()
+
+# change precision of percentages
+ggplot(d) +
+  geom_venn(aes(A = `Set 1`, B = `Set 2`), digits = 2) +
   coord_fixed() +
   theme_void()
 

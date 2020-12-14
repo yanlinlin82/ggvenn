@@ -5,6 +5,7 @@
 #' @param columns A character vector use as index to select columns/elements.
 #' @param show_elements Show set elements instead of count/percentage.
 #' @param show_percentage Show percentage for each set.
+#' @param digits The desired number of digits after the decimal point
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -44,6 +45,9 @@
 #' # hide percentage
 #' ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
 #'
+#' # change precision of percentages
+#' ggvenn(d, c("Set 1", "Set 2"), digits = 2)
+#'
 #' # show elements instead of count/percentage
 #' ggvenn(a, show_elements = TRUE)
 #' ggvenn(d, show_elements = "value")
@@ -53,6 +57,7 @@
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
                    show_percentage = TRUE,
+                   digits = 1,
                    fill_color = c("blue", "yellow", "green", "red"),
                    fill_alpha = .5,
                    stroke_color = "black",
@@ -64,7 +69,7 @@ ggvenn <- function(data, columns = NULL,
                    text_color = "black",
                    text_size = 4,
                    label_sep = ",") {
-  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, label_sep)
+  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits, label_sep)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -172,7 +177,7 @@ gen_label_pos_4 <- function() {
 }
 
 prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE, show_percentage = TRUE,
+                              show_elements = FALSE, show_percentage = TRUE, digits = 1,
                               label_sep = ",") {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
@@ -291,7 +296,8 @@ prepare_venn_data <- function(data, columns = NULL,
   }
   if (!show_elements) {
     if (show_percentage) {
-      d1 <- d1 %>% mutate(text = sprintf("%d\n(%.1f%%)", n, 100 * n / sum(n)))
+      fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
+      d1 <- d1 %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
     } else {
       d1 <- d1 %>% mutate(text = sprintf("%d", n, 100 * n / sum(n)))
     }
