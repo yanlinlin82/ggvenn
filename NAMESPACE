@@ -2,4 +2,7 @@
 
 export(geom_venn)
 export(ggvenn)
+importFrom(dplyr,"%>%")
+importFrom(dplyr,as_tibble)
 importFrom(dplyr,count)
+importFrom(dplyr,select_if)

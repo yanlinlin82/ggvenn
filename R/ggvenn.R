@@ -53,6 +53,9 @@
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
 #' @importFrom dplyr count
+#' @importFrom dplyr select_if
+#' @importFrom dplyr %>%
+#' @importFrom dplyr as_tibble
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
