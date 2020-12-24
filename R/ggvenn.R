@@ -52,10 +52,8 @@
 #' ggvenn(a, show_elements = TRUE)
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
-#' @importFrom dplyr count
-#' @importFrom dplyr select_if
-#' @importFrom dplyr %>%
-#' @importFrom dplyr as_tibble
+#' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count
+#' @importFrom ggplot2 ggplot aes geom_polygon geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
