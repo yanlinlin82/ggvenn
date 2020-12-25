@@ -5,7 +5,9 @@ Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
                   comment = c(ORCID = "0000-0002-4990-6239"))
-Description: Plot pretty venn diagram based on ggplot2.
+Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
+Maintainer: Linlin Yan <yanlinlin82@gmail.com>
+Description: Venn Diagram by ggplot2, with really easy-to-use API.
 Depends: dplyr, grid, ggplot2
 License: MIT
 Encoding: UTF-8
