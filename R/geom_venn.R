@@ -2,8 +2,9 @@
 #'
 #' @name geom_venn
 #' @inheritParams ggplot2::stat_identity
+#' @param stat The statistical transformation to use on the data for this layer, as a string.
+
 #' @param data A data.frame or a list as input data.
-#' @param columns A character vector use as index to select columns/elements.
 #' @param set_names Set names, use column names if omitted.
 #' @param show_percentage Show percentage for each set.
 #' @param digits The desired number of digits after the decimal point
@@ -23,11 +24,11 @@
 #' library(ggvenn)
 #'
 #' # use data.frame as input
-#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
-#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
-#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
-#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
-#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
+#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
+#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
+#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
+#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
 #'
 #' # ggplot gramma
 #' ggplot(d) +
@@ -67,6 +68,7 @@
 #'   coord_fixed() +
 #'   theme_void()
 #' @seealso ggvenn
+#' @importFrom dplyr as_label
 #' @export
 geom_venn <- function(mapping = NULL, data = NULL,
                       stat = "identity", position = "identity",
@@ -119,6 +121,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
   l
 }
 
+#' @importFrom grid grobTree polygonGrob textGrob gpar
 GeomVenn <- ggproto("GeomVenn", Geom,
                     required_aes = c("A", "B"),
                     optional_aes = c("C", "D", "label"),

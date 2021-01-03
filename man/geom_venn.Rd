@@ -34,6 +34,8 @@ plot. You must supply \code{mapping} if there is no plot mapping.}
 
 \item{data}{A data.frame or a list as input data.}
 
+\item{stat}{The statistical transformation to use on the data for this layer, as a string.}
+
 \item{position}{Position adjustment, either as a string, or the result of
 a call to a position adjustment function.}
 
@@ -69,8 +71,6 @@ to the paired geom/stat.}
 \item{text_color}{Text color for intersect contents.}
 
 \item{text_size}{Text size for intersect contents.}
-
-\item{columns}{A character vector use as index to select columns/elements.}
 }
 \value{
 The ggplot object to print or save to file.
@@ -82,11 +82,11 @@ Plot venn diagram as a ggplot layer object. It supports only data frame as input
 library(ggvenn)
 
 # use data.frame as input
-d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
-            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
-            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
-            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
-            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
+d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
+            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
+            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
+            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
 
 # ggplot gramma
 ggplot(d) +

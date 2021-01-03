@@ -16,25 +16,26 @@
 #' @param set_name_size Text size for set names.
 #' @param text_color Text color for intersect contents.
 #' @param text_size Text size for intersect contents.
+#' @param label_sep separator character for displaying elements.
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
 #'
 #' # use list as input
-#' a <- list(`Set 1` = c(1, 3, 5, 7, 9),
-#'           `Set 2` = c(1, 5, 9, 13),
-#'           `Set 3` = c(1, 2, 8, 9),
-#'           `Set 4` = c(6, 7, 10, 12))
+#' a <- list(`Set 1` = c(1, 3, 5, 7),
+#'           `Set 2` = c(1, 5, 9),
+#'           `Set 3` = c(1, 2, 8),
+#'           `Set 4` = c(6, 7))
 #' ggvenn(a, c("Set 1", "Set 2"))
 #' ggvenn(a, c("Set 1", "Set 2", "Set 3"))
 #' ggvenn(a)
 #'
 #' # use data.frame as input
-#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9,     10,    12,    13),
-#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE,  FALSE, FALSE, FALSE),
-#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE,  FALSE, FALSE, TRUE),
-#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, FALSE),
-#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE, TRUE,  TRUE,  FALSE))
+#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+#'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
+#'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
+#'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
+#'             `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
 #' ggvenn(d, c("Set 1", "Set 2"))
 #' ggvenn(d, c("Set 1", "Set 2", "Set 3"))
 #' ggvenn(d)
@@ -53,7 +54,7 @@
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
 #' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count
-#' @importFrom ggplot2 ggplot aes geom_polygon geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void
+#' @importFrom ggplot2 ggplot aes geom_polygon geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
