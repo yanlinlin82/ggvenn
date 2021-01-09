@@ -1,13 +1,13 @@
 Package: ggvenn
-Title: Venn Diagram by ggplot2
-Version: 0.1.7
+Title: Draw Venn Diagram by 'ggplot2'
+Version: 0.1.8
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
                   comment = c(ORCID = "0000-0002-4990-6239"))
 Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
 Maintainer: Linlin Yan <yanlinlin82@gmail.com>
-Description: Venn Diagram by ggplot2, with really easy-to-use API.
+Description: An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
 Depends: dplyr, grid, ggplot2
 License: MIT + file LICENSE
 Encoding: UTF-8
