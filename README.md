@@ -40,7 +40,7 @@ ggvenn(d, c("Set 1", "Set 2", "Set 3"))  # draw three-set venn
 ggvenn(d)   # without set names, the first 4 logical column in data.frame will be chose to draw four-set venn
 ```
 
-For `data.frame` data, there is also another way to plot in ggplot gramma:
+For `data.frame` data, there is also another way to plot in ggplot grammar:
 
 ```{r}
 # draw two-set venn (use A, B in aes)
@@ -79,7 +79,7 @@ There are more options for customizing the venn diagram.
     
     * `stroke_color` - default is "black"
     * `stroke_alpha` - default is 1
-    * `stroke_alpha` - default is 1
+    * `stroke_size` - default is 1
     * `stroke_linetype` - default is "solid"
 
     For set name:
