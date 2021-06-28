@@ -77,7 +77,8 @@ ggvenn <- function(data, columns = NULL,
     ggplot() +
     geom_polygon(aes(x = x, y = y, group = group, fill = group),
                  alpha = fill_alpha) +
-    geom_polygon(aes(x = x, y = y, group = group, fill = NA),
+    geom_polygon(aes(x = x, y = y, group = group),
+                 fill = NA,
                  color = stroke_color,
                  size = stroke_size,
                  alpha = stroke_alpha,
@@ -93,7 +94,7 @@ ggvenn <- function(data, columns = NULL,
     scale_x_continuous(limits = c(-2, 2)) +
     scale_y_continuous(limits = c(-2, 2)) +
     scale_fill_manual(values = fill_color) +
-    guides(fill = FALSE) +
+    guides(fill = "none") +
     coord_fixed() +
     theme_void()
 }
