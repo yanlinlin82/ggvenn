@@ -302,7 +302,7 @@ prepare_venn_data <- function(data, columns = NULL,
       fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
       d1 <- d1 %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
     } else {
-      d1 <- d1 %>% mutate(text = sprintf("%d", n, 100 * n / sum(n)))
+      d1 <- d1 %>% mutate(text = sprintf("%d", n))
     }
   }
   list(shapes = d, texts = d1, labels = d2)
