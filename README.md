@@ -5,8 +5,14 @@ Venn Diagram by ggplot2, with really easy-to-use API. This package is inspired b
 ## Installation
 
 ```{r}
+install.packages("ggvenn") # install via CRAN
+```
+
+or
+
+```{r}
 if (!require(devtools)) install.packages("devtools")
-devtools::install_github("yanlinlin82/ggvenn")
+devtools::install_github("yanlinlin82/ggvenn") # install via GitHub (for latest version)
 ```
 
 ## Quick Start
@@ -30,11 +36,11 @@ ggvenn(a)   # without set names, the first 4 elements in list will be chose to d
 For `data.frame` data (each logical column is a set):
 
 ```{r}
-d <- tibble(value   = c(1, 2, 3, 5, 6, 7, 8, 9, 10, 12, 13),
-            `Set 1` = c(T, F, T, T, F, T, F, T, F,  F,  F),
-            `Set 2` = c(T, F, F, T, F, F, F, T, F,  F,  T),
-            `Set 3` = c(T, T, F, F, F, F, T, T, F,  F,  F),
-            `Set 4` = c(F, F, F, F, T, T, F, F, T,  T,  F))
+d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
+            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
+            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
+            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
 ggvenn(d, c("Set 1", "Set 2"))           # draw two-set venn
 ggvenn(d, c("Set 1", "Set 2", "Set 3"))  # draw three-set venn
 ggvenn(d)   # without set names, the first 4 logical column in data.frame will be chose to draw four-set venn
