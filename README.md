@@ -2,6 +2,14 @@
 
 Venn Diagram by ggplot2, with really easy-to-use API. This package is inspired by [Venny](http://bioinfogp.cnb.csic.es/tools/venny/index.html)
 
+## Screenshots
+
+<table width="100%"><tr>
+<td><img width="300" height="300" src="plots/venn-2.svg" alt="Venn 2"></td>
+<td><img width="300" height="300" src="plots/venn-3.svg" alt="Venn 3"></td>
+<td><img width="300" height="300" src="plots/venn-4.svg" alt="Venn 4"></td>
+</tr></table>
+
 ## Installation
 
 ```{r}
@@ -61,14 +69,6 @@ ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) +
 ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
   geom_venn() + theme_void() + coord_fixed()
 ```
-
-## Screenshots
-
-<table><tr>
-<td><img width="400" height="400" src="plots/venn-2.svg" alt="Venn 2"></td>
-<td><img width="400" height="400" src="plots/venn-3.svg" alt="Venn 3"></td>
-<td><img width="400" height="400" src="plots/venn-4.svg" alt="Venn 4"></td>
-</tr></table>
 
 ## More Options
 
@@ -145,3 +145,17 @@ There are more options for customizing the venn diagram.
     a <- list(A = 1:5, B = 1:2)
     ggvenn(a, digits = 2)
     ```
+
+## Data Format
+
+The `ggvenn` support two types of input data: list and data.frame. Two functions (`data_frame_to_list()` and `list_to_data_frame()`) can convert data between the two types.
+
+```r
+a <- list(A = 1:5, B = 4:6)
+d <- tibble(key = 1:6,
+            A = c(rep(TRUE, 5), FALSE),
+            B = rep(c(FALSE, TRUE), each = 3))
+
+identical(a, data_frame_to_list(d))  # TRUE
+identical(d, list_to_data_frame(a))  # TRUE
+```
