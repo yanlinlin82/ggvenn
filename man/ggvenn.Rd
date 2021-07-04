@@ -20,7 +20,9 @@ ggvenn(
   set_name_size = 6,
   text_color = "black",
   text_size = 4,
-  label_sep = ","
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always")
 )
 }
 \arguments{
@@ -54,7 +56,11 @@ ggvenn(
 
 \item{text_size}{Text size for intersect contents.}
 
-\item{label_sep}{separator character for displaying elements.}
+\item{label_sep}{Separator character for displaying elements.}
+
+\item{count_column}{Specify column for element repeat count.}
+
+\item{show_outside}{Show outside elements (not belongs to any set).}
 }
 \value{
 The ggplot object to print or save to file.

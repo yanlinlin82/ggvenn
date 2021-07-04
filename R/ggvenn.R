@@ -16,7 +16,9 @@
 #' @param set_name_size Text size for set names.
 #' @param text_color Text color for intersect contents.
 #' @param text_size Text size for intersect contents.
-#' @param label_sep separator character for displaying elements.
+#' @param label_sep Separator character for displaying elements.
+#' @param count_column Specify column for element repeat count.
+#' @param show_outside Show outside elements (not belongs to any set).
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
@@ -70,8 +72,12 @@ ggvenn <- function(data, columns = NULL,
                    set_name_size = 6,
                    text_color = "black",
                    text_size = 4,
-                   label_sep = ",") {
-  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits, label_sep)
+                   label_sep = ",",
+                   count_column = NULL,
+                   show_outside = c("auto", "none", "always")) {
+  show_outside <- match.arg(show_outside)
+  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits,
+                            label_sep, count_column = count_column, show_outside)
   venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -114,10 +120,11 @@ gen_circle_2 <- function() {
         gen_circle(2L, 2/3, 0, 1))
 }
 gen_text_pos_2 <- function() {
-  tribble(~name, ~x,   ~y, ~hjust, ~vjust, ~A,    ~B,
-          "A",   -0.8, 0,  0.5,    0.5,    TRUE,  FALSE,
-          "B",    0.8, 0,  0.5,    0.5,    FALSE, TRUE,
-          "AB",   0,   0,  0.5,    0.5,    TRUE,  TRUE)
+  tribble(~name, ~x,    ~y,  ~hjust, ~vjust, ~A,    ~B,
+          "A",   -0.8,  0,   0.5,    0.5,    TRUE,  FALSE,
+          "B",    0.8,  0,   0.5,    0.5,    FALSE, TRUE,
+          "AB",   0,    0,   0.5,    0.5,    TRUE,  TRUE,
+          "-",    0,   -1.2, 0.5,    0.5,    FALSE, FALSE)
 }
 gen_label_pos_2 <- function() {
   tribble(~name, ~x,   ~y,  ~hjust, ~vjust,
@@ -138,7 +145,8 @@ gen_text_pos_3 <- function() {
           "AB",   0,    0.8,  0.5,    0.5,    TRUE,  TRUE,  FALSE,
           "AC",  -0.5,  0,    0.5,    0.5,    TRUE,  FALSE, TRUE,
           "BC",   0.5,  0,    0.5,    0.5,    FALSE, TRUE,  TRUE,
-          "ABC",  0,    0.2,  0.5,    0.5,    TRUE,  TRUE,  TRUE)
+          "ABC",  0,    0.2,  0.5,    0.5,    TRUE,  TRUE,  TRUE,
+          "-",    1.2, -0.8,  0,      0.5,    FALSE, FALSE, FALSE)
 }
 gen_label_pos_3 <- function() {
   tribble(~name, ~x,    ~y,  ~hjust, ~vjust,
@@ -169,7 +177,8 @@ gen_text_pos_4 <- function() {
           "BCD",  0.5, -0.2, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
           "ACD", -0.3, -1.1, 0.5,    0.5,    TRUE,  FALSE, TRUE,  TRUE,
           "ABD",  0.3, -1.1, 0.5,    0.5,    TRUE,  TRUE,  FALSE, TRUE,
-          "ABCD", 0,   -0.7, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  TRUE)
+          "ABCD", 0,   -0.7, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  TRUE,
+          "-",    0,   -1.9, 0.5,    0.5,    FALSE, FALSE, FALSE, FALSE)
 }
 gen_label_pos_4 <- function() {
   tribble(~name, ~x,   ~y,   ~hjust, ~vjust,
@@ -181,7 +190,7 @@ gen_label_pos_4 <- function() {
 
 prepare_venn_data <- function(data, columns = NULL,
                               show_elements = FALSE, show_percentage = TRUE, digits = 1,
-                              label_sep = ",") {
+                              label_sep = ",", count_column = NULL, show_outside = "auto") {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -198,11 +207,15 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       d <- gen_circle_2()
       d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, wt = 1) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
                   (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
-        d1$n[[i]] <- sum(idx)
+        if (is.null(count_column)) {
+          d1$n[[i]] <- sum(idx)
+        } else {
+          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+        }
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
@@ -214,12 +227,16 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       d <- gen_circle_3()
       d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, wt = 1) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
                   (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
                   (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
-        d1$n[[i]] <- sum(idx)
+        if (is.null(count_column)) {
+          d1$n[[i]] <- sum(idx)
+        } else {
+          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+        }
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
@@ -232,13 +249,17 @@ prepare_venn_data <- function(data, columns = NULL,
       stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
       d <- gen_circle_4()
       d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, D, wt = 1) %>% with(n)) == 1)
+      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
       for (i in 1:nrow(d1)) {
         idx <- ((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
                   (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
                   (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
                   (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
-        d1$n[[i]] <- sum(idx)
+        if (is.null(count_column)) {
+          d1$n[[i]] <- sum(idx)
+        } else {
+          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+        }
         if (!identical(show_elements, FALSE)) {
           d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
@@ -295,7 +316,12 @@ prepare_venn_data <- function(data, columns = NULL,
     }
     d2 <- d2 %>% mutate(text = columns)
   } else {
-    stop("`data` should be a list")
+    stop("`data` should be either a list or a data.frame")
+  }
+  if ((show_outside == "none") || (show_outside == "auto" & d1$n[[nrow(d1)]] == 0)) {
+    if (d1$n[[nrow(d1)]] > 0)
+      message("Although not display in plot, outside elements are still count in percentages.")
+    d1 <- d1[-nrow(d1), ]
   }
   if (!show_elements) {
     if (show_percentage) {
