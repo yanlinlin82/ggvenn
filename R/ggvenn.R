@@ -196,10 +196,10 @@ prepare_venn_data <- function(data, columns = NULL,
       columns = data %>% select_if(is.logical) %>% names
     }
     if (!identical(show_elements, FALSE)) {
-      stopifnot(is.character(show_elements))
-      show_elements <- show_elements[[1]]
-      if (!(show_elements %in% names(data))) {
-        stop("`show_elements` should be one column name of the data frame")
+      if (!all(show_elements %in% names(data), is.character(show_elements))) {
+        stop("Value ", deparse(show_elements), 
+             " in `show_elements` does not correspond to any column name of the data frame.",
+             call. = FALSE)
       }
     }
     if (length(columns) == 2) {
