@@ -74,11 +74,12 @@ ggvenn <- function(data, columns = NULL,
                    text_size = 4,
                    label_sep = ",",
                    count_column = NULL,
-                   show_outside = c("auto", "none", "always")) {
+                   show_outside = c("auto", "none", "always"),
+                   auto_scale = FALSE) {
   show_outside <- match.arg(show_outside)
   venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits,
-                            label_sep, count_column = count_column, show_outside)
-  venn$shapes %>%
+                            label_sep, count_column, show_outside, auto_scale)
+  g <- venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
     geom_polygon(aes(x = x, y = y, group = group, fill = group),
@@ -88,21 +89,78 @@ ggvenn <- function(data, columns = NULL,
                  color = stroke_color,
                  size = stroke_size,
                  alpha = stroke_alpha,
-                 linetype = stroke_linetype) +
-    geom_text(data = venn$labels,
-              aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-              color = set_name_color,
-              size = set_name_size) +
-    geom_text(data = venn$texts,
-              aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-              color = text_color,
-              size = text_size) +
-    scale_x_continuous(limits = c(-2, 2)) +
-    scale_y_continuous(limits = c(-2, 2)) +
+                 linetype = stroke_linetype)
+  if (nrow(venn$labels) > 0) {
+    g <- g +
+      geom_text(data = venn$labels,
+                aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
+                color = set_name_color,
+                size = set_name_size)
+  }
+  if (nrow(venn$texts) > 0) {
+    g <- g +
+      geom_text(data = venn$texts,
+                aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
+                color = text_color,
+                size = text_size)
+  }
+  if (nrow(venn$segs) > 0) {
+    g <- g +
+      geom_segment(data = venn$segs,
+                   aes(x = x, y = y, xend = xend, yend = yend),
+                   color = text_color,
+                   size = 0.5)
+  }
+  g <- g +
     scale_fill_manual(values = fill_color) +
     guides(fill = "none") +
     coord_fixed() +
     theme_void()
+  return(g)
+}
+
+gen_element_df_2 <- function() {
+  df <- tribble(~name, ~A,    ~B,
+                "A",   TRUE,  FALSE,
+                "B",   FALSE, TRUE,
+                "AB",  TRUE,  TRUE,
+                "-",   FALSE, FALSE)
+  stopifnot(all((df %>% count(A, B) %>% with(n)) == 1))
+  return(df %>% mutate(n = 0, text = ""))
+}
+gen_element_df_3 <- function() {
+  df <- tribble(~name, ~A,    ~B,    ~C,
+                "A",   TRUE,  FALSE, FALSE,
+                "B",   FALSE, TRUE,  FALSE,
+                "C",   FALSE, FALSE, TRUE,
+                "AB",  TRUE,  TRUE,  FALSE,
+                "AC",  TRUE,  FALSE, TRUE,
+                "BC",  FALSE, TRUE,  TRUE,
+                "ABC", TRUE,  TRUE,  TRUE,
+                "-",   FALSE, FALSE, FALSE)
+  stopifnot(all((df %>% count(A, B, C) %>% with(n)) == 1))
+  return(df %>% mutate(n = 0, text = ""))
+}
+gen_element_df_4 <- function() {
+  df <- tribble(~name, ~A,    ~B,    ~C,    ~D,
+                "A",   TRUE,  FALSE, FALSE, FALSE,
+                "B",   FALSE, TRUE,  FALSE, FALSE,
+                "C",   FALSE, FALSE, TRUE,  FALSE,
+                "D",   FALSE, FALSE, FALSE, TRUE,
+                "AB",  TRUE,  TRUE,  FALSE, FALSE,
+                "BC",  FALSE, TRUE,  TRUE,  FALSE,
+                "CD",  FALSE, FALSE, TRUE,  TRUE,
+                "AC",  TRUE,  FALSE, TRUE,  FALSE,
+                "BD",  FALSE, TRUE,  FALSE, TRUE,
+                "AD",  TRUE,  FALSE, FALSE, TRUE,
+                "ABC", TRUE,  TRUE,  TRUE,  FALSE,
+                "BCD", FALSE, TRUE,  TRUE,  TRUE,
+                "ACD", TRUE,  FALSE, TRUE,  TRUE,
+                "ABD", TRUE,  TRUE,  FALSE, TRUE,
+                "ABCD",TRUE,  TRUE,  TRUE,  TRUE,
+                "-",   FALSE, FALSE, FALSE, FALSE)
+  stopifnot(all((df %>% count(A, B, C, D) %>% with(n)) == 1))
+  return(df %>% mutate(n = 0, text = ""))
 }
 
 gen_circle <- function(group, x_offset = 0, y_offset = 0, radius = 1,
@@ -115,21 +173,141 @@ gen_circle <- function(group, x_offset = 0, y_offset = 0, radius = 1,
            y = y_offset + x_raw * sin(theta_offset) + y_raw * cos(theta_offset))
 }
 
-gen_circle_2 <- function() {
-  rbind(gen_circle(1L, -2/3, 0, 1),
-        gen_circle(2L, 2/3, 0, 1))
+calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
+  if (auto_scale) {
+    stopifnot(length(n_sets) == 4)
+    if (n_sets[[1]] == 0 && n_sets[[2]] == 0 && n_sets[[3]] == 0) { # both sets are empty
+      a_radius <- 1
+      b_radius <- 1
+      overlap_size <- -0.2
+    } else if (n_sets[[1]] + n_sets[[3]] == 0) { # set A is empty
+      a_radius <- 1 / max_scale_diff
+      b_radius <- 1
+      overlap_size <- -0.2
+    } else if (n_sets[[2]] + n_sets[[3]] == 0) { # set B is empty
+      a_radius <- 1
+      b_radius <- 1 / max_scale_diff
+      overlap_size <- -0.2
+    } else if (n_sets[[1]] >= n_sets[[2]]) { # set A is larger than or equal to set B
+      a_radius <- 1
+      b_radius <- (n_sets[[2]] + n_sets[[3]]) / (n_sets[[1]] + n_sets[[3]])
+      overlap_size <- ifelse(n_sets[[3]] == 0, -0.2, n_sets[[3]] / (n_sets[[1]] + n_sets[[3]]))
+      if (b_radius < 1 / max_scale_diff) {
+        b_radius <- 1 / max_scale_diff
+        if (overlap_size > 0) {
+          overlap_size <- b_radius * (n_sets[[3]] / (n_sets[[2]] + n_sets[[3]]))
+        }
+      }
+    } else { # set A is smaller than set B
+      a_radius <- (n_sets[[1]] + n_sets[[3]]) / (n_sets[[2]] + n_sets[[3]])
+      b_radius <- 1
+      overlap_size <- ifelse(n_sets[[3]] == 0, -0.2, n_sets[[3]] / (n_sets[[2]] + n_sets[[3]]))
+      if (a_radius < 1 / max_scale_diff) {
+        a_radius <- 1 / max_scale_diff
+        if (overlap_size > 0) {
+          overlap_size <- a_radius * (n_sets[[3]] / (n_sets[[1]] + n_sets[[3]]))
+        }
+      }
+    }
+  } else {
+    a_radius = 1
+    b_radius = 1
+    overlap_size = 1/3
+  }
+  return(c(auto_scale = auto_scale,
+           a_radius = a_radius,
+           b_radius = b_radius,
+           overlap_size = overlap_size))
 }
-gen_text_pos_2 <- function() {
-  tribble(~name, ~x,    ~y,  ~hjust, ~vjust, ~A,    ~B,
-          "A",   -0.8,  0,   0.5,    0.5,    TRUE,  FALSE,
-          "B",    0.8,  0,   0.5,    0.5,    FALSE, TRUE,
-          "AB",   0,    0,   0.5,    0.5,    TRUE,  TRUE,
-          "-",    0,   -1.2, 0.5,    0.5,    FALSE, FALSE)
+calc_scale_info_3 <- function(auto_scale, n_sets, max_scale_diff = 5) {
+  if (auto_scale) {
+    stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
+  }
+  return(NULL)
 }
-gen_label_pos_2 <- function() {
-  tribble(~name, ~x,   ~y,  ~hjust, ~vjust,
-          "A",   -0.8, 1.2, 0.5,    0,
-          "B",    0.8, 1.2, 0.5,    0)
+calc_scale_info_4 <- function(auto_scale, n_sets, max_scale_diff = 5) {
+  if (auto_scale) {
+    stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
+  }
+  return(NULL)
+}
+
+min_overlap_for_text <- 0.2
+
+gen_circle_2 <- function(scale_info) {
+  x_dist <- (scale_info['a_radius'] + scale_info['b_radius'] - scale_info['overlap_size'] * 2) / 2
+  rbind(gen_circle(1L, -x_dist, 0, scale_info['a_radius']),
+        gen_circle(2L, x_dist, 0, scale_info['b_radius']))
+}
+gen_text_pos_2 <- function(scale_info) {
+  df <- tribble(~name, ~x,    ~y,  ~hjust, ~vjust,
+                "A",   -0.8,  0,   0.5,    0.5,
+                "B",    0.8,  0,   0.5,    0.5,
+                "AB",   0,    0,   0.5,    0.5,
+                "-",    0,   -1.2, 0.5,    0.5)
+  if (scale_info['auto_scale']) {
+    x_dist <- (scale_info['a_radius'] + scale_info['b_radius'] - scale_info['overlap_size'] * 2) / 2
+    if (scale_info['overlap_size'] <= 0) {
+      df$x[[1]] <- -x_dist
+      df$x[[2]] <- x_dist
+      df <- df %>% filter(name != "AB")
+    } else {
+      if (scale_info['overlap_size'] < min_overlap_for_text) {
+        df$x[[1]] <- -x_dist - scale_info['overlap_size']
+        df$x[[2]] <- x_dist + scale_info['overlap_size']
+        if (scale_info['a_radius'] < min_overlap_for_text) {
+          df$x[[3]] <- -x_dist + (scale_info['a_radius'] - scale_info['overlap_size']) / 2
+          df$y[[3]] <- -1.5 * scale_info['a_radius']
+        } else if (scale_info['b_radius'] < min_overlap_for_text) {
+          df$x[[3]] <- x_dist - (scale_info['a_radius'] - scale_info['overlap_size']) / 2
+          df$y[[3]] <- -1.5 * scale_info['b_radius']
+        } else {
+          df$x[[3]] <- -x_dist + scale_info['a_radius'] - scale_info['overlap_size']
+          df$y[[3]] <- -1.2
+        }
+        df$x[[4]] <- -x_dist - scale_info['a_radius']
+        df$y[[4]] <- -1.6
+        df$hjust[[4]] <- 0
+      } else {
+        df$x[[1]] <- -x_dist - scale_info['overlap_size']
+        df$x[[2]] <- x_dist + scale_info['overlap_size']
+        df$x[[3]] <- -x_dist + scale_info['a_radius'] - scale_info['overlap_size']
+      }
+      if (scale_info['a_radius'] <= scale_info['overlap_size']) {
+        df <- df %>% filter(name != "A")
+      } else if (scale_info['b_radius'] <= scale_info['overlap_size']) {
+        df <- df %>% filter(name != "B")
+      }
+    }
+  }
+  return(df)
+}
+gen_seg_pos_2 <- function(scale_info) {
+  df <- tibble(x = 0, y = 0, xend = 0, yend = 0)[-1,]
+  if (scale_info['overlap_size'] > 0 && scale_info['auto_scale']) {
+    x_dist <- (scale_info['a_radius'] + scale_info['b_radius'] - scale_info['overlap_size'] * 2) / 2
+    if (scale_info['overlap_size'] < min_overlap_for_text) {
+      x_pos <- -x_dist + scale_info['a_radius'] - scale_info['overlap_size']
+      if (scale_info['a_radius'] < min_overlap_for_text) {
+        x2_pos <- -x_dist + 1.2 * (scale_info['a_radius'] - scale_info['overlap_size']) / 2
+        df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * scale_info['a_radius'])
+      } else if (scale_info['b_radius'] < min_overlap_for_text) {
+        x2_pos <- x_dist - 1.2 * (scale_info['a_radius'] - scale_info['overlap_size']) / 2
+        df <- tibble(x = x_pos, y = 0, xend = x2_xpos, yend = -1.2 * scale_info['a_radius'])
+      } else {
+        df <- tibble(x = x_pos, y = 0, xend = x_pos, yend = -1)
+      }
+    }
+  }
+  return(df)
+}
+gen_label_pos_2 <- function(scale_info) {
+  df <- tribble(~name, ~x,   ~y,  ~hjust, ~vjust,
+                "A",   -0.8, 1.2, 0.5,    0,
+                "B",    0.8, 1.2, 0.5,    0)
+  if (scale_info['auto_scale']) {
+  }
+  return(df)
 }
 
 gen_circle_3 <- function() {
@@ -138,15 +316,19 @@ gen_circle_3 <- function() {
         gen_circle(3L, 0, -(sqrt(3) + 2) / 6, 1))
 }
 gen_text_pos_3 <- function() {
-  tribble(~name, ~x,    ~y,   ~hjust, ~vjust, ~A,    ~B,    ~C,
-          "A",   -0.8,  0.62, 0.5,    0.5,    TRUE,  FALSE, FALSE,
-          "B",    0.8,  0.62, 0.5,    0.5,    FALSE, TRUE,  FALSE,
-          "C",    0,   -0.62, 0.5,    0.5,    FALSE, FALSE, TRUE,
-          "AB",   0,    0.8,  0.5,    0.5,    TRUE,  TRUE,  FALSE,
-          "AC",  -0.5,  0,    0.5,    0.5,    TRUE,  FALSE, TRUE,
-          "BC",   0.5,  0,    0.5,    0.5,    FALSE, TRUE,  TRUE,
-          "ABC",  0,    0.2,  0.5,    0.5,    TRUE,  TRUE,  TRUE,
-          "-",    1.2, -0.8,  0,      0.5,    FALSE, FALSE, FALSE)
+  tribble(~name, ~x,    ~y,   ~hjust, ~vjust,
+          "A",   -0.8,  0.62, 0.5,    0.5,
+          "B",    0.8,  0.62, 0.5,    0.5,
+          "C",    0,   -0.62, 0.5,    0.5,
+          "AB",   0,    0.8,  0.5,    0.5,
+          "AC",  -0.5,  0,    0.5,    0.5,
+          "BC",   0.5,  0,    0.5,    0.5,
+          "ABC",  0,    0.2,  0.5,    0.5,
+          "-",    1.2, -0.8,  0,      0.5)
+}
+gen_seg_pos_3 <- function(scale_info) {
+  df <- tibble(x = 0, y = 0, xend = 0, yend = 0)[-1,]
+  return(df)
 }
 gen_label_pos_3 <- function() {
   tribble(~name, ~x,    ~y,  ~hjust, ~vjust,
@@ -162,23 +344,27 @@ gen_circle_4 <- function() {
         gen_circle(4L, .7, -1/2, .75, 1.5, -pi/4))
 }
 gen_text_pos_4 <- function() {
-  tribble(~name, ~x,    ~y,  ~hjust, ~vjust, ~A,   ~B,    ~C,    ~D,
-          "A",   -1.5,  0,   0.5,    0.5,    TRUE,  FALSE, FALSE, FALSE,
-          "B",   -0.6,  0.7, 0.5,    0.5,    FALSE, TRUE,  FALSE, FALSE,
-          "C",    0.6,  0.7, 0.5,    0.5,    FALSE, FALSE, TRUE,  FALSE,
-          "D",    1.5,  0,   0.5,    0.5,    FALSE, FALSE, FALSE, TRUE,
-          "AB",  -0.9,  0.3, 0.5,    0.5,    TRUE,  TRUE,  FALSE, FALSE,
-          "BC",   0,    0.4, 0.5,    0.5,    FALSE, TRUE,  TRUE,  FALSE,
-          "CD",   0.9,  0.3, 0.5,    0.5,    FALSE, FALSE, TRUE,  TRUE,
-          "AC",  -0.8, -0.9, 0.5,    0.5,    TRUE,  FALSE, TRUE,  FALSE,
-          "BD",   0.8, -0.9, 0.5,    0.5,    FALSE, TRUE,  FALSE, TRUE,
-          "AD",   0,   -1.4, 0.5,    0.5,    TRUE,  FALSE, FALSE, TRUE,
-          "ABC", -0.5, -0.2, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  FALSE,
-          "BCD",  0.5, -0.2, 0.5,    0.5,    FALSE, TRUE,  TRUE,  TRUE,
-          "ACD", -0.3, -1.1, 0.5,    0.5,    TRUE,  FALSE, TRUE,  TRUE,
-          "ABD",  0.3, -1.1, 0.5,    0.5,    TRUE,  TRUE,  FALSE, TRUE,
-          "ABCD", 0,   -0.7, 0.5,    0.5,    TRUE,  TRUE,  TRUE,  TRUE,
-          "-",    0,   -1.9, 0.5,    0.5,    FALSE, FALSE, FALSE, FALSE)
+  tribble(~name, ~x,    ~y,  ~hjust, ~vjust,
+          "A",   -1.5,  0,   0.5,    0.5,
+          "B",   -0.6,  0.7, 0.5,    0.5,
+          "C",    0.6,  0.7, 0.5,    0.5,
+          "D",    1.5,  0,   0.5,    0.5,
+          "AB",  -0.9,  0.3, 0.5,    0.5,
+          "BC",   0,    0.4, 0.5,    0.5,
+          "CD",   0.9,  0.3, 0.5,    0.5,
+          "AC",  -0.8, -0.9, 0.5,    0.5,
+          "BD",   0.8, -0.9, 0.5,    0.5,
+          "AD",   0,   -1.4, 0.5,    0.5,
+          "ABC", -0.5, -0.2, 0.5,    0.5,
+          "BCD",  0.5, -0.2, 0.5,    0.5,
+          "ACD", -0.3, -1.1, 0.5,    0.5,
+          "ABD",  0.3, -1.1, 0.5,    0.5,
+          "ABCD", 0,   -0.7, 0.5,    0.5,
+          "-",    0,   -1.9, 0.5,    0.5)
+}
+gen_seg_pos_4 <- function(scale_info) {
+  df <- tibble(x = 0, y = 0, xend = 0, yend = 0)[-1,]
+  return(df)
 }
 gen_label_pos_4 <- function() {
   tribble(~name, ~x,   ~y,   ~hjust, ~vjust,
@@ -190,7 +376,8 @@ gen_label_pos_4 <- function() {
 
 prepare_venn_data <- function(data, columns = NULL,
                               show_elements = FALSE, show_percentage = TRUE, digits = 1,
-                              label_sep = ",", count_column = NULL, show_outside = "auto") {
+                              label_sep = ",", count_column = NULL,
+                              show_outside = "auto", auto_scale = FALSE) {
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -205,70 +392,76 @@ prepare_venn_data <- function(data, columns = NULL,
     if (length(columns) == 2) {
       stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
-      d <- gen_circle_2()
-      d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                  (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])))
+      df_element <- gen_element_df_2()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((!xor(df_element$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                  (!xor(df_element$B[[i]], as_tibble(data)[,columns[[2]]])))
         if (is.null(count_column)) {
-          d1$n[[i]] <- sum(idx)
+          df_element$n[[i]] <- sum(idx)
         } else {
-          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
         }
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
+          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
-      d2 <- gen_label_pos_2()
+      scale_info <- calc_scale_info_2(auto_scale, df_element$n)
+      df_shape <- gen_circle_2(scale_info)
+      df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_2(scale_info)
+      df_seg <- gen_seg_pos_2(scale_info)
     } else if (length(columns) == 3) {
       stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
-      d <- gen_circle_3()
-      d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((!xor(d1$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                  (!xor(d1$B[[i]], as_tibble(data)[,columns[[2]]])) &
-                  (!xor(d1$C[[i]], as_tibble(data)[,columns[[3]]])))
+      df_element <- gen_element_df_3()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((!xor(df_element$A[[i]], as_tibble(data)[,columns[[1]]])) &
+                  (!xor(df_element$B[[i]], as_tibble(data)[,columns[[2]]])) &
+                  (!xor(df_element$C[[i]], as_tibble(data)[,columns[[3]]])))
         if (is.null(count_column)) {
-          d1$n[[i]] <- sum(idx)
+          df_element$n[[i]] <- sum(idx)
         } else {
-          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
         }
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
+          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
-      d2 <- gen_label_pos_3()
+      scale_info <- calc_scale_info_3(auto_scale, df_element$n)
+      df_shape <- gen_circle_3()
+      df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_3()
+      df_seg <- gen_seg_pos_3(scale_info)
     } else if (length(columns) == 4) {
       stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
       stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
-      d <- gen_circle_4()
-      d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, D) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((d1$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
-                  (d1$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
-                  (d1$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
-                  (d1$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
+      df_element <- gen_element_df_4()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((df_element$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
+                  (df_element$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
+                  (df_element$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
+                  (df_element$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
         if (is.null(count_column)) {
-          d1$n[[i]] <- sum(idx)
+          df_element$n[[i]] <- sum(idx)
         } else {
-          d1$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
+          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
         }
         if (!identical(show_elements, FALSE)) {
-          d1$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
+          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
         }
       }
-      d2 <- gen_label_pos_4()
+      scale_info <- calc_scale_info_4(auto_scale, df_element$n)
+      df_shape <- gen_circle_4()
+      df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_4()
+      df_seg <- gen_seg_pos_4(scale_info)
     } else {
       stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
     }
-    d2 <- d2 %>% mutate(text = columns)
+    df_label <- df_label %>% mutate(text = columns)
     show_elements <- !identical(show_elements, FALSE)
   } else if (is.list(data)) {
     if (is.null(columns)) {
@@ -276,60 +469,66 @@ prepare_venn_data <- function(data, columns = NULL,
     }
     a2 <- unique(unlist(data[columns]))
     if (length(columns) == 2) {
-      d <- gen_circle_2()
-      d1 <- gen_text_pos_2() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, wt = 1) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])))
-        d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
+      df_element <- gen_element_df_2()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])))
+        df_element$n[[i]] <- sum(idx)
+        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
-      d2 <- gen_label_pos_2()
+      scale_info <- calc_scale_info_2(auto_scale, df_element$n)
+      df_shape <- gen_circle_2(scale_info)
+      df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_2(scale_info)
+      df_seg <- gen_seg_pos_2(scale_info)
     } else if (length(columns) == 3) {
-      d <- gen_circle_3()
-      d1 <- gen_text_pos_3() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, wt = 1) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                  (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])))
-        d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
+      df_element <- gen_element_df_3()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                  (!xor(df_element$C[[i]], a2 %in% data[[columns[[3]]]])))
+        df_element$n[[i]] <- sum(idx)
+        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
-      d2 <- gen_label_pos_3()
+      scale_info <- calc_scale_info_3(auto_scale, df_element$n)
+      df_shape <- gen_circle_3()
+      df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_3()
+      df_seg <- gen_seg_pos_3(scale_info)
     } else if (length(columns) == 4) {
-      d <- gen_circle_4()
-      d1 <- gen_text_pos_4() %>% mutate(n = 0, text = "")
-      stopifnot((d1 %>% count(A, B, C, D, wt = 1) %>% with(n)) == 1)
-      for (i in 1:nrow(d1)) {
-        idx <- ((!xor(d1$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(d1$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                  (!xor(d1$C[[i]], a2 %in% data[[columns[[3]]]])) &
-                  (!xor(d1$D[[i]], a2 %in% data[[columns[[4]]]])))
-        d1$n[[i]] <- sum(idx)
-        d1$text[[i]] <- paste(a2[idx], collapse = label_sep)
+      df_element <- gen_element_df_4()
+      for (i in 1:nrow(df_element)) {
+        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
+                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])) &
+                  (!xor(df_element$C[[i]], a2 %in% data[[columns[[3]]]])) &
+                  (!xor(df_element$D[[i]], a2 %in% data[[columns[[4]]]])))
+        df_element$n[[i]] <- sum(idx)
+        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
       }
-      d2 <- gen_label_pos_4()
+      scale_info <- calc_scale_info_4(auto_scale, df_element$n)
+      df_shape <- gen_circle_4()
+      df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
+      df_label <- gen_label_pos_4()
+      df_seg <- gen_seg_pos_4(scale_info)
     } else {
       stop("list `data` or vector `column` should be length between 2 and 4")
     }
-    d2 <- d2 %>% mutate(text = columns)
+    df_label <- df_label %>% mutate(text = columns)
   } else {
     stop("`data` should be either a list or a data.frame")
   }
-  if ((show_outside == "none") || (show_outside == "auto" & d1$n[[nrow(d1)]] == 0)) {
-    if (d1$n[[nrow(d1)]] > 0)
-      message("Although not display in plot, outside elements are still count in percentages.")
-    d1 <- d1[-nrow(d1), ]
+  if ((show_outside == "none") || (show_outside == "auto" & df_text$n[[nrow(df_text)]] == 0)) {
+    if (df_text$n[[nrow(df_text)]] > 0)
+      warning("Although not display in plot, outside elements are still count in percentages.")
+    df_text <- df_text[-nrow(df_text), ]
   }
   if (!show_elements) {
     if (show_percentage) {
       fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
-      d1 <- d1 %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
+      df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
     } else {
-      d1 <- d1 %>% mutate(text = sprintf("%d", n))
+      df_text <- df_text %>% mutate(text = sprintf("%d", n))
     }
   }
-  list(shapes = d, texts = d1, labels = d2)
+  list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
 }

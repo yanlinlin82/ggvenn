@@ -22,7 +22,8 @@ ggvenn(
   text_size = 4,
   label_sep = ",",
   count_column = NULL,
-  show_outside = c("auto", "none", "always")
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE
 )
 }
 \arguments{

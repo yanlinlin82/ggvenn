@@ -11,4 +11,4 @@ Description: An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
 Depends: dplyr, grid, ggplot2
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

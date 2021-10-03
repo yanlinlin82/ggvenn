@@ -77,6 +77,9 @@ geom_venn <- function(mapping = NULL, data = NULL,
                       show_percentage = TRUE,
                       digits = 1,
                       label_sep = ",",
+                      count_column = NULL,
+                      show_outside = c("auto", "none", "always"),
+                      auto_scale = FALSE,
                       fill_color = c("blue", "yellow", "green", "red"),
                       fill_alpha = .5,
                       stroke_color = "black",
@@ -106,6 +109,9 @@ geom_venn <- function(mapping = NULL, data = NULL,
     self$geom$customize_attributes <- list(show_percentage = show_percentage,
                                            digits = digits,
                                            label_sep = label_sep,
+                                           count_column = count_column,
+                                           show_outside = show_outside,
+                                           auto_scale = auto_scale,
                                            fill_color = fill_color,
                                            fill_alpha = fill_alpha,
                                            stroke_color = stroke_color,
@@ -140,7 +146,11 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                       show_percentage <- attr$show_percentage
                       digits <- attr$digits
                       label_sep <- attr$label_sep
-                      venn <- prepare_venn_data(data, sets, show_elements, show_percentage, digits, label_sep)
+                      count_column <- attr$count_column
+                      show_outside <- attr$show_outside
+                      auto_scale <- attr$auto_scale
+                      venn <- prepare_venn_data(data, sets, show_elements, show_percentage, digits,
+                                                label_sep, count_column, show_outside, auto_scale)
                       d0 <- coord_munch(coord, venn$shapes, panel_params)
                       d <- d0 %>%
                         filter(!duplicated(group)) %>%
@@ -150,31 +160,43 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                                stroke_alpha = attr$stroke_alpha,
                                stroke_size = attr$stroke_size,
                                stroke_linetype = attr$stroke_linetype)
-                      d1 <- coord_munch(coord, venn$labels, panel_params)
-                      d2 <- coord_munch(coord, venn$texts, panel_params)
-                      ggplot2:::ggname("geom_venn",
-                                       grobTree(
-                                         polygonGrob(
-                                           d0$x, d0$y, default.units = "native", id = d0$group,
-                                           gp = gpar(col = NA,
-                                                     fill = alpha(d$fill_color, d$fill_alpha))),
-                                         polygonGrob(
-                                           d0$x, d0$y, default.units = "native", id = d0$group,
-                                           gp = gpar(col = alpha(d$stroke_color, d$stroke_alpha),
-                                                     fill = NA,
-                                                     lwd = d$stroke_size * .pt,
-                                                     lty = d$stroke_linetype)),
-                                         textGrob(
-                                           self$set_names, d1$x, d1$y, default.units = "native",
-                                           hjust = d1$hjust, vjust = d1$vjust,
-                                           gp = gpar(col = attr$set_name_color,
-                                                     fontsize = attr$set_name_size * .pt)),
-                                         textGrob(
-                                           d2$text, d2$x, d2$y, default.units = "native",
-                                           hjust = d2$hjust, vjust = d2$vjust,
-                                           gp = gpar(col = attr$text_color,
-                                                     fontsize = attr$text_size * .pt))
-                                       )
-                      )
+
+                      gl <- gList(polygonGrob(id = d0$group,
+                                              d0$x, d0$y, default.units = "native",
+                                              gp = gpar(col = NA,
+                                                        fill = alpha(d$fill_color, d$fill_alpha))),
+                                  polygonGrob(id = d0$group,
+                                              d0$x, d0$y, default.units = "native",
+                                              gp = gpar(col = alpha(d$stroke_color, d$stroke_alpha),
+                                                        fill = NA,
+                                                        lwd = d$stroke_size * .pt,
+                                                        lty = d$stroke_linetype)))
+                      if (nrow(venn$labels) > 0) {
+                        d1 <- coord_munch(coord, venn$labels, panel_params)
+                        gl <- gList(gl,
+                                    textGrob(self$set_names,
+                                             d1$x, d1$y, default.units = "native",
+                                             hjust = d1$hjust, vjust = d1$vjust,
+                                             gp = gpar(col = attr$set_name_color,
+                                                       fontsize = attr$set_name_size * .pt)))
+                      }
+                      if (nrow(venn$texts) > 0) {
+                        d2 <- coord_munch(coord, venn$texts, panel_params)
+                        gl <- gList(gl,
+                                    textGrob(d2$text,
+                                             d2$x, d2$y, default.units = "native",
+                                             hjust = d2$hjust, vjust = d2$vjust,
+                                             gp = gpar(col = attr$text_color,
+                                                       fontsize = attr$text_size * .pt)))
+                      }
+                      if (nrow(venn$segs) > 0) {
+                        d3 <- coord_munch(coord, venn$segs, panel_params)
+                        gl <- gList(gl,
+                                    segmentsGrob(d3$x, d3$y, d3$xend, d3$yend,
+                                                 default.units = "native",
+                                                 gp = gpar(col = attr$text_color,
+                                                           size = attr$text_size * .pt)))
+                      }
+                      ggplot2:::ggname("geom_venn", grobTree(gl))
                     }
 )
