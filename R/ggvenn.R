@@ -125,7 +125,7 @@ gen_element_df_2 <- function() {
                 "B",   FALSE, TRUE,
                 "AB",  TRUE,  TRUE,
                 "-",   FALSE, FALSE)
-  stopifnot(all((df %>% count(A, B) %>% with(n)) == 1))
+  stopifnot(all((df %>% dplyr::count(A, B) %>% with(n)) == 1))
   return(df %>% mutate(n = 0, text = ""))
 }
 gen_element_df_3 <- function() {
@@ -138,7 +138,7 @@ gen_element_df_3 <- function() {
                 "BC",  FALSE, TRUE,  TRUE,
                 "ABC", TRUE,  TRUE,  TRUE,
                 "-",   FALSE, FALSE, FALSE)
-  stopifnot(all((df %>% count(A, B, C) %>% with(n)) == 1))
+  stopifnot(all((df %>% dplyr::count(A, B, C) %>% with(n)) == 1))
   return(df %>% mutate(n = 0, text = ""))
 }
 gen_element_df_4 <- function() {
@@ -159,7 +159,7 @@ gen_element_df_4 <- function() {
                 "ABD", TRUE,  TRUE,  FALSE, TRUE,
                 "ABCD",TRUE,  TRUE,  TRUE,  TRUE,
                 "-",   FALSE, FALSE, FALSE, FALSE)
-  stopifnot(all((df %>% count(A, B, C, D) %>% with(n)) == 1))
+  stopifnot(all((df %>% dplyr::count(A, B, C, D) %>% with(n)) == 1))
   return(df %>% mutate(n = 0, text = ""))
 }
 
