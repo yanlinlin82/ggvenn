@@ -527,8 +527,8 @@ prepare_venn_data <- function(data, columns = NULL,
     df_text <- df_text[-nrow(df_text), ]
   }
   if (!show_elements) {
+    fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
     if (show_percentage) {
-      fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
       df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
     } else {
       df_text <- df_text %>% mutate(text = sprintf("%d", n))
@@ -536,3 +536,4 @@ prepare_venn_data <- function(data, columns = NULL,
   }
   list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
 }
+
