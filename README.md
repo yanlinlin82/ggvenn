@@ -5,9 +5,9 @@ Venn Diagram by ggplot2, with really easy-to-use API. This package is inspired b
 ## Screenshots
 
 <table width="100%"><tr>
-<td><img width="300" height="300" src="plots/venn-2.svg" alt="Venn 2"></td>
-<td><img width="300" height="300" src="plots/venn-3.svg" alt="Venn 3"></td>
-<td><img width="300" height="300" src="plots/venn-4.svg" alt="Venn 4"></td>
+<td><img width="300" height="300" src="man/figures/venn-2.svg" alt="Venn 2"></td>
+<td><img width="300" height="300" src="man/figures/venn-3.svg" alt="Venn 3"></td>
+<td><img width="300" height="300" src="man/figures/venn-4.svg" alt="Venn 4"></td>
 </tr></table>
 
 ## Installation
