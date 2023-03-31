@@ -471,7 +471,7 @@ prepare_venn_data <- function(data, columns = NULL,
     if (is.null(columns)) {
       columns <- names(data) %>% head(4)
     }
-    a2 <- unique(unlist(data[columns]))
+    a2 <- na.omit(unique(unlist(data[columns])))
     if (length(columns) == 2) {
       df_element <- gen_element_df_2()
       for (i in 1:nrow(df_element)) {
