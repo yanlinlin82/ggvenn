@@ -1,4 +1,14 @@
 utils::globalVariables(c("theta", "x_raw", "y_raw",
                          "A", "B", "C", "D", "group",
                          "head", "hjust", "n", "text",
-                         "vjust", "x", "y"))
+                         "vjust", "x", "y",
+                         "name", "xend", "yend",
+                         "gen_element_df_2", "gen_element_df_3", "gen_element_df_4",
+                         "gen_circle",
+                         "calc_scale_info_2", "calc_scale_info_3", "calc_scale_info_4",
+                         "min_overlap_for_text",
+                         "gen_circle_2", "gen_circle_3", "gen_circle_4",
+                         "gen_seg_pos_2", "gen_seg_pos_3", "gen_seg_pos_4",
+                         "gen_label_pos_2", "gen_label_pos_3", "gen_label_pos_4",
+                         "gen_text_pos_2", "gen_text_pos_3", "gen_text_pos_4",
+                         "prepare_venn_data"))

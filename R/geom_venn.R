@@ -9,6 +9,9 @@
 #' @param show_percentage Show percentage for each set.
 #' @param digits The desired number of digits after the decimal point
 #' @param label_sep separator character for displaying elements.
+#' @param count_column Specify column for element repeat count.
+#' @param show_outside Show outside elements (not belongs to any set).
+#' @param auto_scale Allow automatically resizing circles according to element counts.
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
 #' @param stroke_color Stroke color for drawing circles.
@@ -90,6 +93,7 @@ geom_venn <- function(mapping = NULL, data = NULL,
                       set_name_size = 6,
                       text_color = "black",
                       text_size = 4) {
+  show_outside <- match.arg(show_outside)
   l <- layer(mapping = mapping, data = data,
              geom = GeomVenn, stat = stat, position = position,
              params = list(na.rm = TRUE, ...))

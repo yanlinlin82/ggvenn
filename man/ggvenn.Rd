@@ -62,6 +62,8 @@ ggvenn(
 \item{count_column}{Specify column for element repeat count.}
 
 \item{show_outside}{Show outside elements (not belongs to any set).}
+
+\item{auto_scale}{Allow automatically resizing circles according to element counts.}
 }
 \value{
 The ggplot object to print or save to file.

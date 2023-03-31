@@ -19,6 +19,7 @@
 #' @param label_sep Separator character for displaying elements.
 #' @param count_column Specify column for element repeat count.
 #' @param show_outside Show outside elements (not belongs to any set).
+#' @param auto_scale Allow automatically resizing circles according to element counts.
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
@@ -55,8 +56,9 @@
 #' ggvenn(a, show_elements = TRUE)
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
-#' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count
-#' @importFrom ggplot2 ggplot aes geom_polygon geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer
+#' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count filter inner_join
+#' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer
+#' @importFrom stats na.omit
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
@@ -293,7 +295,7 @@ gen_seg_pos_2 <- function(scale_info) {
         df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * scale_info['a_radius'])
       } else if (scale_info['b_radius'] < min_overlap_for_text) {
         x2_pos <- x_dist - 1.2 * (scale_info['a_radius'] - scale_info['overlap_size']) / 2
-        df <- tibble(x = x_pos, y = 0, xend = x2_xpos, yend = -1.2 * scale_info['a_radius'])
+        df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * scale_info['a_radius'])
       } else {
         df <- tibble(x = x_pos, y = 0, xend = x_pos, yend = -1)
       }
@@ -377,7 +379,9 @@ gen_label_pos_4 <- function() {
 prepare_venn_data <- function(data, columns = NULL,
                               show_elements = FALSE, show_percentage = TRUE, digits = 1,
                               label_sep = ",", count_column = NULL,
-                              show_outside = "auto", auto_scale = FALSE) {
+                              show_outside = c("auto", "none", "always"),
+                              auto_scale = FALSE) {
+  show_outside <- match.arg(show_outside)
   if (is.data.frame(data)) {
     if (is.null(columns)) {
       columns = data %>% select_if(is.logical) %>% names
@@ -521,7 +525,7 @@ prepare_venn_data <- function(data, columns = NULL,
   } else {
     stop("`data` should be either a list or a data.frame")
   }
-  if ((show_outside == "none") || (show_outside == "auto" & df_text$n[[nrow(df_text)]] == 0)) {
+  if ((show_outside == "none") || (show_outside == "auto" && df_text$n[[nrow(df_text)]] == 0)) {
     if (df_text$n[[nrow(df_text)]] > 0)
       warning("Although not display in plot, outside elements are still count in percentages.")
     df_text <- df_text[-nrow(df_text), ]

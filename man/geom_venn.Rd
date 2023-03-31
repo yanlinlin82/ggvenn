@@ -57,6 +57,12 @@ to the paired geom/stat.}
 
 \item{label_sep}{separator character for displaying elements.}
 
+\item{count_column}{Specify column for element repeat count.}
+
+\item{show_outside}{Show outside elements (not belongs to any set).}
+
+\item{auto_scale}{Allow automatically resizing circles according to element counts.}
+
 \item{fill_color}{Filling colors in circles.}
 
 \item{fill_alpha}{Transparency for filling circles.}
