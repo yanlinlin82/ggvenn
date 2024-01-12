@@ -9,6 +9,8 @@ Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
 Maintainer: Linlin Yan <yanlinlin82@gmail.com>
 Description: An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
 Depends: dplyr, grid, ggplot2
+URL: https://yanlinlin82.github.io/ggvenn/, https://github.com/yanlinlin82/ggvenn
+BugReports: https://github.com/yanlinlin82/ggvenn/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.2.3
