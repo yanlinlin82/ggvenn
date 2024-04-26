@@ -20,6 +20,7 @@
 #' @param count_column Specify column for element repeat count.
 #' @param show_outside Show outside elements (not belongs to any set).
 #' @param auto_scale Allow automatically resizing circles according to element counts.
+#' @param comma_sep Whether to use comma as separator for displaying numbers.
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
@@ -77,10 +78,12 @@ ggvenn <- function(data, columns = NULL,
                    label_sep = ",",
                    count_column = NULL,
                    show_outside = c("auto", "none", "always"),
-                   auto_scale = FALSE) {
+                   auto_scale = FALSE,
+                   comma_sep=FALSE) {
   show_outside <- match.arg(show_outside)
   venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits,
-                            label_sep, count_column, show_outside, auto_scale)
+                            label_sep, count_column, show_outside, auto_scale,
+                            comma_sep=comma_sep)
   g <- venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -380,7 +383,7 @@ prepare_venn_data <- function(data, columns = NULL,
                               show_elements = FALSE, show_percentage = TRUE, digits = 1,
                               label_sep = ",", count_column = NULL,
                               show_outside = c("auto", "none", "always"),
-                              auto_scale = FALSE) {
+                              auto_scale = FALSE, comma_sep=FALSE) {
   show_outside <- match.arg(show_outside)
   if (is.data.frame(data)) {
     if (is.null(columns)) {
@@ -392,7 +395,7 @@ prepare_venn_data <- function(data, columns = NULL,
           show_elements <- show_elements[[1]]
           show_elements %in% names(data)
           } else { FALSE }}) {
-        stop("Value ", deparse(show_elements), 
+        stop("Value ", deparse(show_elements),
              " in `show_elements` does not correspond to any column name of the data frame.",
              call. = FALSE)
       }
@@ -533,11 +536,18 @@ prepare_venn_data <- function(data, columns = NULL,
   if (!show_elements) {
     fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
     if (show_percentage) {
-      df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
+        if(comma_sep) {
+            fmt <- sprintf("%%s\n(%%.%df%%%%)", digits)
+            df_text <- df_text %>% mutate(text = sprintf(fmt,
+                                                         scales::label_comma()(n), 100 * n / sum(n)))
+        }else
+            df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
     } else {
-      df_text <- df_text %>% mutate(text = sprintf("%d", n))
+        if(comma_sep){
+            df_text <- df_text %>% mutate(text = sprintf("%s", scales::label_comma()(n)))
+        }else
+            df_text <- df_text %>% mutate(text = sprintf("%d", n))
     }
   }
   list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
 }
-
