@@ -8,7 +8,8 @@ ggvenn(
   data,
   columns = NULL,
   show_elements = FALSE,
-  show_percentage = TRUE,
+  show_stats = "cp",
+  show_percentage = lifecycle::deprecated(),
   digits = 1,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
@@ -23,7 +24,8 @@ ggvenn(
   label_sep = ",",
   count_column = NULL,
   show_outside = c("auto", "none", "always"),
-  auto_scale = FALSE
+  auto_scale = FALSE,
+  comma_sep = FALSE
 )
 }
 \arguments{
@@ -33,7 +35,10 @@ ggvenn(
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
-\item{show_percentage}{Show percentage for each set.}
+\item{show_stats}{Show count (c) and/or percentage (p) for each set. 
+Pass a string like "cp" to show both.}
+
+\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
 
 \item{digits}{The desired number of digits after the decimal point}
 
@@ -64,6 +69,8 @@ ggvenn(
 \item{show_outside}{Show outside elements (not belongs to any set).}
 
 \item{auto_scale}{Allow automatically resizing circles according to element counts.}
+
+\item{comma_sep}{Whether to use comma as separator for displaying numbers.}
 }
 \value{
 The ggplot object to print or save to file.
@@ -97,7 +104,7 @@ ggvenn(d)
 ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 
 # hide percentage
-ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
+ggvenn(d, c("Set 1", "Set 2"), show_stats = 'c')
 
 # change precision of percentages
 ggvenn(d, c("Set 1", "Set 2"), digits = 2)
