@@ -44,7 +44,7 @@ ggvenn(a)   # without set names, the first 4 elements in list will be chose to d
 For `data.frame` data (each logical column is a set):
 
 ```{r}
-d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+d <- dplyr::tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
@@ -152,7 +152,7 @@ The `ggvenn` support two types of input data: list and data.frame. Two functions
 
 ```r
 a <- list(A = 1:5, B = 4:6)
-d <- tibble(key = 1:6,
+d <- dplyr::tibble(key = 1:6,
             A = c(rep(TRUE, 5), FALSE),
             B = rep(c(FALSE, TRUE), each = 3))
 

@@ -4,7 +4,7 @@
 #' @param x A data.frame with logical columns representing sets.
 #' @return A list of sets.
 #' @examples
-#' d <- tibble(name = 1:6,
+#' d <- dplyr::tibble(name = 1:6,
 #'             A = c(rep(TRUE, 5), FALSE),
 #'             B = rep(c(FALSE, TRUE), each = 3))
 #' print(d)

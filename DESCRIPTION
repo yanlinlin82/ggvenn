@@ -1,6 +1,6 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
-Version: 0.1.12
+Version: 0.1.13
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
@@ -8,12 +8,13 @@ Authors@R: person(given = "Linlin", family = "Yan",
 Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
 Maintainer: Linlin Yan <yanlinlin82@gmail.com>
 Description: An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
-Depends: dplyr, grid, ggplot2, scales
 URL: https://yanlinlin82.github.io/ggvenn/, https://github.com/yanlinlin82/ggvenn
 BugReports: https://github.com/yanlinlin82/ggvenn/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.1
+Depends: ggplot2
+Imports: dplyr, grid, scales
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
