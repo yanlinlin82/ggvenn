@@ -542,20 +542,6 @@ prepare_venn_data <- function(data, columns = NULL,
     df_text <- df_text[-nrow(df_text), ]
   }
   if (!show_elements) {
-#    fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
-#    if (show_percentage) {
-#        if(comma_sep) {
-#            fmt <- sprintf("%%s\n(%%.%df%%%%)", digits)
-#            df_text <- df_text %>% mutate(text = sprintf(fmt,
-#                                                         scales::label_comma()(n), 100 * n / sum(n)))
-#        }else
-#            df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
-#    } else {
-#        if(comma_sep){
-#            df_text <- df_text %>% mutate(text = sprintf("%s", scales::label_comma()(n)))
-#        }else
-#            df_text <- df_text %>% mutate(text = sprintf("%d", n))
-#    }
     fmt_count <- "%d"
     fmt_percentage <- sprintf("%%.%df%%%%", digits)
     fmt_both <- sprintf("%%d\n(%%.%df%%%%)", digits)
@@ -566,10 +552,9 @@ prepare_venn_data <- function(data, columns = NULL,
       fmt_both <- sprintf("%%s\n(%%.%df%%%%)", digits)
     }
     
-    # Calculamos el total una vez fuera del mutate
     total_count <- sum(df_text$n)
     
-    df_text <- df_text %>% mutate(text = case_when(
+    df_text <- df_text %>% mutate(text = dplyr::case_when(
       show_stats == "c" ~ {
         if (comma_sep) {
           sprintf(fmt_count, scales::label_comma()(n))

@@ -35,7 +35,7 @@ ggvenn(
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
-\item{show_stats}{Show count (c) and/or percentage (p) for each set. 
+\item{show_stats}{Show count (c) and/or percentage (p) for each set.
 Pass a string like "cp" to show both.}
 
 \item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
