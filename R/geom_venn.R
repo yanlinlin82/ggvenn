@@ -27,7 +27,7 @@
 #' library(ggvenn)
 #'
 #' # use data.frame as input
-#' d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+#' d <- dplyr::tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
 #'             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
 #'             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
 #'             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
@@ -165,7 +165,7 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                                stroke_size = attr$stroke_size,
                                stroke_linetype = attr$stroke_linetype)
 
-                      gl <- gList(polygonGrob(id = d0$group,
+                      gl <- grid::gList(polygonGrob(id = d0$group,
                                               d0$x, d0$y, default.units = "native",
                                               gp = gpar(col = NA,
                                                         fill = alpha(d$fill_color, d$fill_alpha))),
@@ -177,7 +177,7 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                                                         lty = d$stroke_linetype)))
                       if (nrow(venn$labels) > 0) {
                         d1 <- coord_munch(coord, venn$labels, panel_params)
-                        gl <- gList(gl,
+                        gl <- grid::gList(gl,
                                     textGrob(self$set_names,
                                              d1$x, d1$y, default.units = "native",
                                              hjust = d1$hjust, vjust = d1$vjust,
@@ -186,7 +186,7 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                       }
                       if (nrow(venn$texts) > 0) {
                         d2 <- coord_munch(coord, venn$texts, panel_params)
-                        gl <- gList(gl,
+                        gl <- grid::gList(gl,
                                     textGrob(d2$text,
                                              d2$x, d2$y, default.units = "native",
                                              hjust = d2$hjust, vjust = d2$vjust,
@@ -195,7 +195,7 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                       }
                       if (nrow(venn$segs) > 0) {
                         d3 <- coord_munch(coord, venn$segs, panel_params)
-                        gl <- gList(gl,
+                        gl <- grid::gList(gl,
                                     segmentsGrob(d3$x, d3$y, d3$xend, d3$yend,
                                                  default.units = "native",
                                                  gp = gpar(col = attr$text_color,
