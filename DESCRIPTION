@@ -1,6 +1,6 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
-Version: 0.1.10
+Version: 0.1.11
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
@@ -13,4 +13,4 @@ URL: https://yanlinlin82.github.io/ggvenn/, https://github.com/yanlinlin82/ggven
 BugReports: https://github.com/yanlinlin82/ggvenn/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
