@@ -23,7 +23,8 @@ ggvenn(
   label_sep = ",",
   count_column = NULL,
   show_outside = c("auto", "none", "always"),
-  auto_scale = FALSE
+  auto_scale = FALSE,
+  comma_sep = FALSE
 )
 }
 \arguments{
@@ -64,6 +65,8 @@ ggvenn(
 \item{show_outside}{Show outside elements (not belongs to any set).}
 
 \item{auto_scale}{Allow automatically resizing circles according to element counts.}
+
+\item{comma_sep}{Whether to use comma as separator for displaying numbers.}
 }
 \value{
 The ggplot object to print or save to file.
