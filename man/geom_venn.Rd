@@ -11,7 +11,8 @@ geom_venn(
   position = "identity",
   ...,
   set_names = NULL,
-  show_percentage = TRUE,
+  show_stats = "cp",
+  show_percentage = deprecated(),
   digits = 1,
   label_sep = ",",
   count_column = NULL,
@@ -51,7 +52,10 @@ to the paired geom/stat.}
 
 \item{set_names}{Set names, use column names if omitted.}
 
-\item{show_percentage}{Show percentage for each set.}
+\item{show_stats}{Show count (c) and/or percentage (p) for each set.
+Pass a string like "cp" to show both.}
+
+\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
 
 \item{digits}{The desired number of digits after the decimal point}
 
@@ -121,7 +125,7 @@ ggplot(d) +
 
 # hide percentage
 ggplot(d) +
-  geom_venn(aes(A = `Set 1`, B = `Set 2`), show_percentage = FALSE) +
+  geom_venn(aes(A = `Set 1`, B = `Set 2`), show_stats = 'c') +
   coord_fixed() +
   theme_void()
 

@@ -8,7 +8,8 @@ ggvenn(
   data,
   columns = NULL,
   show_elements = FALSE,
-  show_percentage = TRUE,
+  show_stats = "cp",
+  show_percentage = lifecycle::deprecated(),
   digits = 1,
   fill_color = c("blue", "yellow", "green", "red"),
   fill_alpha = 0.5,
@@ -34,7 +35,10 @@ ggvenn(
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
-\item{show_percentage}{Show percentage for each set.}
+\item{show_stats}{Show count (c) and/or percentage (p) for each set.
+Pass a string like "cp" to show both.}
+
+\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
 
 \item{digits}{The desired number of digits after the decimal point}
 
@@ -100,7 +104,7 @@ ggvenn(d)
 ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 
 # hide percentage
-ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
+ggvenn(d, c("Set 1", "Set 2"), show_stats = 'c')
 
 # change precision of percentages
 ggvenn(d, c("Set 1", "Set 2"), digits = 2)

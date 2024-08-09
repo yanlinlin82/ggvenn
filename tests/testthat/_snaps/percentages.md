@@ -3,6 +3,8 @@
     Code
       ggplot_build(ggvenn(a, show_percentage = FALSE))$data
     Warning <lifecycle_warning_deprecated>
+      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
+      i Please use the `show_stats` argument instead.
       Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
       i Please use `linewidth` instead.
     Output
@@ -637,6 +639,8 @@
     Code
       ggplot_build(ggvenn(a, show_percentage = TRUE))$data
     Warning <lifecycle_warning_deprecated>
+      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
+      i Please use the `show_stats` argument instead.
       Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
       i Please use `linewidth` instead.
     Output
@@ -1271,6 +1275,8 @@
     Code
       ggplot_build(ggvenn(a, show_percentage = TRUE, digits = 2))$data
     Warning <lifecycle_warning_deprecated>
+      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
+      i Please use the `show_stats` argument instead.
       Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
       i Please use `linewidth` instead.
     Output

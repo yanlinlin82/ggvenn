@@ -4,7 +4,9 @@
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param show_elements Show set elements instead of count/percentage.
-#' @param show_percentage Show percentage for each set.
+#' @param show_stats Show count (c) and/or percentage (p) for each set. 
+#' Pass a string like "cp" to show both.
+#' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
 #' @param digits The desired number of digits after the decimal point
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
@@ -48,7 +50,7 @@
 #' ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 #'
 #' # hide percentage
-#' ggvenn(d, c("Set 1", "Set 2"), show_percentage = FALSE)
+#' ggvenn(d, c("Set 1", "Set 2"), show_stats = 'c')
 #'
 #' # change precision of percentages
 #' ggvenn(d, c("Set 1", "Set 2"), digits = 2)
@@ -63,7 +65,8 @@
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
-                   show_percentage = TRUE,
+                   show_stats = 'cp',
+                   show_percentage = lifecycle::deprecated(),
                    digits = 1,
                    fill_color = c("blue", "yellow", "green", "red"),
                    fill_alpha = .5,
@@ -81,7 +84,12 @@ ggvenn <- function(data, columns = NULL,
                    auto_scale = FALSE,
                    comma_sep=FALSE) {
   show_outside <- match.arg(show_outside)
-  venn <- prepare_venn_data(data, columns, show_elements, show_percentage, digits,
+  if (lifecycle::is_present(show_percentage)) {
+    lifecycle::deprecate_soft("0.1.11", "ggvenn::ggvenn(show_percentage = )", "ggvenn::ggvenn(show_stats = )")
+    
+    show_stats <- if (show_percentage) "cp" else "c"
+  }
+  venn <- prepare_venn_data(data, columns, show_elements, show_stats, digits,
                             label_sep, count_column, show_outside, auto_scale,
                             comma_sep=comma_sep)
   g <- venn$shapes %>%
@@ -380,7 +388,7 @@ gen_label_pos_4 <- function() {
 }
 
 prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE, show_percentage = TRUE, digits = 1,
+                              show_elements = FALSE, show_stats = "cp", digits = 1,
                               label_sep = ",", count_column = NULL,
                               show_outside = c("auto", "none", "always"),
                               auto_scale = FALSE, comma_sep=FALSE) {
@@ -534,20 +542,37 @@ prepare_venn_data <- function(data, columns = NULL,
     df_text <- df_text[-nrow(df_text), ]
   }
   if (!show_elements) {
-    fmt <- sprintf("%%d\n(%%.%df%%%%)", digits)
-    if (show_percentage) {
-        if(comma_sep) {
-            fmt <- sprintf("%%s\n(%%.%df%%%%)", digits)
-            df_text <- df_text %>% mutate(text = sprintf(fmt,
-                                                         scales::label_comma()(n), 100 * n / sum(n)))
-        }else
-            df_text <- df_text %>% mutate(text = sprintf(fmt, n, 100 * n / sum(n)))
-    } else {
-        if(comma_sep){
-            df_text <- df_text %>% mutate(text = sprintf("%s", scales::label_comma()(n)))
-        }else
-            df_text <- df_text %>% mutate(text = sprintf("%d", n))
+    fmt_count <- "%d"
+    fmt_percentage <- sprintf("%%.%df%%%%", digits)
+    fmt_both <- sprintf("%%d\n(%%.%df%%%%)", digits)
+    
+    if (comma_sep) {
+      fmt_count <- "%s"
+      fmt_percentage <- sprintf("%%.%df%%%%", digits)
+      fmt_both <- sprintf("%%s\n(%%.%df%%%%)", digits)
     }
-  }
+    
+    total_count <- sum(df_text$n)
+    
+    df_text <- df_text %>% mutate(text = dplyr::case_when(
+      show_stats == "c" ~ {
+        if (comma_sep) {
+          sprintf(fmt_count, scales::label_comma()(n))
+        } else {
+          sprintf(fmt_count, n)
+        }
+      },
+      show_stats == "p" ~ sprintf(fmt_percentage, 100 * n / total_count),
+      show_stats == "cp" ~ {
+        if (comma_sep) {
+          sprintf(fmt_both, scales::label_comma()(n), 100 * n / total_count)
+        } else {
+          sprintf(fmt_both, n, 100 * n / total_count)
+        }
+      },
+      TRUE ~ ""
+    ))
+    
+    }
   list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
 }
