@@ -97,7 +97,7 @@ Plot venn diagram as a ggplot layer object. It supports only data frame as input
 library(ggvenn)
 
 # use data.frame as input
-d <- tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
+d <- dplyr::tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
             `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
             `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
             `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
