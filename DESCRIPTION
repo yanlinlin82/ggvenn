@@ -1,6 +1,6 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
-Version: 0.1.14
+Version: 0.1.15
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
@@ -14,10 +14,12 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.1
 Depends: ggplot2
-Imports: dplyr, grid, scales
 Suggests: 
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
-Roxygen: list(markdown = TRUE)
 Imports: 
+    dplyr, 
+    grid, 
+    scales,
     lifecycle
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
