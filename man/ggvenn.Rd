@@ -8,6 +8,7 @@ ggvenn(
   data,
   columns = NULL,
   show_elements = FALSE,
+  show_set_totals = "none",
   show_stats = "cp",
   show_percentage = lifecycle::deprecated(),
   digits = 1,
@@ -25,7 +26,8 @@ ggvenn(
   count_column = NULL,
   show_outside = c("auto", "none", "always"),
   auto_scale = FALSE,
-  comma_sep = FALSE
+  comma_sep = FALSE,
+  padding = 0.2
 )
 }
 \arguments{
@@ -35,10 +37,13 @@ ggvenn(
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
-\item{show_stats}{Show count (c) and/or percentage (p) for each set.
-Pass a string like "cp" to show both.}
+\item{show_set_totals}{Show total count (c) and/or percentage (p) for each set.
+Pass a string like "cp" to show both. Any other string like "none" to hide both.}
 
-\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
+\item{show_stats}{Show count (c) and/or percentage (p) for each set.}
+
+\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.
+Pass a string like "cp" to show both. Any other string like "none" to hide both.}
 
 \item{digits}{The desired number of digits after the decimal point}
 
@@ -71,6 +76,8 @@ Pass a string like "cp" to show both.}
 \item{auto_scale}{Allow automatically resizing circles according to element counts.}
 
 \item{comma_sep}{Whether to use comma as separator for displaying numbers.}
+
+\item{padding}{Padding for the plot. Change this to allow longer labels to be displayed.}
 }
 \value{
 The ggplot object to print or save to file.
