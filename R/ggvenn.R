@@ -23,6 +23,7 @@
 #' @param show_outside Show outside elements (not belongs to any set).
 #' @param auto_scale Allow automatically resizing circles according to element counts.
 #' @param comma_sep Whether to use comma as separator for displaying numbers.
+#' @param padding Padding for the plot. Change this to allow longer labels to be displayed.
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
@@ -82,7 +83,8 @@ ggvenn <- function(data, columns = NULL,
                    count_column = NULL,
                    show_outside = c("auto", "none", "always"),
                    auto_scale = FALSE,
-                   comma_sep=FALSE) {
+                   comma_sep=FALSE,
+                   padding = 0.2) {
   show_outside <- match.arg(show_outside)
   if (lifecycle::is_present(show_percentage)) {
     lifecycle::deprecate_soft("0.1.11", "ggvenn::ggvenn(show_percentage = )", "ggvenn::ggvenn(show_stats = )")
@@ -126,6 +128,8 @@ ggvenn <- function(data, columns = NULL,
   }
   g <- g +
     scale_fill_manual(values = fill_color) +
+    scale_x_discrete(expand = expansion(mult = c(padding, padding))) +
+    scale_y_discrete(expand = expansion(mult = c(padding, padding))) +
     guides(fill = "none") +
     coord_fixed() +
     theme_void()
