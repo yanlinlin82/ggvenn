@@ -127,7 +127,7 @@ ggvenn <- function(data, columns = NULL,
       geom_segment(data = venn$segs,
                    aes(x = x, y = y, xend = xend, yend = yend),
                    color = text_color,
-                   size = 0.5)
+                   linewidth = 0.5)
   }
   g <- g +
     scale_fill_manual(values = fill_color) +

@@ -224,7 +224,7 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                                     segmentsGrob(d3$x, d3$y, d3$xend, d3$yend,
                                                  default.units = "native",
                                                  gp = gpar(col = attr$text_color,
-                                                           size = attr$text_size * .pt)))
+                                                           lwd = attr$text_size * .pt)))
                       }
                       ggplot2:::ggname("geom_venn", grobTree(gl))
                     }
