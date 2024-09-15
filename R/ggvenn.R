@@ -105,7 +105,7 @@ ggvenn <- function(data, columns = NULL,
     geom_polygon(aes(x = x, y = y, group = group),
                  fill = NA,
                  color = stroke_color,
-                 size = stroke_size,
+                 linewidth = stroke_size,
                  alpha = stroke_alpha,
                  linetype = stroke_linetype)
   if (nrow(venn$labels) > 0) {
