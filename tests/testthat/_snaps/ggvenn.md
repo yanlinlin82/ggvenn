@@ -2492,10 +2492,10 @@
       
       [[3]]
            x    y label hjust vjust PANEL group colour size angle alpha family
-      1 -1.5 -1.3 Set 1   1.0     1     1    -1  black    6     0    NA       
+      1 -1.5 -1.3 Set 1   0.5     1     1    -1  black    6     0    NA       
       2 -0.8  1.2 Set 2   0.5     0     1    -1  black    6     0    NA       
       3  0.8  1.2 Set 3   0.5     0     1    -1  black    6     0    NA       
-      4  1.5 -1.3 Set 4   0.0     1     1    -1  black    6     0    NA       
+      4  1.5 -1.3 Set 4   0.5     1     1    -1  black    6     0    NA       
         fontface lineheight
       1        1        1.2
       2        1        1.2

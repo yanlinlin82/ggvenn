@@ -4,9 +4,11 @@
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param show_elements Show set elements instead of count/percentage.
+#' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
+#' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param show_stats Show count (c) and/or percentage (p) for each set. 
-#' Pass a string like "cp" to show both.
 #' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
+#' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param digits The desired number of digits after the decimal point
 #' @param fill_color Filling colors in circles.
 #' @param fill_alpha Transparency for filling circles.
@@ -61,11 +63,12 @@
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
 #' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count filter inner_join
-#' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer
+#' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer scale_x_discrete scale_y_discrete expansion
 #' @importFrom stats na.omit
 #' @export
 ggvenn <- function(data, columns = NULL,
                    show_elements = FALSE,
+                   show_set_totals = 'none',
                    show_stats = 'cp',
                    show_percentage = lifecycle::deprecated(),
                    digits = 1,
@@ -91,9 +94,9 @@ ggvenn <- function(data, columns = NULL,
     
     show_stats <- if (show_percentage) "cp" else "c"
   }
-  venn <- prepare_venn_data(data, columns, show_elements, show_stats, digits,
-                            label_sep, count_column, show_outside, auto_scale,
-                            comma_sep=comma_sep)
+  venn <- prepare_venn_data(data, columns, show_elements, show_set_totals, 
+                            show_stats, digits, label_sep, count_column, 
+                            show_outside, auto_scale, comma_sep=comma_sep)
   g <- venn$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
@@ -392,7 +395,9 @@ gen_label_pos_4 <- function() {
 }
 
 prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE, show_stats = "cp", digits = 1,
+                              show_elements = FALSE, 
+                              show_set_totals = '',
+                              show_stats = "cp", digits = 1,
                               label_sep = ",", count_column = NULL,
                               show_outside = c("auto", "none", "always"),
                               auto_scale = FALSE, comma_sep=FALSE) {
@@ -484,7 +489,11 @@ prepare_venn_data <- function(data, columns = NULL,
     } else {
       stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
     }
-    df_label <- df_label %>% mutate(text = columns)
+    df_label <- df_label %>% 
+      mutate(
+        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
+        hjust = 0.5
+      )
     show_elements <- !identical(show_elements, FALSE)
   } else if (is.list(data)) {
     if (is.null(columns)) {
@@ -536,7 +545,11 @@ prepare_venn_data <- function(data, columns = NULL,
     } else {
       stop("list `data` or vector `column` should be length between 2 and 4")
     }
-    df_label <- df_label %>% mutate(text = columns)
+    df_label <- df_label %>% 
+      mutate(
+        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep), 
+        hjust = 0.5
+      )
   } else {
     stop("`data` should be either a list or a data.frame")
   }
@@ -579,4 +592,48 @@ prepare_venn_data <- function(data, columns = NULL,
     
     }
   list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
+}
+
+
+# Function to calculate set totals
+calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) {
+
+  #browser()  
+
+  counts <- sapply(columns, function(column) {
+    if (inherits(data, 'data.frame')){
+      sum(data[[column]])
+    } else {
+      length(data[[column]])
+    }
+  })
+  names(counts) <- columns
+  
+  total <- if (inherits(data, 'data.frame')) {
+    nrow(data)
+  } else {
+    nrow(list_to_data_frame(data))
+  }
+  percentages <- counts / total * 100
+  
+  if (comma_sep) {
+    fmt_count <- "%s"
+    counts <- sapply(counts, function (.x) sprintf(fmt_count, scales::label_comma()(.x)))
+  }
+  
+  if (show_set_totals == 'c') {
+    return(
+      paste0(names(counts), "\n", counts)
+    )
+  } else if (show_set_totals == 'p') {
+    return(
+      paste0(names(counts), "\n", round(percentages, digits), "%")
+    )
+  } else if (show_set_totals == 'cp') {
+    return(
+      paste0(names(counts), "\n", counts, " (", round(percentages, digits), "%)")
+    )
+  }
+  
+  columns
 }
