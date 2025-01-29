@@ -3,11 +3,10 @@
     Code
       ggplot_build(ggvenn(a, show_percentage = FALSE, show_elements = FALSE,
         text_size = 6))$data
-    Warning <lifecycle_warning_deprecated>
+    Condition
+      Warning:
       The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
       i Please use the `show_stats` argument instead.
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill            x            y group PANEL colour linewidth linetype
@@ -1268,9 +1267,6 @@
     Code
       ggplot_build(ggvenn(a, show_set_totals = "c", show_elements = FALSE, text_size = 6))$
         data
-    Warning <lifecycle_warning_deprecated>
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill            x            y group PANEL colour linewidth linetype
@@ -2531,9 +2527,6 @@
     Code
       ggplot_build(ggvenn(a, show_set_totals = "p", show_elements = FALSE, text_size = 6))$
         data
-    Warning <lifecycle_warning_deprecated>
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill            x            y group PANEL colour linewidth linetype
@@ -3794,9 +3787,6 @@
     Code
       ggplot_build(ggvenn(a, show_set_totals = "cp", show_elements = FALSE,
         text_size = 6))$data
-    Warning <lifecycle_warning_deprecated>
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill            x            y group PANEL colour linewidth linetype
