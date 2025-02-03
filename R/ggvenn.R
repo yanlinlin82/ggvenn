@@ -129,6 +129,8 @@ ggvenn <- function(data, columns = NULL,
                    color = text_color,
                    linewidth = 0.5)
   }
+  set_names <- get_set_names(columns, data)
+  fill_color <- fix_fill_color(fill_color, set_names)
   g <- g +
     scale_fill_manual(values = fill_color) +
     scale_x_discrete(expand = expansion(mult = c(padding, padding))) +
@@ -637,4 +639,23 @@ calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) 
   }
   
   columns
+}
+
+get_set_names <- function(columns, data) {
+  set_names <- columns
+  if (is.null(set_names)) {
+    set_names <- names(data)
+  }
+  return(set_names)
+}
+
+fix_fill_color <- function(fill_color, set_names) {
+  if (!is.null(names(fill_color))) {
+    for (i in 1:length(fill_color)) {
+      if (names(fill_color)[i] %in% set_names) {
+        names(fill_color)[i] <- LETTERS[which(set_names == names(fill_color)[i])]
+      }
+    }
+  }
+  return(fill_color)
 }
