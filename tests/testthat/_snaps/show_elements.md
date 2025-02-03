@@ -2,9 +2,6 @@
 
     Code
       ggplot_build(ggvenn(a, show_elements = TRUE))$data
-    Warning <lifecycle_warning_deprecated>
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill           x             y group PANEL colour linewidth linetype
@@ -107,7 +104,7 @@
       97    blue  0.31526203 -1.892512e-01     1     1     NA       0.5        1
       98    blue  0.32528815 -1.265925e-01     1     1     NA       0.5        1
       99    blue  0.33132001 -6.342392e-02     1     1     NA       0.5        1
-      100   blue  0.33333333 -2.449213e-16     1     1     NA       0.5        1
+      100   blue  0.33333333 -2.449294e-16     1     1     NA       0.5        1
       101 yellow  1.66666667  0.000000e+00     2     1     NA       0.5        1
       102 yellow  1.66465334  6.342392e-02     2     1     NA       0.5        1
       103 yellow  1.65862148  1.265925e-01     2     1     NA       0.5        1
@@ -207,7 +204,7 @@
       197 yellow  1.64859536 -1.892512e-01     2     1     NA       0.5        1
       198 yellow  1.65862148 -1.265925e-01     2     1     NA       0.5        1
       199 yellow  1.66465334 -6.342392e-02     2     1     NA       0.5        1
-      200 yellow  1.66666667 -2.449213e-16     2     1     NA       0.5        1
+      200 yellow  1.66666667 -2.449294e-16     2     1     NA       0.5        1
           alpha
       1     0.5
       2     0.5
@@ -511,7 +508,7 @@
       97   0.31526203 -1.892512e-01     1     1  black   NA         1    solid     1
       98   0.32528815 -1.265925e-01     1     1  black   NA         1    solid     1
       99   0.33132001 -6.342392e-02     1     1  black   NA         1    solid     1
-      100  0.33333333 -2.449213e-16     1     1  black   NA         1    solid     1
+      100  0.33333333 -2.449294e-16     1     1  black   NA         1    solid     1
       101  1.66666667  0.000000e+00     2     1  black   NA         1    solid     1
       102  1.66465334  6.342392e-02     2     1  black   NA         1    solid     1
       103  1.65862148  1.265925e-01     2     1  black   NA         1    solid     1
@@ -611,7 +608,7 @@
       197  1.64859536 -1.892512e-01     2     1  black   NA         1    solid     1
       198  1.65862148 -1.265925e-01     2     1  black   NA         1    solid     1
       199  1.66465334 -6.342392e-02     2     1  black   NA         1    solid     1
-      200  1.66666667 -2.449213e-16     2     1  black   NA         1    solid     1
+      200  1.66666667 -2.449294e-16     2     1  black   NA         1    solid     1
       
       [[3]]
            x   y label hjust vjust PANEL group colour size angle alpha family
@@ -636,9 +633,6 @@
 
     Code
       ggplot_build(ggvenn(a, show_elements = TRUE, label_sep = "\n"))$data
-    Warning <lifecycle_warning_deprecated>
-      Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-      i Please use `linewidth` instead.
     Output
       [[1]]
             fill           x             y group PANEL colour linewidth linetype
@@ -741,7 +735,7 @@
       97    blue  0.31526203 -1.892512e-01     1     1     NA       0.5        1
       98    blue  0.32528815 -1.265925e-01     1     1     NA       0.5        1
       99    blue  0.33132001 -6.342392e-02     1     1     NA       0.5        1
-      100   blue  0.33333333 -2.449213e-16     1     1     NA       0.5        1
+      100   blue  0.33333333 -2.449294e-16     1     1     NA       0.5        1
       101 yellow  1.66666667  0.000000e+00     2     1     NA       0.5        1
       102 yellow  1.66465334  6.342392e-02     2     1     NA       0.5        1
       103 yellow  1.65862148  1.265925e-01     2     1     NA       0.5        1
@@ -841,7 +835,7 @@
       197 yellow  1.64859536 -1.892512e-01     2     1     NA       0.5        1
       198 yellow  1.65862148 -1.265925e-01     2     1     NA       0.5        1
       199 yellow  1.66465334 -6.342392e-02     2     1     NA       0.5        1
-      200 yellow  1.66666667 -2.449213e-16     2     1     NA       0.5        1
+      200 yellow  1.66666667 -2.449294e-16     2     1     NA       0.5        1
           alpha
       1     0.5
       2     0.5
@@ -1145,7 +1139,7 @@
       97   0.31526203 -1.892512e-01     1     1  black   NA         1    solid     1
       98   0.32528815 -1.265925e-01     1     1  black   NA         1    solid     1
       99   0.33132001 -6.342392e-02     1     1  black   NA         1    solid     1
-      100  0.33333333 -2.449213e-16     1     1  black   NA         1    solid     1
+      100  0.33333333 -2.449294e-16     1     1  black   NA         1    solid     1
       101  1.66666667  0.000000e+00     2     1  black   NA         1    solid     1
       102  1.66465334  6.342392e-02     2     1  black   NA         1    solid     1
       103  1.65862148  1.265925e-01     2     1  black   NA         1    solid     1
@@ -1245,7 +1239,7 @@
       197  1.64859536 -1.892512e-01     2     1  black   NA         1    solid     1
       198  1.65862148 -1.265925e-01     2     1  black   NA         1    solid     1
       199  1.66465334 -6.342392e-02     2     1  black   NA         1    solid     1
-      200  1.66666667 -2.449213e-16     2     1  black   NA         1    solid     1
+      200  1.66666667 -2.449294e-16     2     1  black   NA         1    solid     1
       
       [[3]]
            x   y label hjust vjust PANEL group colour size angle alpha family
