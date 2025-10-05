@@ -1,3 +1,24 @@
-url: https://ggvenn.github.io/
+url: https://yanlinlin82.github.io/ggvenn/
+
 template:
   bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, news]
+    right: [github]
+
+reference:
+- title: "Main functions"
+  contents:
+  - ggvenn
+  - geom_venn
+- title: "Utility functions" 
+  contents:
+  - data_frame_to_list
+  - list_to_data_frame
+
+news:
+  releases:
+  - text: "ggvenn 0.1.16 (Development)"
+    href: https://github.com/yanlinlin82/ggvenn/tree/master
