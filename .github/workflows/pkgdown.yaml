@@ -4,11 +4,12 @@ on:
   push:
     branches: [main, master]
   pull_request:
+    branches: [main, master]
   release:
     types: [published]
   workflow_dispatch:
 
-name: pkgdown.yaml
+name: Build and Deploy Documentation
 
 permissions: read-all
 
@@ -22,6 +23,8 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
+    # Only run after successful R-CMD-check for PRs
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
@@ -37,13 +40,20 @@ jobs:
           needs: website
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        run: |
+          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+          # Ensure docs directory exists for deployment
+          if [ ! -d "docs" ]; then
+            echo "Creating docs directory..."
+            mkdir -p docs
+          fi
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          clean: false
+          clean: true
           branch: gh-pages
           folder: docs
+          token: ${{ secrets.GITHUB_TOKEN }}
