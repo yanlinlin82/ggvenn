@@ -8,22 +8,25 @@ test_that("geom_venn", {
   
   # draw two-set venn (use A, B in aes)
   expect_snapshot(
-  ggplot_build(
-    ggplot(d, aes(A = `Set 1`, B = `Set 2`)) +
-    geom_venn() + theme_void() + coord_fixed())$data
+    normalize_ggplot_build(
+      ggplot(d, aes(A = `Set 1`, B = `Set 2`)) +
+      geom_venn() + theme_void() + coord_fixed()
+    )
   )
   
   # draw three-set venn (use A, B, C in aes)
   expect_snapshot(
-  ggplot_build(
-  ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) +
-    geom_venn() + theme_void() + coord_fixed())$data
+    normalize_ggplot_build(
+      ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) +
+      geom_venn() + theme_void() + coord_fixed()
+    )
   )
   
   # draw four-set venn (use A, B, C, D in aes)
   expect_snapshot(
-  ggplot_build(
-  ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
-    geom_venn() + theme_void() + coord_fixed())$data
+    normalize_ggplot_build(
+      ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
+      geom_venn() + theme_void() + coord_fixed()
+    )
   )
 })

@@ -7,46 +7,46 @@ test_that("stats", {
   )
 
   expect_snapshot(
-    ggplot_build(
+    normalize_ggvenn_output(
       ggvenn(
         a,
         show_percentage = FALSE,
         show_elements = FALSE,
         text_size = 6
       )
-    )$data
+    )
   )
 
   expect_snapshot(
-    ggplot_build(
+    normalize_ggvenn_output(
       ggvenn(
         a,
         show_set_totals = "c",
         show_elements = FALSE,
         text_size = 6
       )
-    )$data
+    )
   )
 
   expect_snapshot(
-    ggplot_build(
+    normalize_ggvenn_output(
       ggvenn(
         a,
         show_set_totals = "p",
         show_elements = FALSE,
         text_size = 6
       )
-    )$data
+    )
   )
 
   expect_snapshot(
-    ggplot_build(
+    normalize_ggvenn_output(
       ggvenn(
         a,
         show_set_totals = "cp",
         show_elements = FALSE,
         text_size = 6
       )
-    )$data
+    )
   )
 })

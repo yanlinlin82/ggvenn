@@ -1,54 +1,117 @@
 # geom_venn
 
     Code
-      ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`)) + geom_venn() +
-        theme_void() + coord_fixed())$data
+      normalize_ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`)) + geom_venn() +
+        theme_void() + coord_fixed())
     Output
       [[1]]
-            A     B PANEL group xmin xmax ymin ymax
-      1  TRUE  TRUE     1     3   -2    2   -2    2
-      2 FALSE FALSE     1     1   -2    2   -2    2
-      3  TRUE FALSE     1     2   -2    2   -2    2
-      4  TRUE  TRUE     1     3   -2    2   -2    2
-      5 FALSE FALSE     1     1   -2    2   -2    2
-      6  TRUE FALSE     1     2   -2    2   -2    2
-      7 FALSE FALSE     1     1   -2    2   -2    2
-      8  TRUE  TRUE     1     3   -2    2   -2    2
+      [[1]]$A
+      [1]  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+      
+      [[1]]$B
+      [1]  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+      
+      [[1]]$PANEL
+      [1] 1 1 1 1 1 1 1 1
+      Levels: 1
+      
+      [[1]]$group
+      [1] 3 1 2 3 1 2 1 3
+      attr(,"n")
+      [1] 3
+      
+      [[1]]$xmin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$xmax
+      [1] 2 2 2 2 2 2 2 2
+      
+      [[1]]$ymin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$ymax
+      [1] 2 2 2 2 2 2 2 2
+      
       
 
 ---
 
     Code
-      ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) + geom_venn() +
-        theme_void() + coord_fixed())$data
+      normalize_ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`)) +
+        geom_venn() + theme_void() + coord_fixed())
     Output
       [[1]]
-            A     B     C PANEL group xmin xmax ymin ymax
-      1  TRUE  TRUE  TRUE     1     5   -2    2   -2    2
-      2 FALSE FALSE  TRUE     1     2   -2    2   -2    2
-      3  TRUE FALSE FALSE     1     3   -2    2   -2    2
-      4  TRUE  TRUE FALSE     1     4   -2    2   -2    2
-      5 FALSE FALSE FALSE     1     1   -2    2   -2    2
-      6  TRUE FALSE FALSE     1     3   -2    2   -2    2
-      7 FALSE FALSE  TRUE     1     2   -2    2   -2    2
-      8  TRUE  TRUE  TRUE     1     5   -2    2   -2    2
+      [[1]]$A
+      [1]  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+      
+      [[1]]$B
+      [1]  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+      
+      [[1]]$C
+      [1]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
+      
+      [[1]]$PANEL
+      [1] 1 1 1 1 1 1 1 1
+      Levels: 1
+      
+      [[1]]$group
+      [1] 5 2 3 4 1 3 2 5
+      attr(,"n")
+      [1] 5
+      
+      [[1]]$xmin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$xmax
+      [1] 2 2 2 2 2 2 2 2
+      
+      [[1]]$ymin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$ymax
+      [1] 2 2 2 2 2 2 2 2
+      
       
 
 ---
 
     Code
-      ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
-        geom_venn() + theme_void() + coord_fixed())$data
+      normalize_ggplot_build(ggplot(d, aes(A = `Set 1`, B = `Set 2`, C = `Set 3`, D = `Set 4`)) +
+        geom_venn() + theme_void() + coord_fixed())
     Output
       [[1]]
-            A     B     C     D PANEL group xmin xmax ymin ymax
-      1  TRUE  TRUE  TRUE FALSE     1     6   -2    2   -2    2
-      2 FALSE FALSE  TRUE FALSE     1     2   -2    2   -2    2
-      3  TRUE FALSE FALSE FALSE     1     3   -2    2   -2    2
-      4  TRUE  TRUE FALSE FALSE     1     5   -2    2   -2    2
-      5 FALSE FALSE FALSE  TRUE     1     1   -2    2   -2    2
-      6  TRUE FALSE FALSE  TRUE     1     4   -2    2   -2    2
-      7 FALSE FALSE  TRUE FALSE     1     2   -2    2   -2    2
-      8  TRUE  TRUE  TRUE FALSE     1     6   -2    2   -2    2
+      [[1]]$A
+      [1]  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE  TRUE
+      
+      [[1]]$B
+      [1]  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE  TRUE
+      
+      [[1]]$C
+      [1]  TRUE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE
+      
+      [[1]]$D
+      [1] FALSE FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE
+      
+      [[1]]$PANEL
+      [1] 1 1 1 1 1 1 1 1
+      Levels: 1
+      
+      [[1]]$group
+      [1] 6 2 3 5 1 4 2 6
+      attr(,"n")
+      [1] 6
+      
+      [[1]]$xmin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$xmax
+      [1] 2 2 2 2 2 2 2 2
+      
+      [[1]]$ymin
+      [1] -2 -2 -2 -2 -2 -2 -2 -2
+      
+      [[1]]$ymax
+      [1] 2 2 2 2 2 2 2 2
+      
       
 
