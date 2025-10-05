@@ -77,34 +77,160 @@
 #' @seealso ggvenn
 #' @importFrom dplyr as_label
 #' @export
-geom_venn <- function(mapping = NULL, data = NULL,
-                      stat = "identity", position = "identity",
-                      ...,
-                      set_names = NULL,
-                      show_set_totals = "none",
-                      show_stats = "cp",
-                      show_percentage = deprecated(),
-                      digits = 1,
-                      label_sep = ",",
-                      count_column = NULL,
-                      show_outside = c("auto", "none", "always"),
-                      auto_scale = FALSE,
-                      fill_color = c("blue", "yellow", "green", "red"),
-                      fill_alpha = .5,
-                      stroke_color = "black",
-                      stroke_alpha = 1,
-                      stroke_size = 1,
-                      stroke_linetype = "solid",
-                      set_name_color = "black",
-                      set_name_size = 6,
-                      text_color = "black",
-                      text_size = 4) {
+geom_venn <- function(
+  mapping = NULL,
+  data = NULL,
+  stat = "identity",
+  position = "identity",
+  ...,
+  set_names = NULL,
+  show_set_totals = "none",
+  show_stats = "cp",
+  show_percentage = deprecated(),
+  digits = 1,
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE,
+  fill_color = c("blue", "yellow", "green", "red"),
+  fill_alpha = .5,
+  stroke_color = "black",
+  stroke_alpha = 1,
+  stroke_size = 1,
+  stroke_linetype = "solid",
+  set_name_color = "black",
+  set_name_size = 6,
+  text_color = "black",
+  text_size = 4
+) {
   show_outside <- match.arg(show_outside)
-  l <- layer(mapping = mapping, data = data,
-             geom = GeomVenn, stat = stat, position = position,
-             params = list(na.rm = TRUE, ...))
-  old_compute_aesthetics <- l$compute_aesthetics
-  l$compute_aesthetics <- function(self, data, plot) {
+
+  geom_venn_obj <- ggplot2::ggproto(
+    "GeomVenn",
+    ggplot2::Geom,
+    required_aes = c("A", "B"),
+    optional_aes = c("C", "D", "label"),
+    extra_params = c("na.rm"),
+    setup_data = function(self, data, params) {
+      data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
+    },
+    draw_panel = function(self, data, panel_params, coord, ...) {
+      attr <- self$customize_attributes
+      sets <- c("A", "B", "C", "D")
+      sets <- sets[sets %in% names(data)]
+      show_elements <- FALSE
+      if ("label" %in% names(data)) {
+        show_elements <- "label"
+      }
+      show_set_totals <- attr$show_set_totals
+      show_stats <- attr$show_stats
+      digits <- attr$digits
+      label_sep <- attr$label_sep
+      count_column <- attr$count_column
+      show_outside <- attr$show_outside
+      auto_scale <- attr$auto_scale
+      venn <- prepare_venn_data(
+        data, sets,
+        show_elements, show_set_totals, show_stats,
+        digits, label_sep, count_column,
+        show_outside, auto_scale
+      )
+
+      d0 <- ggplot2::coord_munch(coord, venn$shapes, panel_params)
+      d <- d0 %>%
+        dplyr::filter(!duplicated(group)) %>%
+        dplyr::mutate(
+          fill_color = attr$fill_color[group],
+          fill_alpha = attr$fill_alpha,
+          stroke_color = attr$stroke_color,
+          stroke_alpha = attr$stroke_alpha,
+          stroke_size = attr$stroke_size,
+          stroke_linetype = attr$stroke_linetype
+        )
+
+      gl <- grid::gList(
+        grid::polygonGrob(
+          id = d0$group,
+          d0$x, d0$y, default.units = "native",
+          gp = gpar(
+            col = NA,
+            fill = scales::alpha(d$fill_color, d$fill_alpha)
+          )
+        ),
+        grid::polygonGrob(
+          id = d0$group,
+          d0$x, d0$y, default.units = "native",
+          gp = gpar(
+            col = scales::alpha(d$stroke_color, d$stroke_alpha),
+            fill = NA,
+            lwd = d$stroke_size * .pt,
+            lty = d$stroke_linetype
+          )
+        )
+      )
+
+      if (nrow(venn$labels) > 0) {
+        # Replace set names in labels
+        set_names <- self$set_names
+        label_texts <- venn$labels$text
+        updated_labels <- character(length = length(label_texts))
+        for (i in seq_along(label_texts)) {
+          updated_labels[[i]] <- gsub(paste0('^', names(set_names)[[i]]), set_names[[i]], label_texts[[i]])
+        }
+        d1 <- ggplot2::coord_munch(coord, venn$labels, panel_params)
+        gl <- grid::gList(
+          gl,
+          grid::textGrob(
+            updated_labels,
+            d1$x, d1$y, default.units = "native",
+            hjust = d1$hjust, vjust = d1$vjust,
+            gp = gpar(
+              col = attr$set_name_color,
+              fontsize = attr$set_name_size * .pt
+            )
+          )
+        )
+      }
+
+      if (nrow(venn$texts) > 0) {
+        d2 <- ggplot2::coord_munch(coord, venn$texts, panel_params)
+        gl <- grid::gList(
+          gl,
+          grid::textGrob(
+            d2$text,
+            d2$x, d2$y, default.units = "native",
+            hjust = d2$hjust, vjust = d2$vjust,
+            gp = gpar(col = attr$text_color, fontsize = attr$text_size * .pt)
+          )
+        )
+      }
+      if (nrow(venn$segs) > 0) {
+        d3 <- ggplot2::coord_munch(coord, venn$segs, panel_params)
+        gl <- grid::gList(
+          gl,
+          grid::segmentsGrob(
+            d3$x, d3$y, d3$xend, d3$yend,
+            default.units = "native",
+            gp = gpar(col = attr$text_color, lwd = attr$text_size * .pt)
+          )
+        )
+      }
+      ggplot2:::ggname("geom_venn", grobTree(gl))
+    }
+  )
+
+  the_layer <- ggplot2::layer(
+    mapping = mapping,
+    data = data,
+    geom = geom_venn_obj,
+    stat = stat,
+    position = position,
+    params = list(na.rm = TRUE, ...)
+  )
+
+  old_compute_aesthetics <- the_layer$compute_aesthetics
+
+  the_layer$compute_aesthetics <- function(self, data, plot) {
     if (is.null(set_names)) {
       self$geom$set_names <- character()
       for (name in names(plot$mapping)) {
@@ -116,116 +242,26 @@ geom_venn <- function(mapping = NULL, data = NULL,
     } else {
       self$geom$set_names <- set_names
     }
-    self$geom$customize_attributes <- list(show_stats = show_stats,
-                                           show_set_totals = show_set_totals,
-                                           digits = digits,
-                                           label_sep = label_sep,
-                                           count_column = count_column,
-                                           show_outside = show_outside,
-                                           auto_scale = auto_scale,
-                                           fill_color = fill_color,
-                                           fill_alpha = fill_alpha,
-                                           stroke_color = stroke_color,
-                                           stroke_alpha = stroke_alpha,
-                                           stroke_size = stroke_size,
-                                           stroke_linetype = stroke_linetype,
-                                           set_name_color = set_name_color,
-                                           set_name_size = set_name_size,
-                                           text_color = text_color,
-                                           text_size = text_size)
+    self$geom$customize_attributes <- list(
+      show_stats = show_stats,
+      show_set_totals = show_set_totals,
+      digits = digits,
+      label_sep = label_sep,
+      count_column = count_column,
+      show_outside = show_outside,
+      auto_scale = auto_scale,
+      fill_color = fill_color,
+      fill_alpha = fill_alpha,
+      stroke_color = stroke_color,
+      stroke_alpha = stroke_alpha,
+      stroke_size = stroke_size,
+      stroke_linetype = stroke_linetype,
+      set_name_color = set_name_color,
+      set_name_size = set_name_size,
+      text_color = text_color,
+      text_size = text_size
+    )
     old_compute_aesthetics(data, plot)
   }
-  l
+  the_layer
 }
-
-#' @importFrom grid grobTree polygonGrob textGrob gpar
-GeomVenn <- ggproto("GeomVenn", Geom,
-                    required_aes = c("A", "B"),
-                    optional_aes = c("C", "D", "label"),
-                    extra_params = c("na.rm"),
-                    setup_data = function(self, data, params) {
-                      data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
-                    },
-                    draw_panel = function(self, data, panel_params, coord, ...) {
-                      attr <- self$customize_attributes
-                      sets <- c("A", "B", "C", "D")
-                      sets <- sets[sets %in% names(data)]
-                      show_elements <- FALSE
-                      if ("label" %in% names(data)) {
-                        show_elements <- "label"
-                      }
-                      show_set_totals <- attr$show_set_totals
-                      show_stats <- attr$show_stats
-                      digits <- attr$digits
-                      label_sep <- attr$label_sep
-                      count_column <- attr$count_column
-                      show_outside <- attr$show_outside
-                      auto_scale <- attr$auto_scale
-                      venn <- prepare_venn_data(
-                        data,
-                        sets,
-                        show_elements,
-                        show_set_totals,
-                        show_stats,
-                        digits,
-                        label_sep,
-                        count_column,
-                        show_outside,
-                        auto_scale
-                      )
-                      d0 <- coord_munch(coord, venn$shapes, panel_params)
-                      d <- d0 %>%
-                        filter(!duplicated(group)) %>%
-                        mutate(fill_color = attr$fill_color[group],
-                               fill_alpha = attr$fill_alpha,
-                               stroke_color = attr$stroke_color,
-                               stroke_alpha = attr$stroke_alpha,
-                               stroke_size = attr$stroke_size,
-                               stroke_linetype = attr$stroke_linetype)
-
-                      gl <- grid::gList(polygonGrob(id = d0$group,
-                                              d0$x, d0$y, default.units = "native",
-                                              gp = gpar(col = NA,
-                                                        fill = alpha(d$fill_color, d$fill_alpha))),
-                                  polygonGrob(id = d0$group,
-                                              d0$x, d0$y, default.units = "native",
-                                              gp = gpar(col = alpha(d$stroke_color, d$stroke_alpha),
-                                                        fill = NA,
-                                                        lwd = d$stroke_size * .pt,
-                                                        lty = d$stroke_linetype)))
-                      if (nrow(venn$labels) > 0) {
-                        # Replace set names in labels
-                        set_names <- self$set_names
-                        label_texts <- venn$labels$text
-                        updated_labels <- character(length = length(label_texts))
-                        for (i in seq_along(label_texts)) {
-                          updated_labels[[i]] <- gsub(paste0('^', names(set_names)[[i]]), set_names[[i]], label_texts[[i]])
-                        }
-                        d1 <- coord_munch(coord, venn$labels, panel_params)
-                        gl <- grid::gList(gl,
-                                    textGrob(updated_labels,
-                                             d1$x, d1$y, default.units = "native",
-                                             hjust = d1$hjust, vjust = d1$vjust,
-                                             gp = gpar(col = attr$set_name_color,
-                                                       fontsize = attr$set_name_size * .pt)))
-                      }
-                      if (nrow(venn$texts) > 0) {
-                        d2 <- coord_munch(coord, venn$texts, panel_params)
-                        gl <- grid::gList(gl,
-                                    textGrob(d2$text,
-                                             d2$x, d2$y, default.units = "native",
-                                             hjust = d2$hjust, vjust = d2$vjust,
-                                             gp = gpar(col = attr$text_color,
-                                                       fontsize = attr$text_size * .pt)))
-                      }
-                      if (nrow(venn$segs) > 0) {
-                        d3 <- coord_munch(coord, venn$segs, panel_params)
-                        gl <- grid::gList(gl,
-                                    segmentsGrob(d3$x, d3$y, d3$xend, d3$yend,
-                                                 default.units = "native",
-                                                 gp = gpar(col = attr$text_color,
-                                                           lwd = attr$text_size * .pt)))
-                      }
-                      ggplot2:::ggname("geom_venn", grobTree(gl))
-                    }
-)
