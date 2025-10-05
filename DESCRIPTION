@@ -5,9 +5,9 @@ Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
                   comment = c(ORCID = "0000-0002-4990-6239"))
-Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
-Maintainer: Linlin Yan <yanlinlin82@gmail.com>
-Description: An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
+Description: An easy-to-use way to draw pretty Venn diagrams using 'ggplot2'.
+    This package provides functions to create Venn diagrams with customizable
+    colors, labels, and styling options.
 URL: https://yanlinlin82.github.io/ggvenn/, https://github.com/yanlinlin82/ggvenn
 BugReports: https://github.com/yanlinlin82/ggvenn/issues
 License: MIT + file LICENSE
@@ -15,11 +15,14 @@ Encoding: UTF-8
 RoxygenNote: 7.3.1
 Depends: ggplot2
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Imports: 
-    dplyr, 
-    grid, 
-    scales,
+    dplyr (>= 1.1.0),
+    grid,
+    scales (>= 1.2.0),
     lifecycle
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
+VignetteBuilder: knitr
