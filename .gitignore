@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 ggvenn.Rcheck/
+DESCRIPTION
+ggvenn_*.tar.gz
