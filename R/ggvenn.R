@@ -6,7 +6,7 @@
 #' @param show_elements Show set elements instead of count/percentage.
 #' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
-#' @param show_stats Show count (c) and/or percentage (p) for each set. 
+#' @param show_stats Show count (c) and/or percentage (p) for each set.
 #' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param digits The desired number of digits after the decimal point
@@ -86,18 +86,18 @@ ggvenn <- function(data, columns = NULL,
                    count_column = NULL,
                    show_outside = c("auto", "none", "always"),
                    auto_scale = FALSE,
-                   comma_sep=FALSE,
+                   comma_sep = FALSE,
                    padding = 0.2) {
   show_outside <- match.arg(show_outside)
   if (lifecycle::is_present(show_percentage)) {
     lifecycle::deprecate_soft("0.1.11", "ggvenn::ggvenn(show_percentage = )", "ggvenn::ggvenn(show_stats = )")
-    
+
     show_stats <- if (show_percentage) "cp" else "c"
   }
-  venn <- prepare_venn_data(data, columns, show_elements, show_set_totals, 
-                            show_stats, digits, label_sep, count_column, 
-                            show_outside, auto_scale, comma_sep=comma_sep)
-  g <- venn$shapes %>%
+  venn_data <- prepare_venn_data(data, columns, show_elements, show_set_totals,
+                                 show_stats, digits, label_sep, count_column,
+                                 show_outside, auto_scale, comma_sep = comma_sep)
+  g <- venn_data$shapes %>%
     mutate(group = LETTERS[group]) %>%
     ggplot() +
     geom_polygon(aes(x = x, y = y, group = group, fill = group),
@@ -108,23 +108,23 @@ ggvenn <- function(data, columns = NULL,
                  linewidth = stroke_size,
                  alpha = stroke_alpha,
                  linetype = stroke_linetype)
-  if (nrow(venn$labels) > 0) {
+  if (nrow(venn_data$labels) > 0) {
     g <- g +
-      geom_text(data = venn$labels,
+      geom_text(data = venn_data$labels,
                 aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
                 color = set_name_color,
                 size = set_name_size)
   }
-  if (nrow(venn$texts) > 0) {
+  if (nrow(venn_data$texts) > 0) {
     g <- g +
-      geom_text(data = venn$texts,
+      geom_text(data = venn_data$texts,
                 aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
                 color = text_color,
                 size = text_size)
   }
-  if (nrow(venn$segs) > 0) {
+  if (nrow(venn_data$segs) > 0) {
     g <- g +
-      geom_segment(data = venn$segs,
+      geom_segment(data = venn_data$segs,
                    aes(x = x, y = y, xend = xend, yend = yend),
                    color = text_color,
                    linewidth = 0.5)
@@ -141,49 +141,39 @@ ggvenn <- function(data, columns = NULL,
   return(g)
 }
 
-gen_element_df_2 <- function() {
-  df <- tribble(~name, ~A,    ~B,
-                "A",   TRUE,  FALSE,
-                "B",   FALSE, TRUE,
-                "AB",  TRUE,  TRUE,
-                "-",   FALSE, FALSE)
-  stopifnot(all((df %>% dplyr::count(A, B) %>% with(n)) == 1))
-  return(df %>% mutate(n = 0, text = ""))
+# Helper function to generate element data frames for different set counts
+generate_element_df <- function(n_sets) {
+  sets <- LETTERS[1:n_sets]
+
+  # Generate all possible combinations
+  combinations <- expand.grid(rep(list(c(TRUE, FALSE)), n_sets))
+  names(combinations) <- sets
+
+  # Create names for combinations
+  combination_names <- apply(combinations, 1, function(row) {
+    active_sets <- sets[row]
+    if (length(active_sets) == 0) {
+      "-"
+    } else {
+      paste(active_sets, collapse = "")
+    }
+  })
+
+  # Create data frame
+  df <- combinations
+  df$name <- combination_names
+
+  # Verify uniqueness
+  count_cols <- sets
+  count_result <- df %>% dplyr::count(!!!syms(count_cols))
+  stopifnot(all(count_result$n == 1))
+
+  df %>% mutate(n = 0, text = "")
 }
-gen_element_df_3 <- function() {
-  df <- tribble(~name, ~A,    ~B,    ~C,
-                "A",   TRUE,  FALSE, FALSE,
-                "B",   FALSE, TRUE,  FALSE,
-                "C",   FALSE, FALSE, TRUE,
-                "AB",  TRUE,  TRUE,  FALSE,
-                "AC",  TRUE,  FALSE, TRUE,
-                "BC",  FALSE, TRUE,  TRUE,
-                "ABC", TRUE,  TRUE,  TRUE,
-                "-",   FALSE, FALSE, FALSE)
-  stopifnot(all((df %>% dplyr::count(A, B, C) %>% with(n)) == 1))
-  return(df %>% mutate(n = 0, text = ""))
-}
-gen_element_df_4 <- function() {
-  df <- tribble(~name, ~A,    ~B,    ~C,    ~D,
-                "A",   TRUE,  FALSE, FALSE, FALSE,
-                "B",   FALSE, TRUE,  FALSE, FALSE,
-                "C",   FALSE, FALSE, TRUE,  FALSE,
-                "D",   FALSE, FALSE, FALSE, TRUE,
-                "AB",  TRUE,  TRUE,  FALSE, FALSE,
-                "BC",  FALSE, TRUE,  TRUE,  FALSE,
-                "CD",  FALSE, FALSE, TRUE,  TRUE,
-                "AC",  TRUE,  FALSE, TRUE,  FALSE,
-                "BD",  FALSE, TRUE,  FALSE, TRUE,
-                "AD",  TRUE,  FALSE, FALSE, TRUE,
-                "ABC", TRUE,  TRUE,  TRUE,  FALSE,
-                "BCD", FALSE, TRUE,  TRUE,  TRUE,
-                "ACD", TRUE,  FALSE, TRUE,  TRUE,
-                "ABD", TRUE,  TRUE,  FALSE, TRUE,
-                "ABCD",TRUE,  TRUE,  TRUE,  TRUE,
-                "-",   FALSE, FALSE, FALSE, FALSE)
-  stopifnot(all((df %>% dplyr::count(A, B, C, D) %>% with(n)) == 1))
-  return(df %>% mutate(n = 0, text = ""))
-}
+
+gen_element_df_2 <- function() generate_element_df(2)
+gen_element_df_3 <- function() generate_element_df(3)
+gen_element_df_4 <- function() generate_element_df(4)
 
 gen_circle <- function(group, x_offset = 0, y_offset = 0, radius = 1,
                        radius_b = radius, theta_offset = 0, length.out = 100) {
@@ -232,9 +222,9 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
       }
     }
   } else {
-    a_radius = 1
-    b_radius = 1
-    overlap_size = 1/3
+    a_radius <- 1
+    b_radius <- 1
+    overlap_size <- 1/3
   }
   return(c(auto_scale = auto_scale,
            a_radius = a_radius,
@@ -396,17 +386,101 @@ gen_label_pos_4 <- function() {
           "D",    1.5, -1.3, 0,      1)
 }
 
+# Helper function to process data frame elements
+process_data_frame_elements <- function(data, columns, n_sets, count_column, show_elements, label_sep) {
+  # Validate logical columns
+  for (i in seq_len(n_sets)) {
+    stopifnot(is.logical(as_tibble(data)[, columns[[i]], drop = TRUE]))
+  }
+
+  # Generate element data frame
+  if (n_sets == 2) {
+    df_element <- gen_element_df_2()
+  } else if (n_sets == 3) {
+    df_element <- gen_element_df_3()
+  } else if (n_sets == 4) {
+    df_element <- gen_element_df_4()
+  }
+
+  # Process each combination
+  for (i in seq_len(nrow(df_element))) {
+    # Create index based on combination
+    if (n_sets == 2) {
+      idx <- ((!xor(df_element$A[[i]], as_tibble(data)[, columns[[1]]])) &
+              (!xor(df_element$B[[i]], as_tibble(data)[, columns[[2]]])))
+    } else if (n_sets == 3) {
+      idx <- ((!xor(df_element$A[[i]], as_tibble(data)[, columns[[1]]])) &
+              (!xor(df_element$B[[i]], as_tibble(data)[, columns[[2]]])) &
+              (!xor(df_element$C[[i]], as_tibble(data)[, columns[[3]]])))
+    } else if (n_sets == 4) {
+      idx <- ((df_element$A[[i]] == as_tibble(data)[, columns[[1]], drop = TRUE]) &
+              (df_element$B[[i]] == as_tibble(data)[, columns[[2]], drop = TRUE]) &
+              (df_element$C[[i]] == as_tibble(data)[, columns[[3]], drop = TRUE]) &
+              (df_element$D[[i]] == as_tibble(data)[, columns[[4]], drop = TRUE]))
+    }
+
+    # Count elements
+    if (is.null(count_column)) {
+      df_element$n[[i]] <- sum(idx)
+    } else {
+      df_element$n[[i]] <- sum(as_tibble(data)[, count_column][idx, ])
+    }
+
+    # Add text if showing elements
+    if (!identical(show_elements, FALSE)) {
+      df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx, show_elements]), collapse = label_sep)
+    }
+  }
+
+  df_element
+}
+
+# Helper function to process list elements
+process_list_elements <- function(data, columns, all_elements, n_sets, label_sep) {
+  # Generate element data frame
+  if (n_sets == 2) {
+    df_element <- gen_element_df_2()
+  } else if (n_sets == 3) {
+    df_element <- gen_element_df_3()
+  } else if (n_sets == 4) {
+    df_element <- gen_element_df_4()
+  }
+
+  # Process each combination
+  for (i in seq_len(nrow(df_element))) {
+    # Create index based on combination
+    if (n_sets == 2) {
+      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
+              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])))
+    } else if (n_sets == 3) {
+      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
+              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])) &
+              (!xor(df_element$C[[i]], all_elements %in% data[[columns[[3]]]])))
+    } else if (n_sets == 4) {
+      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
+              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])) &
+              (!xor(df_element$C[[i]], all_elements %in% data[[columns[[3]]]])) &
+              (!xor(df_element$D[[i]], all_elements %in% data[[columns[[4]]]])))
+    }
+
+    df_element$n[[i]] <- sum(idx)
+    df_element$text[[i]] <- paste(all_elements[idx], collapse = label_sep)
+  }
+
+  df_element
+}
+
 prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE, 
+                              show_elements = FALSE,
                               show_set_totals = '',
                               show_stats = "cp", digits = 1,
                               label_sep = ",", count_column = NULL,
                               show_outside = c("auto", "none", "always"),
-                              auto_scale = FALSE, comma_sep=FALSE) {
+                              auto_scale = FALSE, comma_sep = FALSE) {
   show_outside <- match.arg(show_outside)
   if (is.data.frame(data)) {
     if (is.null(columns)) {
-      columns = data %>% select_if(is.logical) %>% names
+      columns <- data %>% select_if(is.logical) %>% names()
     }
     if (!identical(show_elements, FALSE)) {
       if (!{
@@ -420,69 +494,21 @@ prepare_venn_data <- function(data, columns = NULL,
       }
     }
     if (length(columns) == 2) {
-      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
-      df_element <- gen_element_df_2()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((!xor(df_element$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                  (!xor(df_element$B[[i]], as_tibble(data)[,columns[[2]]])))
-        if (is.null(count_column)) {
-          df_element$n[[i]] <- sum(idx)
-        } else {
-          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
-        }
-        if (!identical(show_elements, FALSE)) {
-          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
-        }
-      }
+      df_element <- process_data_frame_elements(data, columns, 2, count_column, show_elements, label_sep)
       scale_info <- calc_scale_info_2(auto_scale, df_element$n)
       df_shape <- gen_circle_2(scale_info)
       df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
       df_label <- gen_label_pos_2(scale_info)
       df_seg <- gen_seg_pos_2(scale_info)
     } else if (length(columns) == 3) {
-      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
-      df_element <- gen_element_df_3()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((!xor(df_element$A[[i]], as_tibble(data)[,columns[[1]]])) &
-                  (!xor(df_element$B[[i]], as_tibble(data)[,columns[[2]]])) &
-                  (!xor(df_element$C[[i]], as_tibble(data)[,columns[[3]]])))
-        if (is.null(count_column)) {
-          df_element$n[[i]] <- sum(idx)
-        } else {
-          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
-        }
-        if (!identical(show_elements, FALSE)) {
-          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
-        }
-      }
+      df_element <- process_data_frame_elements(data, columns, 3, count_column, show_elements, label_sep)
       scale_info <- calc_scale_info_3(auto_scale, df_element$n)
       df_shape <- gen_circle_3()
       df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
       df_label <- gen_label_pos_3()
       df_seg <- gen_seg_pos_3(scale_info)
     } else if (length(columns) == 4) {
-      stopifnot(is.logical(as_tibble(data)[,columns[[1]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[2]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[3]], drop = TRUE]))
-      stopifnot(is.logical(as_tibble(data)[,columns[[4]], drop = TRUE]))
-      df_element <- gen_element_df_4()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((df_element$A[[i]] == as_tibble(data)[,columns[[1]], drop = TRUE]) &
-                  (df_element$B[[i]] == as_tibble(data)[,columns[[2]], drop = TRUE]) &
-                  (df_element$C[[i]] == as_tibble(data)[,columns[[3]], drop = TRUE]) &
-                  (df_element$D[[i]] == as_tibble(data)[,columns[[4]], drop = TRUE]))
-        if (is.null(count_column)) {
-          df_element$n[[i]] <- sum(idx)
-        } else {
-          df_element$n[[i]] <- sum(as_tibble(data)[,count_column][idx,])
-        }
-        if (!identical(show_elements, FALSE)) {
-          df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx,show_elements]), collapse = label_sep)
-        }
-      }
+      df_element <- process_data_frame_elements(data, columns, 4, count_column, show_elements, label_sep)
       scale_info <- calc_scale_info_4(auto_scale, df_element$n)
       df_shape <- gen_circle_4()
       df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
@@ -491,7 +517,7 @@ prepare_venn_data <- function(data, columns = NULL,
     } else {
       stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
     }
-    df_label <- df_label %>% 
+    df_label <- df_label %>%
       mutate(
         text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
         hjust = 0.5
@@ -501,44 +527,23 @@ prepare_venn_data <- function(data, columns = NULL,
     if (is.null(columns)) {
       columns <- names(data) %>% head(4)
     }
-    a2 <- na.omit(unique(unlist(data[columns])))
+    all_elements <- na.omit(unique(unlist(data[columns])))
     if (length(columns) == 2) {
-      df_element <- gen_element_df_2()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])))
-        df_element$n[[i]] <- sum(idx)
-        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
-      }
+      df_element <- process_list_elements(data, columns, all_elements, 2, label_sep)
       scale_info <- calc_scale_info_2(auto_scale, df_element$n)
       df_shape <- gen_circle_2(scale_info)
       df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
       df_label <- gen_label_pos_2(scale_info)
       df_seg <- gen_seg_pos_2(scale_info)
     } else if (length(columns) == 3) {
-      df_element <- gen_element_df_3()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                  (!xor(df_element$C[[i]], a2 %in% data[[columns[[3]]]])))
-        df_element$n[[i]] <- sum(idx)
-        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
-      }
+      df_element <- process_list_elements(data, columns, all_elements, 3, label_sep)
       scale_info <- calc_scale_info_3(auto_scale, df_element$n)
       df_shape <- gen_circle_3()
       df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
       df_label <- gen_label_pos_3()
       df_seg <- gen_seg_pos_3(scale_info)
     } else if (length(columns) == 4) {
-      df_element <- gen_element_df_4()
-      for (i in 1:nrow(df_element)) {
-        idx <- ((!xor(df_element$A[[i]], a2 %in% data[[columns[[1]]]])) &
-                  (!xor(df_element$B[[i]], a2 %in% data[[columns[[2]]]])) &
-                  (!xor(df_element$C[[i]], a2 %in% data[[columns[[3]]]])) &
-                  (!xor(df_element$D[[i]], a2 %in% data[[columns[[4]]]])))
-        df_element$n[[i]] <- sum(idx)
-        df_element$text[[i]] <- paste(a2[idx], collapse = label_sep)
-      }
+      df_element <- process_list_elements(data, columns, all_elements, 4, label_sep)
       scale_info <- calc_scale_info_4(auto_scale, df_element$n)
       df_shape <- gen_circle_4()
       df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
@@ -547,9 +552,9 @@ prepare_venn_data <- function(data, columns = NULL,
     } else {
       stop("list `data` or vector `column` should be length between 2 and 4")
     }
-    df_label <- df_label %>% 
+    df_label <- df_label %>%
       mutate(
-        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep), 
+        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
         hjust = 0.5
       )
   } else {
@@ -560,15 +565,15 @@ prepare_venn_data <- function(data, columns = NULL,
     fmt_count <- "%d"
     fmt_percentage <- sprintf("%%.%df%%%%", digits)
     fmt_both <- sprintf("%%d\n(%%.%df%%%%)", digits)
-    
+
     if (comma_sep) {
       fmt_count <- "%s"
       fmt_percentage <- sprintf("%%.%df%%%%", digits)
       fmt_both <- sprintf("%%s\n(%%.%df%%%%)", digits)
     }
-    
+
     total_count <- sum(df_text$n)
-    
+
     df_text <- df_text %>% mutate(text = dplyr::case_when(
       show_stats == "c" ~ {
         if (comma_sep) {
@@ -600,44 +605,43 @@ prepare_venn_data <- function(data, columns = NULL,
 
 # Function to calculate set totals
 calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) {
-
-  #browser()  
-
-  counts <- sapply(columns, function(column) {
+  # Calculate counts for each set
+  set_counts <- sapply(columns, function(column) {
     if (inherits(data, 'data.frame')){
       sum(data[[column]])
     } else {
       length(data[[column]])
     }
   })
-  names(counts) <- columns
-  
-  total <- if (inherits(data, 'data.frame')) {
+  names(set_counts) <- columns
+
+  # Calculate total number of elements
+  total_elements <- if (inherits(data, 'data.frame')) {
     nrow(data)
   } else {
     nrow(list_to_data_frame(data))
   }
-  percentages <- counts / total * 100
-  
+  set_percentages <- set_counts / total_elements * 100
+
   if (comma_sep) {
     fmt_count <- "%s"
-    counts <- sapply(counts, function (.x) sprintf(fmt_count, scales::label_comma()(.x)))
+    set_counts <- sapply(set_counts, function(.x) sprintf(fmt_count, scales::label_comma()(.x)))
   }
-  
+
   if (show_set_totals == 'c') {
     return(
-      paste0(names(counts), "\n", counts)
+      paste0(names(set_counts), "\n", set_counts)
     )
   } else if (show_set_totals == 'p') {
     return(
-      paste0(names(counts), "\n", round(percentages, digits), "%")
+      paste0(names(set_counts), "\n", round(set_percentages, digits), "%")
     )
   } else if (show_set_totals == 'cp') {
     return(
-      paste0(names(counts), "\n", counts, " (", round(percentages, digits), "%)")
+      paste0(names(set_counts), "\n", set_counts, " (", round(set_percentages, digits), "%)")
     )
   }
-  
+
   columns
 }
 

@@ -8,7 +8,7 @@
 #' @param set_names Set names, use column names if omitted.
 #' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
-#' @param show_stats Show count (c) and/or percentage (p) for each set. 
+#' @param show_stats Show count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both.
 #' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
 #' @param digits The desired number of digits after the decimal point
@@ -81,8 +81,8 @@ geom_venn <- function(mapping = NULL, data = NULL,
                       stat = "identity", position = "identity",
                       ...,
                       set_names = NULL,
-                      show_set_totals = 'none',
-                      show_stats = 'cp',
+                      show_set_totals = "none",
+                      show_stats = "cp",
                       show_percentage = deprecated(),
                       digits = 1,
                       label_sep = ",",
@@ -162,15 +162,15 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                       show_outside <- attr$show_outside
                       auto_scale <- attr$auto_scale
                       venn <- prepare_venn_data(
-                        data, 
-                        sets, 
-                        show_elements, 
-                        show_set_totals, 
-                        show_stats, 
+                        data,
+                        sets,
+                        show_elements,
+                        show_set_totals,
+                        show_stats,
                         digits,
-                        label_sep, 
-                        count_column, 
-                        show_outside, 
+                        label_sep,
+                        count_column,
+                        show_outside,
                         auto_scale
                       )
                       d0 <- coord_munch(coord, venn$shapes, panel_params)
@@ -194,16 +194,16 @@ GeomVenn <- ggproto("GeomVenn", Geom,
                                                         lwd = d$stroke_size * .pt,
                                                         lty = d$stroke_linetype)))
                       if (nrow(venn$labels) > 0) {
-                        #browser()
-                        .names <<- self$set_names
-                        .labels <<- venn$labels$text
-                        .new_labs <- character(length = length(.labels))
-                        for (.lab in seq_along(.labels)) {
-                          .new_labs[[.lab]] <- gsub(paste0('^', names(.names)[[.lab]]), .names[[.lab]], .labels[[.lab]])
+                        # Replace set names in labels
+                        set_names <- self$set_names
+                        label_texts <- venn$labels$text
+                        updated_labels <- character(length = length(label_texts))
+                        for (i in seq_along(label_texts)) {
+                          updated_labels[[i]] <- gsub(paste0('^', names(set_names)[[i]]), set_names[[i]], label_texts[[i]])
                         }
                         d1 <- coord_munch(coord, venn$labels, panel_params)
                         gl <- grid::gList(gl,
-                                    textGrob(.new_labs,
+                                    textGrob(updated_labels,
                                              d1$x, d1$y, default.units = "native",
                                              hjust = d1$hjust, vjust = d1$vjust,
                                              gp = gpar(col = attr$set_name_color,
