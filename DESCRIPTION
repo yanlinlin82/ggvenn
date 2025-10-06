@@ -1,6 +1,8 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
 Version: 0.1.17
+Author: Linlin Yan [aut, cre]
+Maintainer: Linlin Yan <yanlinlin82@gmail.com>
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
