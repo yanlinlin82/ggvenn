@@ -1,19 +1,14 @@
 # ggvenn NEWS
 
-## Version 0.1.16 (Development)
+## Version 0.1.17 (2025-10-06)
 
-* Added a `NEWS.md` file to track changes to the package.
-* Refactor: Improve fill color handling and set name extraction (#2)
-* Fix: Count outside elements in percentages in show_outside=None (#53)
-* Refactor: Replace deprecated `size` aesthetic with `linewidth` for lines in ggplot2 3.4.0
-* Feature: Add `show_set_totals` Argument to Display Set Totals
-* Feature: Adds some padding to allow long labels to be fully visible
-* Refactor: Change dependencies and imports (#45)
-* Test: Add comprehensive test suite (#44)
-* Documentation: Improve documentation, deprecate `show_percentage`, and update `geom_venn`
-* Feature: Add `show_stats` Argument to `ggvenn` for enhanced display flexibility
-* Feature: Added option to add comma as separation for large numbers (#42)
-* Documentation: Add links to DESCRIPTION (#39)
+* Fix: Allow individual stroke color/alpha settings for each set (#33)
+* Feature: Add `show_set_totals` and `show_stats` arguments for enhanced display flexibility
+* Feature: Add data conversion utility functions (`data_frame_to_list`, `list_to_data_frame`)
+* Refactor: Improve `geom_venn` function structure and readability
+* Fix: Replace deprecated `size` aesthetic with `linewidth` for ggplot2 3.4.0 compatibility
+* Feature: Add comma separation option for large numbers (#42)
+* Documentation: Improve package documentation and add GitHub Actions workflows
 
 ## Version 0.1.10 (2023-03-31)
 

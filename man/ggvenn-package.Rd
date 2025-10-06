@@ -5,7 +5,7 @@
 \alias{ggvenn-package}
 \title{ggvenn: Draw Venn Diagram by 'ggplot2'}
 \description{
-An easy-to-use way to draw pretty venn diagram by 'ggplot2'.
+An easy-to-use way to draw pretty Venn diagrams using 'ggplot2'. This package provides functions to create Venn diagrams with customizable colors, labels, and styling options.
 }
 \seealso{
 Useful links:
