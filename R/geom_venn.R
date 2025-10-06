@@ -112,7 +112,7 @@ geom_venn <- function(
     optional_aes = c("C", "D", "label"),
     extra_params = c("na.rm"),
     setup_data = function(self, data, params) {
-      data %>% mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
+      data %>% dplyr::mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
     },
     draw_panel = function(self, data, panel_params, coord, ...) {
       attr <- self$customize_attributes
@@ -138,21 +138,29 @@ geom_venn <- function(
 
       d0 <- ggplot2::coord_munch(coord, venn$shapes, panel_params)
       d <- d0 %>%
-        dplyr::filter(!duplicated(group)) %>%
-        dplyr::mutate(
-          fill_color = attr$fill_color[group],
-          fill_alpha = attr$fill_alpha,
-          stroke_color = attr$stroke_color,
-          stroke_alpha = attr$stroke_alpha,
-          stroke_size = attr$stroke_size,
-          stroke_linetype = attr$stroke_linetype
-        )
+        dplyr::filter(!duplicated(group))
+
+      update_column <- function(d, column, value) {
+        if (length(value) == 1) {
+          d[[column]] <- value
+        } else {
+          # For multiple values, assign based on group index
+          d[[column]] <- value[d$group]
+        }
+        d
+      }
+      d <- update_column(d, "fill_color", attr$fill_color)
+      d <- update_column(d, "fill_alpha", attr$fill_alpha)
+      d <- update_column(d, "stroke_color", attr$stroke_color)
+      d <- update_column(d, "stroke_alpha", attr$stroke_alpha)
+      d <- update_column(d, "stroke_size", attr$stroke_size)
+      d <- update_column(d, "stroke_linetype", attr$stroke_linetype)
 
       gl <- grid::gList(
         grid::polygonGrob(
           id = d0$group,
           d0$x, d0$y, default.units = "native",
-          gp = gpar(
+          gp = grid::gpar(
             col = NA,
             fill = scales::alpha(d$fill_color, d$fill_alpha)
           )
@@ -160,7 +168,7 @@ geom_venn <- function(
         grid::polygonGrob(
           id = d0$group,
           d0$x, d0$y, default.units = "native",
-          gp = gpar(
+          gp = grid::gpar(
             col = scales::alpha(d$stroke_color, d$stroke_alpha),
             fill = NA,
             lwd = d$stroke_size * .pt,
@@ -184,7 +192,7 @@ geom_venn <- function(
             updated_labels,
             d1$x, d1$y, default.units = "native",
             hjust = d1$hjust, vjust = d1$vjust,
-            gp = gpar(
+            gp = grid::gpar(
               col = attr$set_name_color,
               fontsize = attr$set_name_size * .pt
             )
@@ -200,7 +208,7 @@ geom_venn <- function(
             d2$text,
             d2$x, d2$y, default.units = "native",
             hjust = d2$hjust, vjust = d2$vjust,
-            gp = gpar(col = attr$text_color, fontsize = attr$text_size * .pt)
+            gp = grid::gpar(col = attr$text_color, fontsize = attr$text_size * .pt)
           )
         )
       }
@@ -211,11 +219,11 @@ geom_venn <- function(
           grid::segmentsGrob(
             d3$x, d3$y, d3$xend, d3$yend,
             default.units = "native",
-            gp = gpar(col = attr$text_color, lwd = attr$text_size * .pt)
+            gp = grid::gpar(col = attr$text_color, lwd = attr$text_size * .pt)
           )
         )
       }
-      ggplot2:::ggname("geom_venn", grobTree(gl))
+      ggplot2:::ggname("geom_venn", grid::grobTree(gl))
     }
   )
 
@@ -234,10 +242,10 @@ geom_venn <- function(
     if (is.null(set_names)) {
       self$geom$set_names <- character()
       for (name in names(plot$mapping)) {
-        self$geom$set_names[name] <- as_label(plot$mapping[[name]])
+        self$geom$set_names[name] <- dplyr::as_label(plot$mapping[[name]])
       }
       for (name in names(self$mapping)) {
-        self$geom$set_names[name] <- as_label(self$mapping[[name]])
+        self$geom$set_names[name] <- dplyr::as_label(self$mapping[[name]])
       }
     } else {
       self$geom$set_names <- set_names

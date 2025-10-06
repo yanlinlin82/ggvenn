@@ -97,8 +97,22 @@ ggvenn <- function(data, columns = NULL,
   venn_data <- prepare_venn_data(data, columns, show_elements, show_set_totals,
                                  show_stats, digits, label_sep, count_column,
                                  show_outside, auto_scale, comma_sep = comma_sep)
+
+  if (length(stroke_color) > 1) {
+    stroke_color <- stroke_color[venn_data$shapes$group]
+  }
+  if (length(stroke_size) > 1) {
+    stroke_size <- stroke_size[venn_data$shapes$group]
+  }
+  if (length(stroke_alpha) > 1) {
+    stroke_alpha <- stroke_alpha[venn_data$shapes$group]
+  }
+  if (length(stroke_linetype) > 1) {
+    stroke_linetype <- stroke_linetype[venn_data$shapes$group]
+  }
+
   g <- venn_data$shapes %>%
-    mutate(group = LETTERS[group]) %>%
+    dplyr::mutate(group = LETTERS[group]) %>%
     ggplot() +
     geom_polygon(aes(x = x, y = y, group = group, fill = group),
                  alpha = fill_alpha) +
@@ -138,7 +152,7 @@ ggvenn <- function(data, columns = NULL,
     guides(fill = "none") +
     coord_fixed() +
     theme_void()
-  return(g)
+  g
 }
 
 # Helper function to generate element data frames for different set counts
