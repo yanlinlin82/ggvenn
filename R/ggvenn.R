@@ -74,7 +74,7 @@ ggvenn <- function(
   show_stats = "cp",
   show_percentage = lifecycle::deprecated(),
   digits = 1,
-  fill_color = c("blue", "yellow", "green", "red"),
+  fill_color = default_color_list,
   fill_alpha = .5,
   stroke_color = "black",
   stroke_alpha = 1,

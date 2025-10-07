@@ -94,7 +94,7 @@ geom_venn <- function(
   count_column = NULL,
   show_outside = c("auto", "none", "always"),
   auto_scale = FALSE,
-  fill_color = c("blue", "yellow", "green", "red"),
+  fill_color = default_color_list,
   fill_alpha = .5,
   stroke_color = "black",
   stroke_alpha = 1,

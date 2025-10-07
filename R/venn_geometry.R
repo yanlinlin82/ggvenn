@@ -4,6 +4,13 @@ library(ggplot2)
 
 #==========================================================#
 
+default_color_list <- c(
+  "blue", "yellow", "green", "red",
+  "purple", "orange", "pink", "brown"
+)
+
+#==========================================================#
+
 gen_circle <- function(
   group, x_offset = 0, y_offset = 0, radius = 1,
   radius_b = radius, theta_offset = 0, length.out = 100
@@ -19,6 +26,27 @@ gen_circle <- function(
       x = x_offset + x_raw * cos(theta_offset) - y_raw * sin(theta_offset),
       y = y_offset + x_raw * sin(theta_offset) + y_raw * cos(theta_offset)
     )
+  d
+}
+
+gen_circle_list <- function(
+  n,
+  center_radius = 1,
+  ellipse_a = 1.5,
+  ellipse_b = 1,
+  start_angle = pi / 2,
+  rotation_offset = -pi / 6
+) {
+  d <- list()
+  for (i in seq_len(n)) {
+    theta <- start_angle + 2 * pi * (i - 1) / n
+    x <- center_radius * cos(theta)
+    y <- center_radius * sin(theta)
+    c <- gen_circle(i, x, y, ellipse_a, ellipse_b, theta + rotation_offset)
+    d[[i]] <- c
+  }
+  d <- do.call(rbind, d)
+  d$group <- LETTERS[d$group]
   d
 }
 
@@ -212,26 +240,18 @@ try_plot <- function(
   start_angle = pi / 2,
   rotation_offset = -pi / 6
 ) {
-  d <- list()
-  for (i in seq_len(n)) {
-    theta <- start_angle + 2 * pi * (i - 1) / n
-    x <- center_radius * cos(theta)
-    y <- center_radius * sin(theta)
-    c <- gen_circle(i, x, y, ellipse_a, ellipse_b, theta + rotation_offset)
-    d[[i]] <- c
-  }
-  d <- do.call(rbind, d)
-  d$group <- as.character(d$group)
+  d <- gen_circle_list(
+    n, center_radius, ellipse_a, ellipse_b,
+    start_angle, rotation_offset
+  )
   g <- ggplot(d) +
     geom_polygon(
       aes(x = x, y = y, group = group, fill = group),
       alpha = 0.5
     ) +
     scale_fill_manual(
-      values = c(
-        "red", "blue", "green", "yellow", "purple",
-        "orange", "pink", "brown", "gray"
-      )) +
+      values = default_color_list[(seq_len(n) %% length(default_color_list)) + 1]
+    ) +
     geom_polygon(
       aes(x = x, y = y, group = group),
       color = "black",

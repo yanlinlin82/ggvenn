@@ -12,7 +12,7 @@ ggvenn(
   show_stats = "cp",
   show_percentage = lifecycle::deprecated(),
   digits = 1,
-  fill_color = c("blue", "yellow", "green", "red"),
+  fill_color = default_color_list,
   fill_alpha = 0.5,
   stroke_color = "black",
   stroke_alpha = 1,
@@ -89,12 +89,9 @@ Plot venn diagram as an independent function. It supports both data frame and li
 library(ggvenn)
 
 # use list as input
-a <- list(`Set 1` = c(1, 3, 5, 7),
-          `Set 2` = c(1, 5, 9),
-          `Set 3` = c(1, 2, 8),
-          `Set 4` = c(6, 7))
-ggvenn(a, c("Set 1", "Set 2"))
-ggvenn(a, c("Set 1", "Set 2", "Set 3"))
+a <- list(A = 1:5, B = 4:9, C = c(2:3, 8:12), D = c(1, 5, 9))
+ggvenn(a, c("A", "B"))
+ggvenn(a, c("A", "B", "C"))
 ggvenn(a)
 
 # use data.frame as input
