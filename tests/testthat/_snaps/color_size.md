@@ -4,13 +4,6 @@
       normalize_ggvenn_output(ggvenn(a, stroke_linetype = 2, stroke_size = 0.5,
         set_name_color = "red", set_name_size = 15, fill_color = c("pink", "gold")))
     Output
-      [1] "A" "B"
-    Condition
-      Warning:
-      `aes_string()` was deprecated in ggplot2 3.0.0.
-      i Please use tidy evaluation idioms with `aes()`.
-      i See also `vignette("ggplot2-in-packages")` for more information.
-    Output
       [[1]]
       [[1]]$A
       [1]  TRUE  TRUE  TRUE  TRUE FALSE
@@ -28,16 +21,16 @@
       [1] 3
       
       [[1]]$xmin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.866163 -1.866163 -1.866163 -1.866163 -1.866163
       
       [[1]]$xmax
-      [1] 2 2 2 2 2
+      [1] 1.866667 1.866667 1.866667 1.866667 1.866667
       
       [[1]]$ymin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.199874 -1.199874 -1.199874 -1.199874 -1.199874
       
       [[1]]$ymax
-      [1] 2 2 2 2 2
+      [1] 1.4 1.4 1.4 1.4 1.4
       
       
 

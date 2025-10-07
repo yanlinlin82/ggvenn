@@ -66,9 +66,16 @@ gen_label_pos_list <- function(name_list, radius = 2.6, start_angle = pi / 2) {
 #==========================================================#
 
 gen_circle_2 <- function(scale_info) {
-  a_radius <- scale_info["a_radius"]
-  b_radius <- scale_info["b_radius"]
-  overlap_size <- scale_info["overlap_size"]
+  if (is.null(scale_info)) {
+    # Default values when auto_scale is FALSE
+    a_radius <- 1
+    b_radius <- 1
+    overlap_size <- 1 / 3
+  } else {
+    a_radius <- scale_info["a_radius"]
+    b_radius <- scale_info["b_radius"]
+    overlap_size <- scale_info["overlap_size"]
+  }
   x_dist <- (a_radius + b_radius - overlap_size * 2) / 2
   rbind(gen_circle(1L, -x_dist, 0, a_radius),
         gen_circle(2L, x_dist, 0, b_radius))
@@ -82,7 +89,7 @@ gen_text_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
     "AB",   0,    0,   0.5,    0.5,
     "-",    0,   -1.2, 0.5,    0.5
   )
-  if (scale_info["auto_scale"]) {
+  if (!is.null(scale_info) && scale_info["auto_scale"]) {
     a_radius <- scale_info["a_radius"]
     b_radius <- scale_info["b_radius"]
     overlap_size <- scale_info["overlap_size"]
@@ -125,10 +132,11 @@ gen_text_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
 
 gen_seg_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
   df <- tibble(x = 0, y = 0, xend = 0, yend = 0)[-1, ]
-  a_radius <- scale_info["a_radius"]
-  b_radius <- scale_info["b_radius"]
-  overlap_size <- scale_info["overlap_size"]
-  if (overlap_size > 0 && scale_info["auto_scale"]) {
+  if (!is.null(scale_info)) {
+    a_radius <- scale_info["a_radius"]
+    b_radius <- scale_info["b_radius"]
+    overlap_size <- scale_info["overlap_size"]
+    if (overlap_size > 0 && scale_info["auto_scale"]) {
     x_dist <- (a_radius + b_radius - overlap_size * 2) / 2
     if (scale_info["overlap_size"] < min_overlap_for_text) {
       x_pos <- -x_dist + a_radius - overlap_size
@@ -143,6 +151,7 @@ gen_seg_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
       }
     }
   }
+  }
   return(df)
 }
 
@@ -152,7 +161,7 @@ gen_label_pos_2 <- function(scale_info) {
     "A",   -0.8, 1.2, 0.5,    0,
     "B",    0.8, 1.2, 0.5,    0
   )
-  if (scale_info["auto_scale"]) {
+  if (!is.null(scale_info) && scale_info["auto_scale"]) {
   }
   df
 }

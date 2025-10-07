@@ -3,13 +3,6 @@
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = FALSE))
     Output
-      [1] "A" "B"
-    Condition
-      Warning:
-      `aes_string()` was deprecated in ggplot2 3.0.0.
-      i Please use tidy evaluation idioms with `aes()`.
-      i See also `vignette("ggplot2-in-packages")` for more information.
-    Output
       [[1]]
       [[1]]$A
       [1] TRUE TRUE TRUE TRUE TRUE
@@ -27,16 +20,16 @@
       [1] 2
       
       [[1]]$xmin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.866163 -1.866163 -1.866163 -1.866163 -1.866163
       
       [[1]]$xmax
-      [1] 2 2 2 2 2
+      [1] 1.866667 1.866667 1.866667 1.866667 1.866667
       
       [[1]]$ymin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.199874 -1.199874 -1.199874 -1.199874 -1.199874
       
       [[1]]$ymax
-      [1] 2 2 2 2 2
+      [1] 1.4 1.4 1.4 1.4 1.4
       
       
 
@@ -45,13 +38,6 @@
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE))
     Output
-      [1] "A" "B"
-    Condition
-      Warning:
-      `aes_string()` was deprecated in ggplot2 3.0.0.
-      i Please use tidy evaluation idioms with `aes()`.
-      i See also `vignette("ggplot2-in-packages")` for more information.
-    Output
       [[1]]
       [[1]]$A
       [1] TRUE TRUE TRUE TRUE TRUE
@@ -69,16 +55,16 @@
       [1] 2
       
       [[1]]$xmin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.866163 -1.866163 -1.866163 -1.866163 -1.866163
       
       [[1]]$xmax
-      [1] 2 2 2 2 2
+      [1] 1.866667 1.866667 1.866667 1.866667 1.866667
       
       [[1]]$ymin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.199874 -1.199874 -1.199874 -1.199874 -1.199874
       
       [[1]]$ymax
-      [1] 2 2 2 2 2
+      [1] 1.4 1.4 1.4 1.4 1.4
       
       
 
@@ -87,13 +73,6 @@
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE, digits = 2))
     Output
-      [1] "A" "B"
-    Condition
-      Warning:
-      `aes_string()` was deprecated in ggplot2 3.0.0.
-      i Please use tidy evaluation idioms with `aes()`.
-      i See also `vignette("ggplot2-in-packages")` for more information.
-    Output
       [[1]]
       [[1]]$A
       [1] TRUE TRUE TRUE TRUE TRUE
@@ -111,16 +90,16 @@
       [1] 2
       
       [[1]]$xmin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.866163 -1.866163 -1.866163 -1.866163 -1.866163
       
       [[1]]$xmax
-      [1] 2 2 2 2 2
+      [1] 1.866667 1.866667 1.866667 1.866667 1.866667
       
       [[1]]$ymin
-      [1] -2 -2 -2 -2 -2
+      [1] -1.199874 -1.199874 -1.199874 -1.199874 -1.199874
       
       [[1]]$ymax
-      [1] 2 2 2 2 2
+      [1] 1.4 1.4 1.4 1.4 1.4
       
       
 

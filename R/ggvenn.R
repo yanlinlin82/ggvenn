@@ -105,7 +105,7 @@ ggvenn <- function(
     }
   }
 
-  set_names <- NULL
+  set_names <- character(0)
   if (missing(columns)) {
     for (name in names(data)) {
       if (is.logical(data[[name]])) {
@@ -149,22 +149,25 @@ ggvenn <- function(
   }
   stopifnot(show_counts || show_percentage)
 
-  # Use backticks to handle column names with spaces
-  set_names <- lapply(set_names, function(x) paste0("`", x, "`"))
+  # Create aes mapping using modern ggplot2 syntax
+  aes_list <- list()
+  for (i in seq_along(set_names)) {
+    aes_list[[LETTERS[i]]] <- sym(set_names[[i]])
+  }
 
   if (is.logical(show_elements)) {
     if (show_elements) {
       show_elements <- "key"
-      set_names <- c(set_names, "label" = "key")
+      aes_list[["label"]] <- sym("key")
     }
   } else if (!is.character(show_elements)) {
     stop("show_elements must be a logical or a character vector")
   } else {
     stopifnot(show_elements %in% names(data))
-    set_names <- c(set_names, "label" = show_elements)
+    aes_list[["label"]] <- sym(show_elements)
   }
 
-  the_aes <- do.call(aes_string, set_names)
+  the_aes <- do.call(aes, aes_list)
 
   g <- ggplot(data) +
     geom_venn(
