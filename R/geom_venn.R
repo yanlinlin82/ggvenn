@@ -250,7 +250,7 @@ geom_venn <- function(
         )
       }
 
-      if (!is.null(venn$segs)) {
+      if (!is.null(venn$segs) && nrow(venn$segs) > 0) {
         d3 <- ggplot2::coord_munch(coord, venn$segs, panel_params)
         gl <- grid::gList(
           gl,
