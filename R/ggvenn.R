@@ -78,6 +78,10 @@ ggvenn <- function(
   show_counts = TRUE,
   show_percentage = TRUE,
   digits = 1,
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE,
   fill_color = default_color_list,
   fill_alpha = .5,
   stroke_color = "black",
@@ -88,124 +92,56 @@ ggvenn <- function(
   set_name_size = 6,
   text_color = "black",
   text_size = 4,
-  label_sep = ",",
-  count_column = NULL,
-  show_outside = c("auto", "none", "always"),
-  auto_scale = FALSE,
   comma_sep = FALSE,
   padding = 0.2
 ) {
-  show_outside <- match.arg(show_outside)
+  if (!is.data.frame(data)) {
+    if (is.list(data)) {
+      data <- list_to_data_frame(data)
+    } else {
+      stop("data must be a list or a data.frame")
+    }
+  }
 
-  if (!missing(show_stats)) {
-    show_stats <- match.arg(show_stats)
-    if (show_stats == "cp") {
-      show_counts <- TRUE
-      show_percentage <- TRUE
-    } else if (show_stats == "c") {
-      show_counts <- TRUE
-      show_percentage <- FALSE
-    } else if (show_stats == "p") {
-      show_counts <- FALSE
-      show_percentage <- TRUE
+  set_names <- NULL
+  if (missing(columns)) {
+    for (name in names(data)) {
+      if (is.logical(data[[name]])) {
+        set_names <- c(set_names, name)
+      }
     }
   } else {
-    show_counts <- ifelse(missing(show_counts), TRUE, show_counts)
-    show_percentage <- ifelse(missing(show_percentage), TRUE, show_percentage)
+    for (name in columns) {
+      stopifnot(name %in% names(data))
+      stopifnot(is.logical(data[[name]]))
+    }
+    set_names <- columns
   }
-  stopifnot(show_counts || show_percentage)
+  print(set_names)
+  stopifnot(length(set_names) >= 2 && length(set_names) <= 4)
+  set_names <- as.list(set_names)
+  names(set_names) <- LETTERS[seq_along(set_names)]
 
-  venn_data <- prepare_venn_data(
-    data, columns, show_elements, show_set_totals,
-    show_counts, show_percentage, digits, label_sep, count_column,
-    show_outside, auto_scale, comma_sep = comma_sep
-  )
+  # Use backticks to handle column names with spaces
+  set_names <- lapply(set_names, function(x) paste0("`", x, "`"))
 
-  if (length(stroke_color) > 1) {
-    stroke_color <- stroke_color[venn_data$shapes$group]
-  }
-  if (length(stroke_size) > 1) {
-    stroke_size <- stroke_size[venn_data$shapes$group]
-  }
-  if (length(stroke_alpha) > 1) {
-    stroke_alpha <- stroke_alpha[venn_data$shapes$group]
-  }
-  if (length(stroke_linetype) > 1) {
-    stroke_linetype <- stroke_linetype[venn_data$shapes$group]
-  }
+  the_aes <- do.call(aes_string, set_names)
 
-  g <- venn_data$shapes %>%
-    dplyr::mutate(group = LETTERS[group]) %>%
-    ggplot() +
-    geom_polygon(
-      aes(x = x, y = y, group = group, fill = group),
-      alpha = fill_alpha
+  g <- ggplot(data) +
+    geom_venn(
+      the_aes,
+      show_stats = show_stats,
+      show_counts = show_counts,
+      show_percentage = show_percentage,
+      digits = digits,
+      label_sep = label_sep,
+      count_column = count_column,
+      show_outside = show_outside,
+      auto_scale = auto_scale,
+      comma_sep = comma_sep,
+      padding = padding
     ) +
-    geom_polygon(
-      aes(x = x, y = y, group = group),
-      fill = NA,
-      color = stroke_color,
-      linewidth = stroke_size,
-      alpha = stroke_alpha,
-      linetype = stroke_linetype
-    )
-
-  if (nrow(venn_data$labels) > 0) {
-    g <- g +
-      geom_text(
-        data = venn_data$labels,
-        aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-        color = set_name_color,
-        size = set_name_size
-      )
-  }
-
-  if (nrow(venn_data$texts) > 0) {
-    g <- g +
-      geom_text(
-        data = venn_data$texts,
-        aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-        color = text_color,
-        size = text_size
-      )
-  }
-
-  if (nrow(venn_data$segs) > 0) {
-    g <- g +
-      geom_segment(
-        data = venn_data$segs,
-        aes(x = x, y = y, xend = xend, yend = yend),
-        color = text_color,
-        linewidth = 0.5
-      )
-  }
-  set_names <- get_set_names(columns, data)
-  fill_color <- fix_fill_color(fill_color, set_names)
-  g <- g +
-    scale_fill_manual(values = fill_color) +
-    scale_x_discrete(expand = expansion(mult = c(padding, padding))) +
-    scale_y_discrete(expand = expansion(mult = c(padding, padding))) +
-    guides(fill = "none") +
     coord_fixed() +
     theme_void()
   g
-}
-
-get_set_names <- function(columns, data) {
-  set_names <- columns
-  if (is.null(set_names)) {
-    set_names <- names(data)
-  }
-  set_names
-}
-
-fix_fill_color <- function(fill_color, set_names) {
-  if (!is.null(names(fill_color))) {
-    for (i in seq_along(fill_color)) {
-      if (names(fill_color)[i] %in% set_names) {
-        names(fill_color)[i] <- LETTERS[which(set_names == names(fill_color)[i])]
-      }
-    }
-  }
-  fill_color
 }

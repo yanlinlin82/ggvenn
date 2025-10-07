@@ -13,6 +13,10 @@ ggvenn(
   show_counts = TRUE,
   show_percentage = TRUE,
   digits = 1,
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE,
   fill_color = default_color_list,
   fill_alpha = 0.5,
   stroke_color = "black",
@@ -23,10 +27,6 @@ ggvenn(
   set_name_size = 6,
   text_color = "black",
   text_size = 4,
-  label_sep = ",",
-  count_column = NULL,
-  show_outside = c("auto", "none", "always"),
-  auto_scale = FALSE,
   comma_sep = FALSE,
   padding = 0.2
 )
@@ -50,6 +50,14 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 
 \item{digits}{The desired number of digits after the decimal point}
 
+\item{label_sep}{Separator character for displaying elements.}
+
+\item{count_column}{Specify column for element repeat count.}
+
+\item{show_outside}{Show outside elements (not belongs to any set).}
+
+\item{auto_scale}{Allow automatically resizing circles according to element counts.}
+
 \item{fill_color}{Filling colors in circles.}
 
 \item{fill_alpha}{Transparency for filling circles.}
@@ -69,14 +77,6 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 \item{text_color}{Text color for intersect contents.}
 
 \item{text_size}{Text size for intersect contents.}
-
-\item{label_sep}{Separator character for displaying elements.}
-
-\item{count_column}{Specify column for element repeat count.}
-
-\item{show_outside}{Show outside elements (not belongs to any set).}
-
-\item{auto_scale}{Allow automatically resizing circles according to element counts.}
 
 \item{comma_sep}{Whether to use comma as separator for displaying numbers.}
 

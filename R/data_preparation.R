@@ -288,88 +288,50 @@ prepare_venn_data <- function(
   comma_sep = FALSE
 ) {
   show_outside <- match.arg(show_outside)
-  if (is.data.frame(data)) {
-    if (is.null(columns)) {
-      columns <- data %>% select_if(is.logical) %>% names()
-    }
-    if (!identical(show_elements, FALSE)) {
-      if (!{
-        if (is.character(show_elements)) {
-          show_elements <- show_elements[[1]]
-          show_elements %in% names(data)
-        } else { FALSE }}) {
-        stop("Value ", deparse(show_elements),
-             " in `show_elements` does not correspond to any column name of the data frame.",
-             call. = FALSE)
-      }
-    }
-    if (length(columns) == 2) {
-      df_element <- process_data_frame_elements(data, columns, 2, count_column, show_elements, label_sep)
-      scale_info <- calc_scale_info_2(auto_scale, df_element$n)
-      df_shape <- gen_circle_2(scale_info)
-      df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_2(scale_info)
-      df_seg <- gen_seg_pos_2(scale_info)
-    } else if (length(columns) == 3) {
-      df_element <- process_data_frame_elements(data, columns, 3, count_column, show_elements, label_sep)
-      scale_info <- calc_scale_info_3(auto_scale, df_element$n)
-      df_shape <- gen_circle_3()
-      df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_3()
-      df_seg <- gen_seg_pos_3(scale_info)
-    } else if (length(columns) == 4) {
-      df_element <- process_data_frame_elements(data, columns, 4, count_column, show_elements, label_sep)
-      scale_info <- calc_scale_info_4(auto_scale, df_element$n)
-      df_shape <- gen_circle_4()
-      df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_4()
-      df_seg <- gen_seg_pos_4(scale_info)
-    } else {
-      stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
-    }
-    df_label <- df_label %>%
-      mutate(
-        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
-        hjust = 0.5
-      )
-    show_elements <- !identical(show_elements, FALSE)
-  } else if (is.list(data)) {
-    if (is.null(columns)) {
-      columns <- names(data) %>% head(4)
-    }
-    all_elements <- na.omit(unique(unlist(data[columns])))
-    if (length(columns) == 2) {
-      df_element <- process_list_elements(data, columns, all_elements, 2, label_sep)
-      scale_info <- calc_scale_info_2(auto_scale, df_element$n)
-      df_shape <- gen_circle_2(scale_info)
-      df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_2(scale_info)
-      df_seg <- gen_seg_pos_2(scale_info)
-    } else if (length(columns) == 3) {
-      df_element <- process_list_elements(data, columns, all_elements, 3, label_sep)
-      scale_info <- calc_scale_info_3(auto_scale, df_element$n)
-      df_shape <- gen_circle_3()
-      df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_3()
-      df_seg <- gen_seg_pos_3(scale_info)
-    } else if (length(columns) == 4) {
-      df_element <- process_list_elements(data, columns, all_elements, 4, label_sep)
-      scale_info <- calc_scale_info_4(auto_scale, df_element$n)
-      df_shape <- gen_circle_4()
-      df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
-      df_label <- gen_label_pos_4()
-      df_seg <- gen_seg_pos_4(scale_info)
-    } else {
-      stop("list `data` or vector `column` should be length between 2 and 4")
-    }
-    df_label <- df_label %>%
-      mutate(
-        text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
-        hjust = 0.5
-      )
-  } else {
-    stop("`data` should be either a list or a data.frame")
+  if (is.null(columns)) {
+    columns <- data %>% select_if(is.logical) %>% names()
   }
+  if (!identical(show_elements, FALSE)) {
+    if (!{
+      if (is.character(show_elements)) {
+        show_elements <- show_elements[[1]]
+        show_elements %in% names(data)
+      } else { FALSE }}) {
+      stop("Value ", deparse(show_elements),
+            " in `show_elements` does not correspond to any column name of the data frame.",
+            call. = FALSE)
+    }
+  }
+  if (length(columns) == 2) {
+    df_element <- process_data_frame_elements(data, columns, 2, count_column, show_elements, label_sep)
+    scale_info <- calc_scale_info_2(auto_scale, df_element$n)
+    df_shape <- gen_circle_2(scale_info)
+    df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
+    df_label <- gen_label_pos_2(scale_info)
+    df_seg <- gen_seg_pos_2(scale_info)
+  } else if (length(columns) == 3) {
+    df_element <- process_data_frame_elements(data, columns, 3, count_column, show_elements, label_sep)
+    scale_info <- calc_scale_info_3(auto_scale, df_element$n)
+    df_shape <- gen_circle_3()
+    df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
+    df_label <- gen_label_pos_3()
+    df_seg <- gen_seg_pos_3(scale_info)
+  } else if (length(columns) == 4) {
+    df_element <- process_data_frame_elements(data, columns, 4, count_column, show_elements, label_sep)
+    scale_info <- calc_scale_info_4(auto_scale, df_element$n)
+    df_shape <- gen_circle_4()
+    df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
+    df_label <- gen_label_pos_4()
+    df_seg <- gen_seg_pos_4(scale_info)
+  } else {
+    stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
+  }
+  df_label <- df_label %>%
+    mutate(
+      text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
+      hjust = 0.5
+    )
+  show_elements <- !identical(show_elements, FALSE)
 
   if (!show_elements) {
     fmt_count <- "%d"

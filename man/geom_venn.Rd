@@ -29,7 +29,9 @@ geom_venn(
   set_name_color = "black",
   set_name_size = 6,
   text_color = "black",
-  text_size = 4
+  text_size = 4,
+  comma_sep = FALSE,
+  padding = 0.2
 )
 }
 \arguments{
