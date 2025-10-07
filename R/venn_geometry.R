@@ -97,7 +97,7 @@ gen_text_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
     if (overlap_size <= 0) {
       df$x[[1]] <- -x_dist
       df$x[[2]] <- x_dist
-      df <- df %>% filter(name != "AB")
+      df <- df %>% filter(name != "-")
     } else {
       if (overlap_size < min_overlap_for_text) {
         df$x[[1]] <- -x_dist - overlap_size
@@ -137,20 +137,20 @@ gen_seg_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
     b_radius <- scale_info["b_radius"]
     overlap_size <- scale_info["overlap_size"]
     if (overlap_size > 0 && scale_info["auto_scale"]) {
-    x_dist <- (a_radius + b_radius - overlap_size * 2) / 2
-    if (scale_info["overlap_size"] < min_overlap_for_text) {
-      x_pos <- -x_dist + a_radius - overlap_size
-      if (a_radius < min_overlap_for_text) {
-        x2_pos <- -x_dist + 1.2 * (a_radius - overlap_size) / 2
-        df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * a_radius)
-      } else if (b_radius < min_overlap_for_text) {
-        x2_pos <- x_dist - 1.2 * (a_radius - overlap_size) / 2
-        df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * a_radius)
-      } else {
-        df <- tibble(x = x_pos, y = 0, xend = x_pos, yend = -1)
+      x_dist <- (a_radius + b_radius - overlap_size * 2) / 2
+      if (scale_info["overlap_size"] < min_overlap_for_text) {
+        x_pos <- -x_dist + a_radius - overlap_size
+        if (a_radius < min_overlap_for_text) {
+          x2_pos <- -x_dist + 1.2 * (a_radius - overlap_size) / 2
+          df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * a_radius)
+        } else if (b_radius < min_overlap_for_text) {
+          x2_pos <- x_dist - 1.2 * (a_radius - overlap_size) / 2
+          df <- tibble(x = x_pos, y = 0, xend = x2_pos, yend = -1.2 * a_radius)
+        } else {
+          df <- tibble(x = x_pos, y = 0, xend = x_pos, yend = -1)
+        }
       }
     }
-  }
   }
   return(df)
 }

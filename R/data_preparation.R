@@ -120,44 +120,61 @@ generate_element_df <- function(n_sets) {
   stopifnot(all(count_result$n == 1))
 
   df <- df %>% mutate(n = 0, text = "")
-  #print(df)
   df
 }
 
-calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
+calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_size = 0.2) {
+  print("n_sets: ")
+  print(n_sets)
   if (auto_scale) {
     stopifnot(length(n_sets) == 4)
-    if (n_sets[[1]] == 0 && n_sets[[2]] == 0 && n_sets[[3]] == 0) { # both sets are empty
+    ab_shared <- n_sets[[1]]
+    b_specific <- n_sets[[2]]
+    a_specific <- n_sets[[3]]
+    rest <- n_sets[[4]]
+    if (ab_shared == 0 && b_specific == 0 && a_specific == 0) { # both sets are empty
       a_radius <- 1
       b_radius <- 1
-      overlap_size <- -0.2
-    } else if (n_sets[[1]] + n_sets[[3]] == 0) { # set A is empty
+      overlap_size <- -spacing_size
+    } else if (ab_shared + a_specific == 0) { # set A is empty
       a_radius <- 1 / max_scale_diff
       b_radius <- 1
-      overlap_size <- -0.2
-    } else if (n_sets[[2]] + n_sets[[3]] == 0) { # set B is empty
+      overlap_size <- -spacing_size
+    } else if (ab_shared + b_specific == 0) { # set B is empty
       a_radius <- 1
       b_radius <- 1 / max_scale_diff
-      overlap_size <- -0.2
-    } else if (n_sets[[1]] >= n_sets[[2]]) { # set A is larger than or equal to set B
-      a_radius <- 1
-      b_radius <- (n_sets[[2]] + n_sets[[3]]) / (n_sets[[1]] + n_sets[[3]])
-      overlap_size <- ifelse(n_sets[[3]] == 0, -0.2, n_sets[[3]] / (n_sets[[1]] + n_sets[[3]]))
-      if (b_radius < 1 / max_scale_diff) {
-        b_radius <- 1 / max_scale_diff
-        if (overlap_size > 0) {
-          overlap_size <- b_radius * (n_sets[[3]] / (n_sets[[2]] + n_sets[[3]]))
-        }
+      overlap_size <- -spacing_size
+    } else if (ab_shared == 0) {
+      if (a_specific > b_specific) {
+        a_radius <- 1
+        b_radius <- sqrt(b_specific / a_specific)
+        overlap_size <- -spacing_size
+      } else {
+        a_radius <- sqrt(a_specific / b_specific)
+        b_radius <- 1
+        overlap_size <- -spacing_size
       }
-    } else { # set A is smaller than set B
-      a_radius <- (n_sets[[1]] + n_sets[[3]]) / (n_sets[[2]] + n_sets[[3]])
+    } else if (a_specific + b_specific == 0) { # both sets are empty
+      a_radius <- 1
       b_radius <- 1
-      overlap_size <- ifelse(n_sets[[3]] == 0, -0.2, n_sets[[3]] / (n_sets[[2]] + n_sets[[3]]))
-      if (a_radius < 1 / max_scale_diff) {
-        a_radius <- 1 / max_scale_diff
-        if (overlap_size > 0) {
-          overlap_size <- a_radius * (n_sets[[3]] / (n_sets[[1]] + n_sets[[3]]))
-        }
+      overlap_size <- 0.95
+    } else if (a_specific == 0) { # B contains A
+      a_radius <- sqrt(ab_shared / (ab_shared + b_specific))
+      b_radius <- 1
+      overlap_size <- a_radius
+    } else if (b_specific == 0) { # A contains B
+      a_radius <- 1
+      b_radius <- sqrt(ab_shared / (ab_shared + a_specific))
+      overlap_size <- b_radius
+    } else {
+      if (a_specific > b_specific) { # A is larger than B
+        a_radius <- 1
+        b_radius <- sqrt((ab_shared + b_specific) / (a_specific + b_specific))
+        overlap_size <- sqrt(ab_shared / (a_specific + b_specific))
+      } else { # B is larger than A
+        a_radius <- sqrt((ab_shared + a_specific) / (a_specific + b_specific))
+        b_radius <- 1
+        overlap_size <- sqrt(ab_shared / (a_specific + b_specific))
       }
     }
   } else {
@@ -293,22 +310,37 @@ prepare_venn_data <- function(
   comma_sep = FALSE
 ) {
   show_outside <- match.arg(show_outside)
-  if (is.null(columns)) {
-    columns <- data %>% select_if(is.logical) %>% names()
-  }
-  if (!identical(show_elements, FALSE)) {
-    if (!{
-      if (is.character(show_elements)) {
-        show_elements <- show_elements[[1]]
-        show_elements %in% names(data)
-      } else { FALSE }}) {
-      stop("Value ", deparse(show_elements),
-            " in `show_elements` does not correspond to any column name of the data frame.",
-            call. = FALSE)
+
+  stopifnot(is.data.frame(data))
+
+  set_names <- character(0)
+  if (missing(columns)) {
+    for (name in names(data)) {
+      if (is.logical(data[[name]])) {
+        set_names <- c(set_names, name)
+      }
     }
+  } else {
+    for (name in columns) {
+      stopifnot(name %in% names(data))
+      stopifnot(is.logical(data[[name]]))
+    }
+    set_names <- columns
+  }
+  n_sets <- length(set_names)
+  stopifnot(n_sets >= min_set_num && n_sets <= max_set_num)
+
+  if (is.logical(show_elements)) {
+    if (show_elements) {
+      show_elements <- "key"
+    }
+  } else if (!is.character(show_elements)) {
+    stop("show_elements must be a logical or a character vector")
+  } else {
+    stopifnot(show_elements %in% names(data))
   }
 
-  venn_funcs <- get_venn_funcs(length(columns))
+  venn_funcs <- get_venn_funcs(n_sets)
   if (is.null(venn_funcs)) {
     stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
   }
@@ -316,6 +348,8 @@ prepare_venn_data <- function(
   df_element <- process_data_frame_elements(
     data, columns, length(columns), count_column, show_elements, label_sep
   )
+  print("df_element: ")
+  print(df_element)
 
   if (auto_scale) {
     if (is.null(venn_funcs[["calc_scale_info"]])) {
@@ -329,9 +363,7 @@ prepare_venn_data <- function(
   df_shape <- venn_funcs[["gen_circle"]](scale_info)
 
   df_text <- venn_funcs[["gen_text_pos"]](scale_info)
-  #print(df_text)
   df_text <- df_text %>% inner_join(df_element, by = "name")
-  #print(df_text)
 
   df_label <- venn_funcs[["gen_label_pos"]](scale_info)
 
