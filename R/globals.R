@@ -4,7 +4,6 @@ utils::globalVariables(c(
   "head", "hjust", "n", "text",
   "vjust", "x", "y",
   "name", "xend", "yend",
-  "gen_element_df_2", "gen_element_df_3", "gen_element_df_4",
   "gen_circle",
   "calc_scale_info_2", "calc_scale_info_3", "calc_scale_info_4",
   "min_overlap_for_text",

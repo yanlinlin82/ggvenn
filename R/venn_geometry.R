@@ -146,7 +146,7 @@ gen_label_pos_2 <- function(scale_info) {
 
 #==========================================================#
 
-gen_circle_3 <- function() {
+gen_circle_3 <- function(scale_info) {
   rbind(
     gen_circle(1L, -2/3, (sqrt(3) + 2) / 6, 1),
     gen_circle(2L, 2/3,(sqrt(3) + 2) / 6, 1),
@@ -154,7 +154,7 @@ gen_circle_3 <- function() {
   )
 }
 
-gen_text_pos_3 <- function() {
+gen_text_pos_3 <- function(scale_info, min_overlap_for_text = 0.2) {
   tribble(
     ~name, ~x,    ~y,   ~hjust, ~vjust,
     "A",   -0.8,  0.62, 0.5,    0.5,
@@ -173,7 +173,7 @@ gen_seg_pos_3 <- function(scale_info) {
   df
 }
 
-gen_label_pos_3 <- function() {
+gen_label_pos_3 <- function(scale_info) {
   tribble(
     ~name, ~x,    ~y,  ~hjust, ~vjust,
     "A",   -0.8,  1.8, 0.5,    0,
@@ -184,7 +184,7 @@ gen_label_pos_3 <- function() {
 
 #==========================================================#
 
-gen_circle_4 <- function() {
+gen_circle_4 <- function(scale_info) {
   rbind(
     gen_circle(1L, -.7, -1/2, .75, 1.5, pi/4),
     gen_circle(2L, -.72+2/3, -1/6, .75, 1.5, pi/4),
@@ -193,7 +193,7 @@ gen_circle_4 <- function() {
   )
 }
 
-gen_text_pos_4 <- function() {
+gen_text_pos_4 <- function(scale_info, min_overlap_for_text = 0.2) {
   tribble(
     ~name, ~x,    ~y,  ~hjust, ~vjust,
     "A",   -1.5,  0,   0.5,    0.5,
@@ -220,7 +220,7 @@ gen_seg_pos_4 <- function(scale_info) {
   df
 }
 
-gen_label_pos_4 <- function() {
+gen_label_pos_4 <- function(scale_info) {
   tribble(
     ~name, ~x,   ~y,   ~hjust, ~vjust,
     "A",   -1.5, -1.3, 1,      1,

@@ -122,10 +122,6 @@ generate_element_df <- function(n_sets) {
   df %>% mutate(n = 0, text = "")
 }
 
-gen_element_df_2 <- function() generate_element_df(2)
-gen_element_df_3 <- function() generate_element_df(3)
-gen_element_df_4 <- function() generate_element_df(4)
-
 calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
   if (auto_scale) {
     stopifnot(length(n_sets) == 4)
@@ -198,11 +194,11 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
 
   # Generate element data frame
   if (n_sets == 2) {
-    df_element <- gen_element_df_2()
+    df_element <- generate_element_df(2)
   } else if (n_sets == 3) {
-    df_element <- gen_element_df_3()
+    df_element <- generate_element_df(3)
   } else if (n_sets == 4) {
-    df_element <- gen_element_df_4()
+    df_element <- generate_element_df(4)
   }
 
   # Process each combination
@@ -238,39 +234,36 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
   df_element
 }
 
-# Helper function to process list elements
-process_list_elements <- function(data, columns, all_elements, n_sets, label_sep) {
-  # Generate element data frame
+get_venn_funcs <- function(n_sets) {
+  funcs <- NULL
   if (n_sets == 2) {
-    df_element <- gen_element_df_2()
+    funcs <- list(
+      "calc_scale_info" = calc_scale_info_2,
+      "gen_circle" = gen_circle_2,
+      "gen_text_pos" = gen_text_pos_2,
+      "gen_label_pos" = gen_label_pos_2,
+      "gen_seg_pos" = gen_seg_pos_2
+    )
   } else if (n_sets == 3) {
-    df_element <- gen_element_df_3()
+    funcs <- list(
+      "calc_scale_info" = calc_scale_info_3,
+      "gen_circle" = gen_circle_3,
+      "gen_text_pos" = gen_text_pos_3,
+      "gen_label_pos" = gen_label_pos_3,
+      "gen_seg_pos" = gen_seg_pos_3
+    )
   } else if (n_sets == 4) {
-    df_element <- gen_element_df_4()
+    funcs <- list(
+      "calc_scale_info" = calc_scale_info_4,
+      "gen_circle" = gen_circle_4,
+      "gen_text_pos" = gen_text_pos_4,
+      "gen_label_pos" = gen_label_pos_4,
+      "gen_seg_pos" = gen_seg_pos_4
+    )
+  } else {
+    stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
   }
-
-  # Process each combination
-  for (i in seq_len(nrow(df_element))) {
-    # Create index based on combination
-    if (n_sets == 2) {
-      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
-              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])))
-    } else if (n_sets == 3) {
-      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
-              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])) &
-              (!xor(df_element$C[[i]], all_elements %in% data[[columns[[3]]]])))
-    } else if (n_sets == 4) {
-      idx <- ((!xor(df_element$A[[i]], all_elements %in% data[[columns[[1]]]])) &
-              (!xor(df_element$B[[i]], all_elements %in% data[[columns[[2]]]])) &
-              (!xor(df_element$C[[i]], all_elements %in% data[[columns[[3]]]])) &
-              (!xor(df_element$D[[i]], all_elements %in% data[[columns[[4]]]])))
-    }
-
-    df_element$n[[i]] <- sum(idx)
-    df_element$text[[i]] <- paste(all_elements[idx], collapse = label_sep)
-  }
-
-  df_element
+  funcs
 }
 
 prepare_venn_data <- function(
@@ -302,30 +295,19 @@ prepare_venn_data <- function(
             call. = FALSE)
     }
   }
-  if (length(columns) == 2) {
-    df_element <- process_data_frame_elements(data, columns, 2, count_column, show_elements, label_sep)
-    scale_info <- calc_scale_info_2(auto_scale, df_element$n)
-    df_shape <- gen_circle_2(scale_info)
-    df_text <- gen_text_pos_2(scale_info) %>% inner_join(df_element, by = "name")
-    df_label <- gen_label_pos_2(scale_info)
-    df_seg <- gen_seg_pos_2(scale_info)
-  } else if (length(columns) == 3) {
-    df_element <- process_data_frame_elements(data, columns, 3, count_column, show_elements, label_sep)
-    scale_info <- calc_scale_info_3(auto_scale, df_element$n)
-    df_shape <- gen_circle_3()
-    df_text <- gen_text_pos_3() %>% inner_join(df_element, by = "name")
-    df_label <- gen_label_pos_3()
-    df_seg <- gen_seg_pos_3(scale_info)
-  } else if (length(columns) == 4) {
-    df_element <- process_data_frame_elements(data, columns, 4, count_column, show_elements, label_sep)
-    scale_info <- calc_scale_info_4(auto_scale, df_element$n)
-    df_shape <- gen_circle_4()
-    df_text <- gen_text_pos_4() %>% inner_join(df_element, by = "name")
-    df_label <- gen_label_pos_4()
-    df_seg <- gen_seg_pos_4(scale_info)
-  } else {
+  venn_funcs <- get_venn_funcs(length(columns))
+  if (is.null(venn_funcs)) {
     stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
   }
+  df_element <- process_data_frame_elements(
+    data, columns, length(columns), count_column, show_elements, label_sep
+  )
+  scale_info <- venn_funcs[["calc_scale_info"]](auto_scale, df_element$n)
+  df_shape <- venn_funcs[["gen_circle"]](scale_info)
+  df_text <- venn_funcs[["gen_text_pos"]](scale_info) %>% inner_join(df_element, by = "name")
+  df_label <- venn_funcs[["gen_label_pos"]](scale_info)
+  df_seg <- venn_funcs[["gen_seg_pos"]](scale_info)
+
   df_label <- df_label %>%
     mutate(
       text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
