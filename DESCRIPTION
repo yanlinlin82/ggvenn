@@ -23,8 +23,7 @@ Suggests:
 Imports: 
     dplyr (>= 1.1.0),
     grid,
-    scales (>= 1.2.0),
-    lifecycle
+    scales (>= 1.2.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

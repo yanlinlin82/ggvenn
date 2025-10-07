@@ -10,7 +10,8 @@
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param show_stats Show count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both.
-#' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
+#' @param show_counts Show count for each set.
+#' @param show_percentage Show percentage for each set.
 #' @param digits The desired number of digits after the decimal point
 #' @param label_sep separator character for displaying elements.
 #' @param count_column Specify column for element repeat count.
@@ -61,7 +62,7 @@
 #'
 #' # hide percentage
 #' ggplot(d) +
-#'   geom_venn(aes(A = `Set 1`, B = `Set 2`), show_stats = 'c') +
+#'   geom_venn(aes(A = `Set 1`, B = `Set 2`), show_stats = "c") +
 #'   coord_fixed() +
 #'   theme_void()
 #'
@@ -87,8 +88,9 @@ geom_venn <- function(
   ...,
   set_names = NULL,
   show_set_totals = "none",
-  show_stats = "cp",
-  show_percentage = deprecated(),
+  show_stats = c("cp", "c", "p"),
+  show_counts = TRUE,
+  show_percentage = TRUE,
   digits = 1,
   label_sep = ",",
   count_column = NULL,
@@ -106,6 +108,24 @@ geom_venn <- function(
   text_size = 4
 ) {
   show_outside <- match.arg(show_outside)
+
+  if (!missing(show_stats)) {
+    show_stats <- match.arg(show_stats)
+    if (show_stats == "cp") {
+      show_counts <- TRUE
+      show_percentage <- TRUE
+    } else if (show_stats == "c") {
+      show_counts <- TRUE
+      show_percentage <- FALSE
+    } else if (show_stats == "p") {
+      show_counts <- FALSE
+      show_percentage <- TRUE
+    }
+  } else {
+    show_counts <- ifelse(missing(show_counts), TRUE, show_counts)
+    show_percentage <- ifelse(missing(show_percentage), TRUE, show_percentage)
+  }
+  stopifnot(show_counts || show_percentage)
 
   geom_venn_obj <- ggplot2::ggproto(
     "GeomVenn",
@@ -125,7 +145,8 @@ geom_venn <- function(
         show_elements <- "label"
       }
       show_set_totals <- attr$show_set_totals
-      show_stats <- attr$show_stats
+      show_counts <- attr$show_counts
+      show_percentage <- attr$show_percentage
       digits <- attr$digits
       label_sep <- attr$label_sep
       count_column <- attr$count_column
@@ -133,7 +154,7 @@ geom_venn <- function(
       auto_scale <- attr$auto_scale
       venn <- prepare_venn_data(
         data, sets,
-        show_elements, show_set_totals, show_stats,
+        show_elements, show_set_totals, show_counts, show_percentage,
         digits, label_sep, count_column,
         show_outside, auto_scale
       )
@@ -253,7 +274,8 @@ geom_venn <- function(
       self$geom$set_names <- set_names
     }
     self$geom$customize_attributes <- list(
-      show_stats = show_stats,
+      show_counts = show_counts,
+      show_percentage = show_percentage,
       show_set_totals = show_set_totals,
       digits = digits,
       label_sep = label_sep,

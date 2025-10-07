@@ -5,7 +5,7 @@ library(dplyr)
 
 #' Utility functions for data type conversion between data.frame and list.
 #'
-#' @name data_conversion
+#' @name data_preparation
 #' @param x A data.frame with logical columns representing sets, or a list of sets.
 #' @return A list of sets or a data.frame with logical columns representing sets.
 #' @examples
@@ -38,7 +38,7 @@ data_frame_to_list <- function(x) {
   lst
 }
 
-#' @rdname data_conversion
+#' @rdname data_preparation
 #' @export
 list_to_data_frame <- function(x) {
   df <- tibble(key = unique(unlist(x)))
@@ -278,7 +278,8 @@ prepare_venn_data <- function(
   columns = NULL,
   show_elements = FALSE,
   show_set_totals = "",
-  show_stats = "cp",
+  show_counts = TRUE,
+  show_percentage = TRUE,
   digits = 1,
   label_sep = ",",
   count_column = NULL,
@@ -384,21 +385,21 @@ prepare_venn_data <- function(
     total_count <- sum(df_text$n)
 
     df_text <- df_text %>% mutate(text = dplyr::case_when(
-      show_stats == "c" ~ {
-        if (comma_sep) {
-          sprintf(fmt_count, scales::label_comma()(n))
-        } else {
-          sprintf(fmt_count, n)
-        }
-      },
-      show_stats == "p" ~ sprintf(fmt_percentage, 100 * n / total_count),
-      show_stats == "cp" ~ {
+      show_counts && show_percentage ~ {
         if (comma_sep) {
           sprintf(fmt_both, scales::label_comma()(n), 100 * n / total_count)
         } else {
           sprintf(fmt_both, n, 100 * n / total_count)
         }
       },
+      show_counts ~ {
+        if (comma_sep) {
+          sprintf(fmt_count, scales::label_comma()(n))
+        } else {
+          sprintf(fmt_count, n)
+        }
+      },
+      show_percentage ~ sprintf(fmt_percentage, 100 * n / total_count),
       TRUE ~ ""
     ))
   }

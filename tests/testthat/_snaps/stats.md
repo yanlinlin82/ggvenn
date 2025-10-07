@@ -706,10 +706,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = FALSE))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -1412,10 +1408,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -2120,10 +2112,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE, show_stats = "c"))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -2775,9 +2763,7 @@
       [1] "mapped_discrete" "numeric"        
       
       [[4]]$label
-       [1] "1\n(9.1%)"  "1\n(9.1%)"  "2\n(18.2%)" "3\n(27.3%)" "1\n(9.1%)" 
-       [6] "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "1\n(9.1%)" 
-      [11] "2\n(18.2%)" "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)" 
+       [1] "1" "1" "2" "3" "1" "0" "0" "0" "0" "1" "2" "0" "0" "0" "0"
       
       [[4]]$hjust
        [1] 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
@@ -2828,10 +2814,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE, show_stats = "p"))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -3483,9 +3465,8 @@
       [1] "mapped_discrete" "numeric"        
       
       [[4]]$label
-       [1] "1\n(9.1%)"  "1\n(9.1%)"  "2\n(18.2%)" "3\n(27.3%)" "1\n(9.1%)" 
-       [6] "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "1\n(9.1%)" 
-      [11] "2\n(18.2%)" "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)"  "0\n(0.0%)" 
+       [1] "9.1%"  "9.1%"  "18.2%" "27.3%" "9.1%"  "0.0%"  "0.0%"  "0.0%"  "0.0%" 
+      [10] "9.1%"  "18.2%" "0.0%"  "0.0%"  "0.0%"  "0.0%" 
       
       [[4]]$hjust
        [1] 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
@@ -3536,10 +3517,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE, show_stats = "cp"))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x

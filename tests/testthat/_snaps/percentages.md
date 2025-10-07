@@ -2,10 +2,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = FALSE))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -449,10 +445,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
@@ -896,10 +888,6 @@
 
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = TRUE, digits = 2))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x

@@ -12,8 +12,9 @@ geom_venn(
   ...,
   set_names = NULL,
   show_set_totals = "none",
-  show_stats = "cp",
-  show_percentage = deprecated(),
+  show_stats = c("cp", "c", "p"),
+  show_counts = TRUE,
+  show_percentage = TRUE,
   digits = 1,
   label_sep = ",",
   count_column = NULL,
@@ -90,7 +91,9 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 \item{show_stats}{Show count (c) and/or percentage (p) for each set.
 Pass a string like "cp" to show both.}
 
-\item{show_percentage}{Show percentage for each set. Deprecated, use show_stats instead.}
+\item{show_counts}{Show count for each set.}
+
+\item{show_percentage}{Show percentage for each set.}
 
 \item{digits}{The desired number of digits after the decimal point}
 
@@ -162,7 +165,7 @@ ggplot(d) +
 
 # hide percentage
 ggplot(d) +
-  geom_venn(aes(A = `Set 1`, B = `Set 2`), show_stats = 'c') +
+  geom_venn(aes(A = `Set 1`, B = `Set 2`), show_stats = "c") +
   coord_fixed() +
   theme_void()
 

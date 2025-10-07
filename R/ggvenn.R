@@ -10,7 +10,8 @@ library(ggplot2)
 #' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param show_stats Show count (c) and/or percentage (p) for each set.
-#' @param show_percentage Show percentage for each set. Deprecated, use show_stats instead.
+#' @param show_counts Show count for each set.
+#' @param show_percentage Show percentage for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param digits The desired number of digits after the decimal point
 #' @param fill_color Filling colors in circles.
@@ -53,7 +54,7 @@ library(ggplot2)
 #' ggvenn(d, c("Set 1", "Set 2"), fill_color = c("red", "blue"))
 #'
 #' # hide percentage
-#' ggvenn(d, c("Set 1", "Set 2"), show_stats = 'c')
+#' ggvenn(d, c("Set 1", "Set 2"), show_stats = "c")
 #'
 #' # change precision of percentages
 #' ggvenn(d, c("Set 1", "Set 2"), digits = 2)
@@ -63,7 +64,9 @@ library(ggplot2)
 #' ggvenn(d, show_elements = "value")
 #' @seealso geom_venn
 #' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count filter inner_join
-#' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer scale_x_discrete scale_y_discrete expansion
+#' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous
+#' @importFrom ggplot2 scale_y_continuous scale_fill_manual guides coord_fixed theme_void
+#' @importFrom ggplot2 layer scale_x_discrete scale_y_discrete expansion
 #' @importFrom stats na.omit
 #' @export
 ggvenn <- function(
@@ -71,8 +74,9 @@ ggvenn <- function(
   columns = NULL,
   show_elements = FALSE,
   show_set_totals = "none",
-  show_stats = "cp",
-  show_percentage = lifecycle::deprecated(),
+  show_stats = c("cp", "c", "p"),
+  show_counts = TRUE,
+  show_percentage = TRUE,
   digits = 1,
   fill_color = default_color_list,
   fill_alpha = .5,
@@ -92,17 +96,28 @@ ggvenn <- function(
   padding = 0.2
 ) {
   show_outside <- match.arg(show_outside)
-  if (lifecycle::is_present(show_percentage)) {
-    lifecycle::deprecate_soft(
-      "0.1.11",
-      "ggvenn::ggvenn(show_percentage = )",
-      "ggvenn::ggvenn(show_stats = )"
-    )
-    show_stats <- if (show_percentage) "cp" else "c"
+
+  if (!missing(show_stats)) {
+    show_stats <- match.arg(show_stats)
+    if (show_stats == "cp") {
+      show_counts <- TRUE
+      show_percentage <- TRUE
+    } else if (show_stats == "c") {
+      show_counts <- TRUE
+      show_percentage <- FALSE
+    } else if (show_stats == "p") {
+      show_counts <- FALSE
+      show_percentage <- TRUE
+    }
+  } else {
+    show_counts <- ifelse(missing(show_counts), TRUE, show_counts)
+    show_percentage <- ifelse(missing(show_percentage), TRUE, show_percentage)
   }
+  stopifnot(show_counts || show_percentage)
+
   venn_data <- prepare_venn_data(
     data, columns, show_elements, show_set_totals,
-    show_stats, digits, label_sep, count_column,
+    show_counts, show_percentage, digits, label_sep, count_column,
     show_outside, auto_scale, comma_sep = comma_sep
   )
 

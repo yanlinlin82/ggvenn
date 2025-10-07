@@ -3,10 +3,6 @@
     Code
       normalize_ggvenn_output(ggvenn(a, show_percentage = FALSE, show_elements = FALSE,
         text_size = 6))
-    Condition
-      Warning:
-      The `show_percentage` argument of `ggvenn()` is deprecated as of ggvenn 0.1.11.
-      i Please use the `show_stats` argument instead.
     Output
       [[1]]
       [[1]]$x
