@@ -34,12 +34,9 @@ library(ggplot2)
 #' library(ggvenn)
 #'
 #' # use list as input
-#' a <- list(`Set 1` = c(1, 3, 5, 7),
-#'           `Set 2` = c(1, 5, 9),
-#'           `Set 3` = c(1, 2, 8),
-#'           `Set 4` = c(6, 7))
-#' ggvenn(a, c("Set 1", "Set 2"))
-#' ggvenn(a, c("Set 1", "Set 2", "Set 3"))
+#' a <- list(A = 1:5, B = 4:9, C = c(2:3, 8:12), D = c(1, 5, 9))
+#' ggvenn(a, c("A", "B"))
+#' ggvenn(a, c("A", "B", "C"))
 #' ggvenn(a)
 #'
 #' # use data.frame as input
@@ -69,37 +66,45 @@ library(ggplot2)
 #' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous scale_y_continuous scale_fill_manual guides coord_fixed theme_void layer scale_x_discrete scale_y_discrete expansion
 #' @importFrom stats na.omit
 #' @export
-ggvenn <- function(data, columns = NULL,
-                   show_elements = FALSE,
-                   show_set_totals = 'none',
-                   show_stats = 'cp',
-                   show_percentage = lifecycle::deprecated(),
-                   digits = 1,
-                   fill_color = c("blue", "yellow", "green", "red"),
-                   fill_alpha = .5,
-                   stroke_color = "black",
-                   stroke_alpha = 1,
-                   stroke_size = 1,
-                   stroke_linetype = "solid",
-                   set_name_color = "black",
-                   set_name_size = 6,
-                   text_color = "black",
-                   text_size = 4,
-                   label_sep = ",",
-                   count_column = NULL,
-                   show_outside = c("auto", "none", "always"),
-                   auto_scale = FALSE,
-                   comma_sep = FALSE,
-                   padding = 0.2) {
+ggvenn <- function(
+  data,
+  columns = NULL,
+  show_elements = FALSE,
+  show_set_totals = "none",
+  show_stats = "cp",
+  show_percentage = lifecycle::deprecated(),
+  digits = 1,
+  fill_color = c("blue", "yellow", "green", "red"),
+  fill_alpha = .5,
+  stroke_color = "black",
+  stroke_alpha = 1,
+  stroke_size = 1,
+  stroke_linetype = "solid",
+  set_name_color = "black",
+  set_name_size = 6,
+  text_color = "black",
+  text_size = 4,
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE,
+  comma_sep = FALSE,
+  padding = 0.2
+) {
   show_outside <- match.arg(show_outside)
   if (lifecycle::is_present(show_percentage)) {
-    lifecycle::deprecate_soft("0.1.11", "ggvenn::ggvenn(show_percentage = )", "ggvenn::ggvenn(show_stats = )")
-
+    lifecycle::deprecate_soft(
+      "0.1.11",
+      "ggvenn::ggvenn(show_percentage = )",
+      "ggvenn::ggvenn(show_stats = )"
+    )
     show_stats <- if (show_percentage) "cp" else "c"
   }
-  venn_data <- prepare_venn_data(data, columns, show_elements, show_set_totals,
-                                 show_stats, digits, label_sep, count_column,
-                                 show_outside, auto_scale, comma_sep = comma_sep)
+  venn_data <- prepare_venn_data(
+    data, columns, show_elements, show_set_totals,
+    show_stats, digits, label_sep, count_column,
+    show_outside, auto_scale, comma_sep = comma_sep
+  )
 
   if (length(stroke_color) > 1) {
     stroke_color <- stroke_color[venn_data$shapes$group]
@@ -117,34 +122,47 @@ ggvenn <- function(data, columns = NULL,
   g <- venn_data$shapes %>%
     dplyr::mutate(group = LETTERS[group]) %>%
     ggplot() +
-    geom_polygon(aes(x = x, y = y, group = group, fill = group),
-                 alpha = fill_alpha) +
-    geom_polygon(aes(x = x, y = y, group = group),
-                 fill = NA,
-                 color = stroke_color,
-                 linewidth = stroke_size,
-                 alpha = stroke_alpha,
-                 linetype = stroke_linetype)
+    geom_polygon(
+      aes(x = x, y = y, group = group, fill = group),
+      alpha = fill_alpha
+    ) +
+    geom_polygon(
+      aes(x = x, y = y, group = group),
+      fill = NA,
+      color = stroke_color,
+      linewidth = stroke_size,
+      alpha = stroke_alpha,
+      linetype = stroke_linetype
+    )
+
   if (nrow(venn_data$labels) > 0) {
     g <- g +
-      geom_text(data = venn_data$labels,
-                aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-                color = set_name_color,
-                size = set_name_size)
+      geom_text(
+        data = venn_data$labels,
+        aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
+        color = set_name_color,
+        size = set_name_size
+      )
   }
+
   if (nrow(venn_data$texts) > 0) {
     g <- g +
-      geom_text(data = venn_data$texts,
-                aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
-                color = text_color,
-                size = text_size)
+      geom_text(
+        data = venn_data$texts,
+        aes(x = x, y = y, label = text, hjust = hjust, vjust = vjust),
+        color = text_color,
+        size = text_size
+      )
   }
+
   if (nrow(venn_data$segs) > 0) {
     g <- g +
-      geom_segment(data = venn_data$segs,
-                   aes(x = x, y = y, xend = xend, yend = yend),
-                   color = text_color,
-                   linewidth = 0.5)
+      geom_segment(
+        data = venn_data$segs,
+        aes(x = x, y = y, xend = xend, yend = yend),
+        color = text_color,
+        linewidth = 0.5
+      )
   }
   set_names <- get_set_names(columns, data)
   fill_color <- fix_fill_color(fill_color, set_names)
@@ -231,19 +249,23 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
   } else {
     a_radius <- 1
     b_radius <- 1
-    overlap_size <- 1/3
+    overlap_size <- 1 / 3
   }
-  return(c(auto_scale = auto_scale,
-           a_radius = a_radius,
-           b_radius = b_radius,
-           overlap_size = overlap_size))
+  c(
+    auto_scale = auto_scale,
+    a_radius = a_radius,
+    b_radius = b_radius,
+    overlap_size = overlap_size
+  )
 }
+
 calc_scale_info_3 <- function(auto_scale, n_sets, max_scale_diff = 5) {
   if (auto_scale) {
     stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
   }
   return(NULL)
 }
+
 calc_scale_info_4 <- function(auto_scale, n_sets, max_scale_diff = 5) {
   if (auto_scale) {
     stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
@@ -335,13 +357,19 @@ process_list_elements <- function(data, columns, all_elements, n_sets, label_sep
   df_element
 }
 
-prepare_venn_data <- function(data, columns = NULL,
-                              show_elements = FALSE,
-                              show_set_totals = '',
-                              show_stats = "cp", digits = 1,
-                              label_sep = ",", count_column = NULL,
-                              show_outside = c("auto", "none", "always"),
-                              auto_scale = FALSE, comma_sep = FALSE) {
+prepare_venn_data <- function(
+  data,
+  columns = NULL,
+  show_elements = FALSE,
+  show_set_totals = "",
+  show_stats = "cp",
+  digits = 1,
+  label_sep = ",",
+  count_column = NULL,
+  show_outside = c("auto", "none", "always"),
+  auto_scale = FALSE,
+  comma_sep = FALSE
+) {
   show_outside <- match.arg(show_outside)
   if (is.data.frame(data)) {
     if (is.null(columns)) {
@@ -352,7 +380,7 @@ prepare_venn_data <- function(data, columns = NULL,
         if (is.character(show_elements)) {
           show_elements <- show_elements[[1]]
           show_elements %in% names(data)
-          } else { FALSE }}) {
+        } else { FALSE }}) {
         stop("Value ", deparse(show_elements),
              " in `show_elements` does not correspond to any column name of the data frame.",
              call. = FALSE)
@@ -467,12 +495,11 @@ prepare_venn_data <- function(data, columns = NULL,
   list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
 }
 
-
 # Function to calculate set totals
 calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) {
   # Calculate counts for each set
   set_counts <- sapply(columns, function(column) {
-    if (inherits(data, 'data.frame')){
+    if (inherits(data, "data.frame")){
       sum(data[[column]])
     } else {
       length(data[[column]])
@@ -481,7 +508,7 @@ calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) 
   names(set_counts) <- columns
 
   # Calculate total number of elements
-  total_elements <- if (inherits(data, 'data.frame')) {
+  total_elements <- if (inherits(data, "data.frame")) {
     nrow(data)
   } else {
     nrow(list_to_data_frame(data))
@@ -493,15 +520,15 @@ calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) 
     set_counts <- sapply(set_counts, function(.x) sprintf(fmt_count, scales::label_comma()(.x)))
   }
 
-  if (show_set_totals == 'c') {
+  if (show_set_totals == "c") {
     return(
       paste0(names(set_counts), "\n", set_counts)
     )
-  } else if (show_set_totals == 'p') {
+  } else if (show_set_totals == "p") {
     return(
       paste0(names(set_counts), "\n", round(set_percentages, digits), "%")
     )
-  } else if (show_set_totals == 'cp') {
+  } else if (show_set_totals == "cp") {
     return(
       paste0(names(set_counts), "\n", set_counts, " (", round(set_percentages, digits), "%)")
     )
@@ -515,16 +542,16 @@ get_set_names <- function(columns, data) {
   if (is.null(set_names)) {
     set_names <- names(data)
   }
-  return(set_names)
+  set_names
 }
 
 fix_fill_color <- function(fill_color, set_names) {
   if (!is.null(names(fill_color))) {
-    for (i in 1:length(fill_color)) {
+    for (i in seq_along(fill_color)) {
       if (names(fill_color)[i] %in% set_names) {
         names(fill_color)[i] <- LETTERS[which(set_names == names(fill_color)[i])]
       }
     }
   }
-  return(fill_color)
+  fill_color
 }

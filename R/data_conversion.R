@@ -1,3 +1,8 @@
+library(tibble)
+library(dplyr)
+
+#==========================================================#
+
 #' Utility functions for data type conversion between data.frame and list.
 #'
 #' @name data_conversion
