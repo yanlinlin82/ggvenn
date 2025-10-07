@@ -95,6 +95,8 @@ ggvenn <- function(
   comma_sep = FALSE,
   padding = 0.2
 ) {
+  show_outside <- match.arg(show_outside)
+
   if (!is.data.frame(data)) {
     if (is.list(data)) {
       data <- list_to_data_frame(data)
@@ -117,13 +119,50 @@ ggvenn <- function(
     }
     set_names <- columns
   }
-  print(set_names)
-  stopifnot(length(set_names) >= 2 && length(set_names) <= 4)
+  n_sets <- length(set_names)
+  stopifnot(n_sets >= min_set_num && n_sets <= max_set_num)
   set_names <- as.list(set_names)
-  names(set_names) <- LETTERS[seq_along(set_names)]
+  names(set_names) <- LETTERS[seq_len(n_sets)]
+
+  if (!missing(show_stats)) {
+    show_stats <- match.arg(show_stats)
+    if (show_stats == "cp") {
+      show_counts <- TRUE
+      show_percentage <- TRUE
+    } else if (show_stats == "c") {
+      show_counts <- TRUE
+      show_percentage <- FALSE
+    } else if (show_stats == "p") {
+      show_counts <- FALSE
+      show_percentage <- TRUE
+    }
+  } else {
+    show_counts <- ifelse(missing(show_counts), TRUE, show_counts)
+    show_percentage <- ifelse(missing(show_percentage), ifelse(n_sets >= 5, FALSE, TRUE), show_percentage)
+    if (show_counts && show_percentage) {
+      show_stats <- "cp"
+    } else if (show_counts) {
+      show_stats <- "c"
+    } else if (show_percentage) {
+      show_stats <- "p"
+    }
+  }
+  stopifnot(show_counts || show_percentage)
 
   # Use backticks to handle column names with spaces
   set_names <- lapply(set_names, function(x) paste0("`", x, "`"))
+
+  if (is.logical(show_elements)) {
+    if (show_elements) {
+      show_elements <- "key"
+      set_names <- c(set_names, "label" = "key")
+    }
+  } else if (!is.character(show_elements)) {
+    stop("show_elements must be a logical or a character vector")
+  } else {
+    stopifnot(show_elements %in% names(data))
+    set_names <- c(set_names, "label" = show_elements)
+  }
 
   the_aes <- do.call(aes_string, set_names)
 
@@ -138,6 +177,16 @@ ggvenn <- function(
       count_column = count_column,
       show_outside = show_outside,
       auto_scale = auto_scale,
+      fill_color = fill_color,
+      fill_alpha = fill_alpha,
+      stroke_color = stroke_color,
+      stroke_alpha = stroke_alpha,
+      stroke_size = stroke_size,
+      stroke_linetype = stroke_linetype,
+      set_name_color = set_name_color,
+      set_name_size = set_name_size,
+      text_color = text_color,
+      text_size = text_size,
       comma_sep = comma_sep,
       padding = padding
     ) +

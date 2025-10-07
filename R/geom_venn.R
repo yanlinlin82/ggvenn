@@ -107,7 +107,7 @@ geom_venn <- function(
   text_color = "black",
   text_size = 4,
   comma_sep = FALSE,
-  padding = 0.2
+  padding = 1
 ) {
   show_outside <- match.arg(show_outside)
 
@@ -133,33 +133,45 @@ geom_venn <- function(
     "GeomVenn",
     ggplot2::Geom,
     required_aes = c("A", "B"),
-    optional_aes = c("C", "D", "label"),
+    optional_aes = c("C", "D", "E", "F", "G", "H", "label"),
     extra_params = c("na.rm"),
     setup_data = function(self, data, params) {
-      data %>% dplyr::mutate(xmin = -2, xmax = 2, ymin = -2, ymax = 2)
-    },
-    draw_panel = function(self, data, panel_params, coord, ...) {
-      attr <- self$customize_attributes
-      sets <- c("A", "B", "C", "D")
+      sets <- c("A", "B", "C", "D", "E", "F", "G", "H")
       sets <- sets[sets %in% names(data)]
       show_elements <- FALSE
       if ("label" %in% names(data)) {
         show_elements <- "label"
       }
-      show_set_totals <- attr$show_set_totals
-      show_counts <- attr$show_counts
-      show_percentage <- attr$show_percentage
-      digits <- attr$digits
-      label_sep <- attr$label_sep
-      count_column <- attr$count_column
-      show_outside <- attr$show_outside
-      auto_scale <- attr$auto_scale
-      venn <- prepare_venn_data(
+      self$venn_data <- prepare_venn_data(
         data, sets,
         show_elements, show_set_totals, show_counts, show_percentage,
         digits, label_sep, count_column,
         show_outside, auto_scale
       )
+
+      all_x <- c(
+        self$venn_data$shapes$x,
+        self$venn_data$texts$x,
+        self$venn_data$labels$x,
+        self$venn_data$segs$x
+      )
+      all_y <- c(
+        self$venn_data$shapes$y,
+        self$venn_data$texts$y,
+        self$venn_data$labels$y,
+        self$venn_data$segs$y
+      )
+      data %>%
+        dplyr::mutate(
+          xmin = min(all_x) - padding,
+          xmax = max(all_x) + padding,
+          ymin = min(all_y) - padding,
+          ymax = max(all_y) + padding
+        )
+    },
+    draw_panel = function(self, data, panel_params, coord, ...) {
+      attr <- self$customize_attributes
+      venn <- self$venn_data
 
       d0 <- ggplot2::coord_munch(coord, venn$shapes, panel_params)
       d <- d0 %>%
@@ -237,7 +249,8 @@ geom_venn <- function(
           )
         )
       }
-      if (nrow(venn$segs) > 0) {
+
+      if (!is.null(venn$segs)) {
         d3 <- ggplot2::coord_munch(coord, venn$segs, panel_params)
         gl <- grid::gList(
           gl,
@@ -248,6 +261,7 @@ geom_venn <- function(
           )
         )
       }
+
       ggplot2:::ggname("geom_venn", grid::grobTree(gl))
     }
   )

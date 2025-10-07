@@ -54,7 +54,7 @@ list_to_data_frame <- function(x) {
 calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) {
   # Calculate counts for each set
   set_counts <- sapply(columns, function(column) {
-    if (inherits(data, "data.frame")){
+    if (inherits(data, "data.frame")) {
       sum(data[[column]])
     } else {
       length(data[[column]])
@@ -94,7 +94,7 @@ calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) 
 
 # Helper function to generate element data frames for different set counts
 generate_element_df <- function(n_sets) {
-  sets <- LETTERS[1:n_sets]
+  sets <- LETTERS[seq_len(n_sets)]
 
   # Generate all possible combinations
   combinations <- expand.grid(rep(list(c(TRUE, FALSE)), n_sets))
@@ -119,7 +119,9 @@ generate_element_df <- function(n_sets) {
   count_result <- df %>% dplyr::count(!!!syms(count_cols))
   stopifnot(all(count_result$n == 1))
 
-  df %>% mutate(n = 0, text = "")
+  df <- df %>% mutate(n = 0, text = "")
+  #print(df)
+  df
 }
 
 calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
@@ -171,20 +173,6 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5) {
   )
 }
 
-calc_scale_info_3 <- function(auto_scale, n_sets, max_scale_diff = 5) {
-  if (auto_scale) {
-    stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
-  }
-  return(NULL)
-}
-
-calc_scale_info_4 <- function(auto_scale, n_sets, max_scale_diff = 5) {
-  if (auto_scale) {
-    stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
-  }
-  return(NULL)
-}
-
 # Helper function to process data frame elements
 process_data_frame_elements <- function(data, columns, n_sets, count_column, show_elements, label_sep) {
   # Validate logical columns
@@ -193,29 +181,20 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
   }
 
   # Generate element data frame
-  if (n_sets == 2) {
-    df_element <- generate_element_df(2)
-  } else if (n_sets == 3) {
-    df_element <- generate_element_df(3)
-  } else if (n_sets == 4) {
-    df_element <- generate_element_df(4)
-  }
+  df_element <- generate_element_df(n_sets)
 
   # Process each combination
   for (i in seq_len(nrow(df_element))) {
     # Create index based on combination
-    if (n_sets == 2) {
-      idx <- ((!xor(df_element$A[[i]], as_tibble(data)[, columns[[1]]])) &
-              (!xor(df_element$B[[i]], as_tibble(data)[, columns[[2]]])))
-    } else if (n_sets == 3) {
-      idx <- ((!xor(df_element$A[[i]], as_tibble(data)[, columns[[1]]])) &
-              (!xor(df_element$B[[i]], as_tibble(data)[, columns[[2]]])) &
-              (!xor(df_element$C[[i]], as_tibble(data)[, columns[[3]]])))
-    } else if (n_sets == 4) {
-      idx <- ((df_element$A[[i]] == as_tibble(data)[, columns[[1]], drop = TRUE]) &
-              (df_element$B[[i]] == as_tibble(data)[, columns[[2]], drop = TRUE]) &
-              (df_element$C[[i]] == as_tibble(data)[, columns[[3]], drop = TRUE]) &
-              (df_element$D[[i]] == as_tibble(data)[, columns[[4]], drop = TRUE]))
+    idx <- NULL
+    for (j in seq_len(n_sets)) {
+      set_name <- LETTERS[j]
+      current_idx <- (!xor(df_element[[set_name]][[i]], as_tibble(data)[, columns[[j]]]))
+      if (is.null(idx)) {
+        idx <- current_idx
+      } else {
+        idx <- idx & current_idx
+      }
     }
 
     # Count elements
@@ -231,6 +210,7 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
     }
   }
 
+  #print(df_element)
   df_element
 }
 
@@ -246,22 +226,54 @@ get_venn_funcs <- function(n_sets) {
     )
   } else if (n_sets == 3) {
     funcs <- list(
-      "calc_scale_info" = calc_scale_info_3,
+      "calc_scale_info" = NULL,
       "gen_circle" = gen_circle_3,
       "gen_text_pos" = gen_text_pos_3,
       "gen_label_pos" = gen_label_pos_3,
-      "gen_seg_pos" = gen_seg_pos_3
+      "gen_seg_pos" = NULL
     )
   } else if (n_sets == 4) {
     funcs <- list(
-      "calc_scale_info" = calc_scale_info_4,
+      "calc_scale_info" = NULL,
       "gen_circle" = gen_circle_4,
       "gen_text_pos" = gen_text_pos_4,
       "gen_label_pos" = gen_label_pos_4,
-      "gen_seg_pos" = gen_seg_pos_4
+      "gen_seg_pos" = NULL
+    )
+  } else if (n_sets == 5) {
+    funcs <- list(
+      "calc_scale_info" = NULL,
+      "gen_circle" = gen_circle_5,
+      "gen_text_pos" = gen_text_pos_5,
+      "gen_label_pos" = gen_label_pos_5,
+      "gen_seg_pos" = NULL
+    )
+  } else if (n_sets == 6) {
+    funcs <- list(
+      "calc_scale_info" = NULL,
+      "gen_circle" = gen_circle_6,
+      "gen_text_pos" = gen_text_pos_6,
+      "gen_label_pos" = gen_label_pos_6,
+      "gen_seg_pos" = NULL
+    )
+  } else if (n_sets == 7) {
+    funcs <- list(
+      "calc_scale_info" = NULL,
+      "gen_circle" = gen_circle_7,
+      "gen_text_pos" = gen_text_pos_7,
+      "gen_label_pos" = gen_label_pos_7,
+      "gen_seg_pos" = NULL
+    )
+  } else if (n_sets == 8) {
+    funcs <- list(
+      "calc_scale_info" = NULL,
+      "gen_circle" = gen_circle_8,
+      "gen_text_pos" = gen_text_pos_8,
+      "gen_label_pos" = gen_label_pos_8,
+      "gen_seg_pos" = NULL
     )
   } else {
-    stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
+    stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 5")
   }
   funcs
 }
@@ -295,18 +307,38 @@ prepare_venn_data <- function(
             call. = FALSE)
     }
   }
+
   venn_funcs <- get_venn_funcs(length(columns))
   if (is.null(venn_funcs)) {
     stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 4")
   }
+
   df_element <- process_data_frame_elements(
     data, columns, length(columns), count_column, show_elements, label_sep
   )
-  scale_info <- venn_funcs[["calc_scale_info"]](auto_scale, df_element$n)
+
+  if (auto_scale) {
+    if (is.null(venn_funcs[["calc_scale_info"]])) {
+      stop("Error: 'auto_scale' parameter is supported for only two set venn so far.")
+    }
+    scale_info <- venn_funcs[["calc_scale_info"]](auto_scale, df_element$n)
+  } else {
+    scale_info <- NULL
+  }
+
   df_shape <- venn_funcs[["gen_circle"]](scale_info)
-  df_text <- venn_funcs[["gen_text_pos"]](scale_info) %>% inner_join(df_element, by = "name")
+
+  df_text <- venn_funcs[["gen_text_pos"]](scale_info)
+  #print(df_text)
+  df_text <- df_text %>% inner_join(df_element, by = "name")
+  #print(df_text)
+
   df_label <- venn_funcs[["gen_label_pos"]](scale_info)
-  df_seg <- venn_funcs[["gen_seg_pos"]](scale_info)
+
+  df_seg <- NULL
+  if (!is.null(venn_funcs[["gen_seg_pos"]])) {
+    df_seg <- venn_funcs[["gen_seg_pos"]](scale_info)
+  }
 
   df_label <- df_label %>%
     mutate(
