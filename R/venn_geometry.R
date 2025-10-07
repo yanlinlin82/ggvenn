@@ -1,5 +1,6 @@
 library(tibble)
 library(dplyr)
+library(ggplot2)
 
 gen_circle <- function(
   group, x_offset = 0, y_offset = 0, radius = 1,
@@ -160,3 +161,67 @@ gen_label_pos_4 <- function() {
           "C",    0.8,  1.2, 0.5,    0,
           "D",    1.5, -1.3, 0,      1)
 }
+
+try_plot <- function(
+  n,
+  center_radius = 1,
+  ellipse_a = 1.5,
+  ellipse_b = 1,
+  start_angle = pi / 2,
+  rotation_offset = -pi / 6
+) {
+  d <- list()
+  for (i in seq_len(n)) {
+    theta <- start_angle + 2 * pi * (i - 1) / n
+    x <- center_radius * cos(theta)
+    y <- center_radius * sin(theta)
+    c <- gen_circle(i, x, y, ellipse_a, ellipse_b, theta + rotation_offset)
+    d[[i]] <- c
+  }
+  d <- do.call(rbind, d)
+  d$group <- as.character(d$group)
+  g <- ggplot(d) +
+    geom_polygon(
+      aes(x = x, y = y, group = group, fill = group),
+      alpha = 0.5
+    ) +
+    scale_fill_manual(
+      values = c(
+        "red", "blue", "green", "yellow", "purple",
+        "orange", "pink", "brown", "gray"
+      )) +
+    geom_polygon(
+      aes(x = x, y = y, group = group),
+      color = "black",
+      linewidth = 0.5,
+      alpha = 0
+    ) +
+    coord_fixed() +
+    theme_void()
+  print(g)
+  d
+}
+
+#try_plot(2, ellipse_b = 1.5, start_angle = pi)
+#try_plot(2, ellipse_b = 1.5)
+#
+#try_plot(3, ellipse_b = 1.5, start_angle = pi / 2)
+#try_plot(3, ellipse_b = 1.5, start_angle = pi * 2 / 3)
+#try_plot(3, ellipse_b = 1.5, start_angle = pi * 5 / 6)
+#try_plot(3, ellipse_b = 1.5, start_angle = pi)
+#
+#try_plot(4, ellipse_b = 1.5, rotation_offset = 0)
+#try_plot(4, ellipse_b = 1.5, start_angle = pi * 3 / 4)
+#try_plot(4, ellipse_b = 1)
+#
+#try_plot(5, ellipse_b = 1.5, rotation_offset = 0)
+#try_plot(5, ellipse_b = 1)
+#
+#try_plot(6, ellipse_b = 1.5, rotation_offset = 0)
+#try_plot(6, ellipse_b = 1)
+#
+#try_plot(7, ellipse_b = 1.5, rotation_offset = 0)
+#try_plot(7, ellipse_b = 1)
+#
+#try_plot(8, ellipse_b = 1.5, rotation_offset = 0)
+#try_plot(8, ellipse_b = 1, rotation_offset = -pi / 6)
