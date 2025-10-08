@@ -6,14 +6,11 @@ Venn Diagram by ggplot2, with really easy-to-use API.
 [![R-CMD-check](https://github.com/yanlinlin82/ggvenn/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yanlinlin82/ggvenn/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-
 ## Screenshots
 
-<table width="100%"><tr>
-<td><img width="300" height="300" src="man/figures/venn-2.svg" alt="Venn 2"></td>
-<td><img width="300" height="300" src="man/figures/venn-3.svg" alt="Venn 3"></td>
-<td><img width="300" height="300" src="man/figures/venn-4.svg" alt="Venn 4"></td>
-</tr></table>
+![Venn Plot from list](figures/ggvenn_list.png)
+
+![Venn Plot from data.frame](figures/ggvenn_data.frame.png)
 
 ## Installation
 
@@ -30,34 +27,48 @@ devtools::install_github("yanlinlin82/ggvenn") # install via GitHub (for latest 
 
 ## Quick Start
 
-This package supports both `list` and `data.frame` type data as input.
+This package provides two main functions: `ggvenn()` and `geom_venn()`. It supports both `list` and `data.frame` type data as input.
+
+### Basic Usage
 
 For `list` data (each element is a set):
 
 ```{r}
 library(ggvenn)
 
-a <- list(`Set 1` = c(1, 3, 5, 7, 9),
-          `Set 2` = c(1, 5, 9, 13),
-          `Set 3` = c(1, 2, 8, 9),
-          `Set 4` = c(6, 7, 10, 12))
-ggvenn(a, c("Set 1", "Set 2"))            # draw two-set venn
-ggvenn(a, c("Set 1", "Set 2", "Set 3"))   # draw three-set venn
-ggvenn(a)   # without set names, the first 4 elements in list will be chose to draw four-set venn
+a <- list(A = 1:5, B = 4:9, C = 3:7, D = 1:20, E = 15:19)
+ggvenn(a, c("A", "B"))            # draw two-set venn
+ggvenn(a, c("A", "B", "C"))       # draw three-set venn
+ggvenn(a, c("A", "B", "C", "D"))  # draw four-set venn
+ggvenn(a)   # without set names, all elements in list will be chosen to draw venn
 ```
 
 For `data.frame` data (each logical column is a set):
 
 ```{r}
-d <- dplyr::tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
-            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
-            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
-            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
-            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
-ggvenn(d, c("Set 1", "Set 2"))           # draw two-set venn
-ggvenn(d, c("Set 1", "Set 2", "Set 3"))  # draw three-set venn
-ggvenn(d)   # without set names, the first 4 logical column in data.frame will be chose to draw four-set venn
+d <- data.frame(
+  id = 1:32,
+  A = 1:32 %% 2 == 1,
+  B = (1:32 %/% 2) %% 2 == 1,
+  C = (1:32 %/% 4) %% 2 == 1,
+  D = (1:32 %/% 8) %% 2 == 1,
+  E = (1:32 %/% 16) %% 2 == 1
+)
+ggvenn(d, c("A", "B"))            # draw two-set venn
+ggvenn(d, c("A", "B", "C"))       # draw three-set venn
+ggvenn(d, c("A", "B", "C", "D"))  # draw four-set venn
+ggvenn(d)  # without set names, all logical columns in data.frame will be chosen to draw venn
+ggvenn(d, element_column = "id", show_elements = TRUE)
 ```
+
+### Key Features
+
+- **Two functions**: `ggvenn()` for standalone plots, `geom_venn()` for ggplot2 grammar
+- **Multiple sets**: Supports 2-8 sets (optimal for 2-4 sets)
+- **Flexible input**: Works with both lists and data.frames
+- **Customizable**: Colors, sizes, transparency, and text options
+- **Show elements**: Display actual elements instead of just counts
+- **Auto-scaling**: Automatically resize circles based on element counts (2-set diagrams)
 
 For `data.frame` data, there is also another way to plot in ggplot grammar:
 
@@ -82,31 +93,31 @@ There are more options for customizing the venn diagram.
 1. Tune the color and size
 
     For filling:
-    
-    * `fill_color` - default is c("blue", "yellow", "green", "red")
-    * `fill_alpha` - default is 0.5
-    
+
+    - `fill_color` - default is c("blue", "yellow", "green", "red")
+    - `fill_alpha` - default is 0.5
+
     For stroke:
-    
-    * `stroke_color` - default is "black"
-    * `stroke_alpha` - default is 1
-    * `stroke_size` - default is 1
-    * `stroke_linetype` - default is "solid"
+
+    - `stroke_color` - default is "black"
+    - `stroke_alpha` - default is 1
+    - `stroke_size` - default is 1
+    - `stroke_linetype` - default is "solid"
 
     For set name:
-    
-    * `set_name_color` - default is "black"
-    * `set_name_size` - default is 6
+
+    - `set_name_color` - default is "black"
+    - `set_name_size` - default is 6
 
     For text:
-    
-    * `text_color` - default is "black"
-    * `text_size` - default is 4
+
+    - `text_color` - default is "black"
+    - `text_size` - default is 4
 
     All parameters above could be used in both `ggvenn()` and `geom_venn()`.
-    
+
     For example:
-    
+
     ```{r}
     a <- list(A = 1:4, B = c(1,3,5))
     ggvenn(a, stroke_linetype = 2, stroke_size = 0.5,
@@ -116,25 +127,25 @@ There are more options for customizing the venn diagram.
 
 2. Show elements
 
-    * `show_elements` - default is FALSE
-    * `label_sep` - text used to concatenate elements, default is ","
-    
+    - `show_elements` - default is FALSE
+    - `label_sep` - text used to concatenate elements, default is ","
+
     For example:
-    
+
     ```{r}
     a <- list(A = c("apple", "pear", "peach"),
               B = c("apple", "lemon"))
     ggvenn(a, show_elements = TRUE)
-    
+
     ggvenn(a, show_elements = TRUE, label_sep = "\n")  # show elements in line
     ```
 
 3. Hide percentage
 
-    * `show_percentage` - default is TRUE
+    - `show_percentage` - default is TRUE
 
     For example:
-    
+
     ```{r}
     a <- list(A = 1:5, B = 1:2)
     ggvenn(a, show_percentage = FALSE)
@@ -142,14 +153,71 @@ There are more options for customizing the venn diagram.
 
 4. Change digits of percentage
 
-    * `digits` - default is 1
+    - `digits` - default is 1
 
     For example:
-    
+
     ```{r}
     a <- list(A = 1:5, B = 1:2)
     ggvenn(a, digits = 2)
     ```
+
+5. Show/hide statistics
+
+    - `show_stats` - control what to display: "cp" (count + percentage), "c" (count only), "p" (percentage only)
+    - `show_set_totals` - show totals for each set: "cp", "c", "p", or "none"
+
+    For example:
+
+    ```{r}
+    a <- list(A = 1:5, B = 1:2)
+    ggvenn(a, show_stats = "c")        # show only counts
+    ggvenn(a, show_stats = "p")        # show only percentages
+    ggvenn(a, show_set_totals = "cp")  # show set totals
+    ```
+
+6. Control outside elements
+
+    - `show_outside` - show elements not belonging to any set: "auto", "none", "always"
+
+    For example:
+
+    ```{r}
+    a <- list(A = 1:5, B = 4:8, C = 10:15)  # element 10-15 are outside A and B
+    ggvenn(a, c("A", "B"), show_outside = "always")
+    ```
+
+7. Auto-scaling (2-set diagrams only)
+
+    - `auto_scale` - automatically resize circles based on element counts
+
+    For example:
+
+    ```{r}
+    a <- list(A = 1:100, B = 50:150)  # very different sizes
+    ggvenn(a, auto_scale = TRUE)
+    ```
+
+## Multiple Plots Layout
+
+When creating multiple venn diagrams, you can use `patchwork` or `gridExtra` for layout:
+
+```{r}
+library(ggvenn)
+library(patchwork)  # or library(gridExtra)
+
+# Create multiple plots
+g1 <- ggvenn(list(A = 1:5, B = 4:8))
+g2 <- ggvenn(list(A = 1:5, B = 4:8, C = 3:7))
+g3 <- ggvenn(list(A = 1:5, B = 4:8, C = 3:7, D = 1:20))
+g4 <- ggvenn(list(A = 1:5, B = 4:8, C = 3:7, D = 1:20, E = 15:19))
+
+# Using patchwork (recommended)
+(g1 | g2) / (g3 | g4)
+
+# Using gridExtra
+# gridExtra::grid.arrange(g1, g2, g3, g4, ncol = 2, nrow = 2)
+```
 
 ## Data Format
 

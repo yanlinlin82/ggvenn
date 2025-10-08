@@ -1,6 +1,3 @@
-# Conversion factor for points to other units (same as ggplot2:::.pt)
-.pt <- 72.27 / 25.4
-
 #' Plot venn diagram as a ggplot layer object. It supports only data frame as input.
 #'
 #' @name geom_venn
@@ -117,10 +114,14 @@ geom_venn <- function(
   text_color = "black",
   text_size = 4,
   comma_sep = FALSE,
-  padding = 1,
+  padding = 0.2,
   max_elements = 6,
   text_truncate = TRUE
 ) {
+  # Conversion factor from typographic points to mm (same as ggplot2:::.pt)
+  pt_to_mm <- 72.27 / 25.4
+
+
   show_outside <- match.arg(show_outside)
 
   if (!missing(show_stats)) {
@@ -223,7 +224,7 @@ geom_venn <- function(
           gp = grid::gpar(
             col = scales::alpha(d$stroke_color, d$stroke_alpha),
             fill = NA,
-            lwd = d$stroke_size * .pt,
+            lwd = d$stroke_size * pt_to_mm,
             lty = d$stroke_linetype
           )
         )
@@ -235,7 +236,7 @@ geom_venn <- function(
         label_texts <- venn$labels$text
         updated_labels <- character(length = length(label_texts))
         for (i in seq_along(label_texts)) {
-          updated_labels[[i]] <- gsub(paste0('^', names(set_names)[[i]]), set_names[[i]], label_texts[[i]])
+          updated_labels[[i]] <- gsub(paste0("^", names(set_names)[[i]]), set_names[[i]], label_texts[[i]])
         }
         d1 <- ggplot2::coord_munch(coord, venn$labels, panel_params)
         gl <- grid::gList(
@@ -246,13 +247,13 @@ geom_venn <- function(
             hjust = d1$hjust, vjust = d1$vjust,
             gp = grid::gpar(
               col = attr$set_name_color,
-              fontsize = attr$set_name_size * .pt
+              fontsize = attr$set_name_size * pt_to_mm
             )
           )
         )
       }
 
-      if (show_elements && nrow(venn$texts) > 0) {
+      if (nrow(venn$texts) > 0) {
         d2 <- ggplot2::coord_munch(coord, venn$texts, panel_params)
         gl <- grid::gList(
           gl,
@@ -260,7 +261,7 @@ geom_venn <- function(
             d2$text,
             d2$x, d2$y, default.units = "native",
             hjust = d2$hjust, vjust = d2$vjust,
-            gp = grid::gpar(col = attr$text_color, fontsize = attr$text_size * .pt)
+            gp = grid::gpar(col = attr$text_color, fontsize = attr$text_size * pt_to_mm)
           )
         )
       }
@@ -272,7 +273,7 @@ geom_venn <- function(
           grid::segmentsGrob(
             d3$x, d3$y, d3$xend, d3$yend,
             default.units = "native",
-            gp = grid::gpar(col = attr$text_color, lwd = attr$text_size * .pt)
+            gp = grid::gpar(col = attr$text_color, lwd = attr$text_size * pt_to_mm)
           )
         )
       }

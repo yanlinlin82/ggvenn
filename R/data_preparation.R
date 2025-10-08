@@ -409,7 +409,7 @@ prepare_venn_data <- function(
       text = calculate_totals(data, columns, show_set_totals, digits, comma_sep),
       hjust = 0.5
     )
-  show_elements <- !identical(show_elements, FALSE)
+  show_elements <- isTRUE(show_elements)
 
   if (!show_elements) {
     fmt_count <- "%d"
