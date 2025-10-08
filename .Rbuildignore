@@ -4,3 +4,7 @@
 ^\.Rproj\.user/.*
 ^\.git.*
 ^\.lintr$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^ggvenn\.Rproj$
