@@ -324,11 +324,11 @@ gen_text_pos_5 <- function(scale_info, min_overlap_for_text = 0.2) {
     ),
     gen_label_pos_list(
       c("BCE", "ACD", "BDE", "ACE", "ABD"),
-      radius = 1.88, start_angle = pi * 1.53
+      radius = 1.88, start_angle = pi * 1.13
     ),
     gen_label_pos_list(
       c("AC", "BD", "CE", "AD", "BE"),
-      radius = 1.98, start_angle = pi * 1.24
+      radius = 1.98, start_angle = pi * 0.44
     ),
     gen_label_pos_list(
       c("AB", "BC", "CD", "DE", "AE"),
