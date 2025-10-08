@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggvenn</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.18</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-news" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">News</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-news"><li><h6 class="dropdown-header" data-toc-skip>Releases</h6></li>
-    <li><a class="external-link dropdown-item" href="https://github.com/yanlinlin82/ggvenn/tree/master">ggvenn 0.1.16 (Development)</a></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/yanlinlin82/ggvenn/tree/master">ggvenn 0.1.17</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../news/index.html">Changelog</a></li>
   </ul></li>
@@ -46,12 +46,18 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ggvenn</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  columns <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  element_column <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_elements <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_set_totals <span class="op">=</span> <span class="st">"none"</span>,</span>
-<span>  show_stats <span class="op">=</span> <span class="st">"cp"</span>,</span>
-<span>  show_percentage <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  show_stats <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cp"</span>, <span class="st">"c"</span>, <span class="st">"p"</span><span class="op">)</span>,</span>
+<span>  show_counts <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_percentage <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  digits <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  fill_color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"yellow"</span>, <span class="st">"green"</span>, <span class="st">"red"</span><span class="op">)</span>,</span>
+<span>  label_sep <span class="op">=</span> <span class="st">","</span>,</span>
+<span>  count_column <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  show_outside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"none"</span>, <span class="st">"always"</span><span class="op">)</span>,</span>
+<span>  auto_scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fill_color <span class="op">=</span> <span class="va">default_color_list</span>,</span>
 <span>  fill_alpha <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  stroke_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  stroke_alpha <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -61,12 +67,10 @@
 <span>  set_name_size <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  text_color <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>  text_size <span class="op">=</span> <span class="fl">4</span>,</span>
-<span>  label_sep <span class="op">=</span> <span class="st">","</span>,</span>
-<span>  count_column <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  show_outside <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"none"</span>, <span class="st">"always"</span><span class="op">)</span>,</span>
-<span>  auto_scale <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  comma_sep <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  padding <span class="op">=</span> <span class="fl">0.2</span></span>
+<span>  padding <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  max_elements <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>  text_truncate <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,6 +86,11 @@
 <dd><p>A character vector use as index to select columns/elements.</p></dd>
 
 
+<dt id="arg-element-column">element_column<a class="anchor" aria-label="anchor" href="#arg-element-column"></a></dt>
+<dd><p>A single character value use as column name to select elements.
+It is only allowed when data is a data.frame.</p></dd>
+
+
 <dt id="arg-show-elements">show_elements<a class="anchor" aria-label="anchor" href="#arg-show-elements"></a></dt>
 <dd><p>Show set elements instead of count/percentage.</p></dd>
 
@@ -92,40 +101,60 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 
 
 <dt id="arg-show-stats">show_stats<a class="anchor" aria-label="anchor" href="#arg-show-stats"></a></dt>
-<dd><p>Show count (c) and/or percentage (p) for each set.</p></dd>
-
-
-<dt id="arg-show-percentage">show_percentage<a class="anchor" aria-label="anchor" href="#arg-show-percentage"></a></dt>
-<dd><p>Show percentage for each set. Deprecated, use show_stats instead.
+<dd><p>Show count (c) and/or percentage (p) for each set.
 Pass a string like "cp" to show both. Any other string like "none" to hide both.</p></dd>
 
 
+<dt id="arg-show-counts">show_counts<a class="anchor" aria-label="anchor" href="#arg-show-counts"></a></dt>
+<dd><p>Show count for each set.</p></dd>
+
+
+<dt id="arg-show-percentage">show_percentage<a class="anchor" aria-label="anchor" href="#arg-show-percentage"></a></dt>
+<dd><p>Show percentage for each set.</p></dd>
+
+
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>The desired number of digits after the decimal point</p></dd>
+<dd><p>The desired number of digits after the decimal point.</p></dd>
+
+
+<dt id="arg-label-sep">label_sep<a class="anchor" aria-label="anchor" href="#arg-label-sep"></a></dt>
+<dd><p>Separator character for displaying elements.</p></dd>
+
+
+<dt id="arg-count-column">count_column<a class="anchor" aria-label="anchor" href="#arg-count-column"></a></dt>
+<dd><p>Specify column for element repeat count.</p></dd>
+
+
+<dt id="arg-show-outside">show_outside<a class="anchor" aria-label="anchor" href="#arg-show-outside"></a></dt>
+<dd><p>Show outside elements (not belongs to any set). Options: "auto", "none", "always".</p></dd>
+
+
+<dt id="arg-auto-scale">auto_scale<a class="anchor" aria-label="anchor" href="#arg-auto-scale"></a></dt>
+<dd><p>Allow automatically resizing circles according to element counts (only for 2-set diagrams).</p></dd>
 
 
 <dt id="arg-fill-color">fill_color<a class="anchor" aria-label="anchor" href="#arg-fill-color"></a></dt>
-<dd><p>Filling colors in circles.</p></dd>
+<dd><p>Filling colors in circles. Can be a single color or a vector of colors for each set.</p></dd>
 
 
 <dt id="arg-fill-alpha">fill_alpha<a class="anchor" aria-label="anchor" href="#arg-fill-alpha"></a></dt>
-<dd><p>Transparency for filling circles.</p></dd>
+<dd><p>Transparency for filling circles. Can be a single value or a vector for each set.</p></dd>
 
 
 <dt id="arg-stroke-color">stroke_color<a class="anchor" aria-label="anchor" href="#arg-stroke-color"></a></dt>
-<dd><p>Stroke color for drawing circles.</p></dd>
+<dd><p>Stroke color for drawing circles. Can be a single color or a vector of colors for each set.</p></dd>
 
 
 <dt id="arg-stroke-alpha">stroke_alpha<a class="anchor" aria-label="anchor" href="#arg-stroke-alpha"></a></dt>
-<dd><p>Transparency for drawing circles.</p></dd>
+<dd><p>Transparency for drawing circles. Can be a single value or a vector for each set.</p></dd>
 
 
 <dt id="arg-stroke-size">stroke_size<a class="anchor" aria-label="anchor" href="#arg-stroke-size"></a></dt>
-<dd><p>Stroke size for drawing circles.</p></dd>
+<dd><p>Stroke size for drawing circles. Can be a single value or a vector for each set.</p></dd>
 
 
 <dt id="arg-stroke-linetype">stroke_linetype<a class="anchor" aria-label="anchor" href="#arg-stroke-linetype"></a></dt>
-<dd><p>Line type for drawing circles.</p></dd>
+<dd><p>Line type for drawing circles. Can be a single value or a vector for each set.</p></dd>
 
 
 <dt id="arg-set-name-color">set_name_color<a class="anchor" aria-label="anchor" href="#arg-set-name-color"></a></dt>
@@ -144,28 +173,20 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 <dd><p>Text size for intersect contents.</p></dd>
 
 
-<dt id="arg-label-sep">label_sep<a class="anchor" aria-label="anchor" href="#arg-label-sep"></a></dt>
-<dd><p>Separator character for displaying elements.</p></dd>
-
-
-<dt id="arg-count-column">count_column<a class="anchor" aria-label="anchor" href="#arg-count-column"></a></dt>
-<dd><p>Specify column for element repeat count.</p></dd>
-
-
-<dt id="arg-show-outside">show_outside<a class="anchor" aria-label="anchor" href="#arg-show-outside"></a></dt>
-<dd><p>Show outside elements (not belongs to any set).</p></dd>
-
-
-<dt id="arg-auto-scale">auto_scale<a class="anchor" aria-label="anchor" href="#arg-auto-scale"></a></dt>
-<dd><p>Allow automatically resizing circles according to element counts.</p></dd>
-
-
 <dt id="arg-comma-sep">comma_sep<a class="anchor" aria-label="anchor" href="#arg-comma-sep"></a></dt>
 <dd><p>Whether to use comma as separator for displaying numbers.</p></dd>
 
 
 <dt id="arg-padding">padding<a class="anchor" aria-label="anchor" href="#arg-padding"></a></dt>
 <dd><p>Padding for the plot. Change this to allow longer labels to be displayed.</p></dd>
+
+
+<dt id="arg-max-elements">max_elements<a class="anchor" aria-label="anchor" href="#arg-max-elements"></a></dt>
+<dd><p>Maximum number of elements to display when show_elements=TRUE.</p></dd>
+
+
+<dt id="arg-text-truncate">text_truncate<a class="anchor" aria-label="anchor" href="#arg-text-truncate"></a></dt>
+<dd><p>Whether to truncate text when elements exceed max_elements.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -182,13 +203,10 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yanlinlin82.github.io/ggvenn/">ggvenn</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use list as input</span></span></span>
-<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Set 1` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>          `Set 2` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">9</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>          `Set 3` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">8</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>          `Set 4` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set 1"</span>, <span class="st">"Set 2"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, B <span class="op">=</span> <span class="fl">4</span><span class="op">:</span><span class="fl">9</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, <span class="fl">8</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>, D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">9</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set 1"</span>, <span class="st">"Set 2"</span>, <span class="st">"Set 3"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-3.png" alt="" width="700" height="433"></span>
@@ -211,7 +229,7 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 <span class="r-plt img"><img src="ggvenn-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># hide percentage</span></span></span>
-<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set 1"</span>, <span class="st">"Set 2"</span><span class="op">)</span>, show_stats <span class="op">=</span> <span class="st">'c'</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Set 1"</span>, <span class="st">"Set 2"</span><span class="op">)</span>, show_stats <span class="op">=</span> <span class="st">"c"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># change precision of percentages</span></span></span>
@@ -221,8 +239,9 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 <span class="r-in"><span><span class="co"># show elements instead of count/percentage</span></span></span>
 <span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">a</span>, show_elements <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-10.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">d</span>, show_elements <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ggvenn</span><span class="op">(</span><span class="va">d</span>, show_elements <span class="op">=</span> <span class="cn">TRUE</span>, element_column <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ggvenn-11.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
