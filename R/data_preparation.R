@@ -8,20 +8,20 @@ truncate_element_text <- function(elements, max_elements, label_sep, text_trunca
   if (!text_truncate || length(elements) <= max_elements) {
     return(paste(elements, collapse = label_sep))
   }
-  
+
   if (max_elements <= 0) {
     return("")
   }
-  
+
   # Show first max_elements elements and add "..."
   visible_elements <- elements[1:max_elements]
   text <- paste(visible_elements, collapse = label_sep)
-  
+
   if (length(elements) > max_elements) {
     text <- paste0(text, label_sep, "... (+", length(elements) - max_elements, " more)")
   }
-  
-  return(text)
+
+  text
 }
 
 #' Utility functions for data type conversion between data.frame and list.
@@ -217,9 +217,9 @@ process_data_frame_elements <- function(
   count_column,
   show_elements,
   label_sep,
-  max_elements = 10,
-  text_truncate = TRUE,
-  element_column = NULL
+  max_elements,
+  text_truncate,
+  element_column
 ) {
   # Validate logical columns
   for (i in seq_len(n_sets)) {
@@ -252,7 +252,7 @@ process_data_frame_elements <- function(
 
     if (!is.null(element_column) && element_column %in% names(data)) {
       df_element$values[[i]] <- sort(as.vector(unlist(as_tibble(data)[idx, element_column])))
-      
+
       if (show_elements) {
         elements <- unlist(as_tibble(data)[idx, element_column])
         df_element$text[[i]] <- truncate_element_text(elements, max_elements, label_sep, text_truncate)
@@ -279,7 +279,7 @@ prepare_venn_data <- function(
   show_outside = c("auto", "none", "always"),
   auto_scale = FALSE,
   comma_sep = FALSE,
-  max_elements = 10,
+  max_elements = 6,
   text_truncate = TRUE
 ) {
   show_outside <- match.arg(show_outside)

@@ -142,12 +142,12 @@ geom_venn <- function(
     setup_data = function(self, data, params) {
       sets <- c("A", "B", "C", "D", "E", "F", "G", "H")
       sets <- sets[sets %in% names(data)]
-      
+
       # Determine element_column from mapping if not provided
       if (is.null(element_column) && "label" %in% names(data)) {
         element_column <- "label"
       }
-      
+
       self$venn_data <- prepare_venn_data(
         data, sets, element_column,
         show_elements, show_set_totals, show_counts, show_percentage,
@@ -244,7 +244,7 @@ geom_venn <- function(
         )
       }
 
-      if (nrow(venn$texts) > 0) {
+      if (show_elements && nrow(venn$texts) > 0) {
         d2 <- ggplot2::coord_munch(coord, venn$texts, panel_params)
         gl <- grid::gList(
           gl,

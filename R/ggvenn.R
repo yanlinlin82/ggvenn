@@ -182,6 +182,7 @@ ggvenn <- function(
   g <- ggplot(data) +
     geom_venn(
       the_aes,
+      show_elements = show_elements,
       show_stats = show_stats,
       show_counts = show_counts,
       show_percentage = show_percentage,
