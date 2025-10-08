@@ -87,6 +87,8 @@ geom_venn <- function(
   position = "identity",
   ...,
   set_names = NULL,
+  element_column = NULL,
+  show_elements = FALSE,
   show_set_totals = "none",
   show_stats = c("cp", "c", "p"),
   show_counts = TRUE,
@@ -140,12 +142,14 @@ geom_venn <- function(
     setup_data = function(self, data, params) {
       sets <- c("A", "B", "C", "D", "E", "F", "G", "H")
       sets <- sets[sets %in% names(data)]
-      show_elements <- FALSE
-      if ("label" %in% names(data)) {
-        show_elements <- "label"
+      
+      # Determine element_column from mapping if not provided
+      if (is.null(element_column) && "label" %in% names(data)) {
+        element_column <- "label"
       }
+      
       self$venn_data <- prepare_venn_data(
-        data, sets,
+        data, sets, element_column,
         show_elements, show_set_totals, show_counts, show_percentage,
         digits, label_sep, count_column,
         show_outside, auto_scale, comma_sep,

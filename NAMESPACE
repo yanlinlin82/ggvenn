@@ -2,6 +2,7 @@
 
 export(data_frame_to_list)
 export(geom_venn)
+export(get_venn_table)
 export(ggvenn)
 export(list_to_data_frame)
 importFrom(dplyr,"%>%")

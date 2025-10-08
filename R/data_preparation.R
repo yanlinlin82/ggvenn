@@ -62,9 +62,9 @@ data_frame_to_list <- function(x) {
 #' @rdname data_preparation
 #' @export
 list_to_data_frame <- function(x) {
-  df <- tibble(key = unique(unlist(x)))
+  df <- tibble("_key" = unique(unlist(x)))
   for (name in names(x)) {
-    df[, name] <- df$key %in% x[[name]]
+    df[, name] <- df$`_key` %in% x[[name]]
   }
   df
 }
@@ -145,12 +145,8 @@ generate_element_df <- function(n_sets) {
 }
 
 calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_size = 0.2) {
-  print("n_sets: ")
-  print(n_sets)
   if (auto_scale) {
     stopifnot(length(n_sets) == 4)
-    print("n_sets: ")
-    print(n_sets)
     ab_shared <- n_sets[[1]]
     b_specific <- n_sets[[2]]
     a_specific <- n_sets[[3]]
@@ -205,12 +201,6 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
     b_radius <- 1
     overlap_size <- 1 / 3
   }
-  print("a_radius: ")
-  print(a_radius)
-  print("b_radius: ")
-  print(b_radius)
-  print("overlap_size: ")
-  print(overlap_size)
   c(
     auto_scale = auto_scale,
     a_radius = a_radius,
@@ -220,7 +210,17 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
 }
 
 # Helper function to process data frame elements
-process_data_frame_elements <- function(data, columns, n_sets, count_column, show_elements, label_sep, max_elements = 10, text_truncate = TRUE) {
+process_data_frame_elements <- function(
+  data,
+  columns,
+  n_sets,
+  count_column,
+  show_elements,
+  label_sep,
+  max_elements = 10,
+  text_truncate = TRUE,
+  element_column = NULL
+) {
   # Validate logical columns
   for (i in seq_len(n_sets)) {
     stopifnot(is.logical(as_tibble(data)[, columns[[i]], drop = TRUE]))
@@ -250,84 +250,25 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
       df_element$n[[i]] <- sum(as_tibble(data)[, count_column][idx, ])
     }
 
-    # Add text if showing elements
-    if (!identical(show_elements, FALSE)) {
-      elements <- unlist(as_tibble(data)[idx, show_elements])
-      df_element$text[[i]] <- truncate_element_text(elements, max_elements, label_sep, text_truncate)
+    if (!is.null(element_column) && element_column %in% names(data)) {
+      df_element$values[[i]] <- sort(as.vector(unlist(as_tibble(data)[idx, element_column])))
+      
+      if (show_elements) {
+        elements <- unlist(as_tibble(data)[idx, element_column])
+        df_element$text[[i]] <- truncate_element_text(elements, max_elements, label_sep, text_truncate)
+      }
+    } else {
+      df_element$values[[i]] <- character(0)
     }
   }
 
-  #print(df_element)
   df_element
-}
-
-get_venn_funcs <- function(n_sets) {
-  funcs <- NULL
-  if (n_sets == 2) {
-    funcs <- list(
-      "calc_scale_info" = calc_scale_info_2,
-      "gen_circle" = gen_circle_2,
-      "gen_text_pos" = gen_text_pos_2,
-      "gen_label_pos" = gen_label_pos_2,
-      "gen_seg_pos" = gen_seg_pos_2
-    )
-  } else if (n_sets == 3) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_3,
-      "gen_text_pos" = gen_text_pos_3,
-      "gen_label_pos" = gen_label_pos_3,
-      "gen_seg_pos" = NULL
-    )
-  } else if (n_sets == 4) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_4,
-      "gen_text_pos" = gen_text_pos_4,
-      "gen_label_pos" = gen_label_pos_4,
-      "gen_seg_pos" = NULL
-    )
-  } else if (n_sets == 5) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_5,
-      "gen_text_pos" = gen_text_pos_5,
-      "gen_label_pos" = gen_label_pos_5,
-      "gen_seg_pos" = NULL
-    )
-  } else if (n_sets == 6) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_6,
-      "gen_text_pos" = gen_text_pos_6,
-      "gen_label_pos" = gen_label_pos_6,
-      "gen_seg_pos" = NULL
-    )
-  } else if (n_sets == 7) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_7,
-      "gen_text_pos" = gen_text_pos_7,
-      "gen_label_pos" = gen_label_pos_7,
-      "gen_seg_pos" = NULL
-    )
-  } else if (n_sets == 8) {
-    funcs <- list(
-      "calc_scale_info" = NULL,
-      "gen_circle" = gen_circle_8,
-      "gen_text_pos" = gen_text_pos_8,
-      "gen_label_pos" = gen_label_pos_8,
-      "gen_seg_pos" = NULL
-    )
-  } else {
-    stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 5")
-  }
-  funcs
 }
 
 prepare_venn_data <- function(
   data,
   columns = NULL,
+  element_column = NULL,
   show_elements = FALSE,
   show_set_totals = "",
   show_counts = TRUE,
@@ -362,14 +303,74 @@ prepare_venn_data <- function(
   n_sets <- length(set_names)
   stopifnot(n_sets >= min_set_num && n_sets <= max_set_num)
 
-  if (is.logical(show_elements)) {
-    if (show_elements) {
-      show_elements <- "key"
+  if (!missing(element_column) && !is.null(element_column)) {
+    stopifnot(is.character(element_column))
+    stopifnot(length(element_column) == 1)
+    stopifnot(element_column %in% names(data))
+  }
+
+  get_venn_funcs <- function(n_sets) {
+    funcs <- NULL
+    if (n_sets == 2) {
+      funcs <- list(
+        "calc_scale_info" = calc_scale_info_2,
+        "gen_circle" = gen_circle_2,
+        "gen_text_pos" = gen_text_pos_2,
+        "gen_label_pos" = gen_label_pos_2,
+        "gen_seg_pos" = gen_seg_pos_2
+      )
+    } else if (n_sets == 3) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_3,
+        "gen_text_pos" = gen_text_pos_3,
+        "gen_label_pos" = gen_label_pos_3,
+        "gen_seg_pos" = NULL
+      )
+    } else if (n_sets == 4) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_4,
+        "gen_text_pos" = gen_text_pos_4,
+        "gen_label_pos" = gen_label_pos_4,
+        "gen_seg_pos" = NULL
+      )
+    } else if (n_sets == 5) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_5,
+        "gen_text_pos" = gen_text_pos_5,
+        "gen_label_pos" = gen_label_pos_5,
+        "gen_seg_pos" = NULL
+      )
+    } else if (n_sets == 6) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_6,
+        "gen_text_pos" = gen_text_pos_6,
+        "gen_label_pos" = gen_label_pos_6,
+        "gen_seg_pos" = NULL
+      )
+    } else if (n_sets == 7) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_7,
+        "gen_text_pos" = gen_text_pos_7,
+        "gen_label_pos" = gen_label_pos_7,
+        "gen_seg_pos" = NULL
+      )
+    } else if (n_sets == 8) {
+      funcs <- list(
+        "calc_scale_info" = NULL,
+        "gen_circle" = gen_circle_8,
+        "gen_text_pos" = gen_text_pos_8,
+        "gen_label_pos" = gen_label_pos_8,
+        "gen_seg_pos" = NULL
+      )
+    } else {
+      stop("logical columns in data.frame `data` or vector `columns` should be length between 2 and 5")
     }
-  } else if (!is.character(show_elements)) {
-    stop("show_elements must be a logical or a character vector")
-  } else {
-    stopifnot(show_elements %in% names(data))
+    funcs
   }
 
   venn_funcs <- get_venn_funcs(n_sets)
@@ -378,7 +379,7 @@ prepare_venn_data <- function(
   }
 
   df_element <- process_data_frame_elements(
-    data, columns, length(columns), count_column, show_elements, label_sep, max_elements, text_truncate
+    data, columns, length(columns), count_column, show_elements, label_sep, max_elements, text_truncate, element_column
   )
 
   if (auto_scale) {
@@ -447,5 +448,11 @@ prepare_venn_data <- function(
     df_text <- df_text[-nrow(df_text), ]
   }
 
-  list(shapes = df_shape, texts = df_text, labels = df_label, segs = df_seg)
+  list(
+    shapes = df_shape,
+    texts = df_text,
+    labels = df_label,
+    segs = df_seg,
+    elements = df_element
+  )
 }

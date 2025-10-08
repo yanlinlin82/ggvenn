@@ -5,5 +5,9 @@ test_that("multiplication works", {
               B = rep(c(FALSE, TRUE), each = 3))
   
   expect_identical(a, data_frame_to_list(d))  # TRUE
-  expect_identical(d, list_to_data_frame(a))  # TRUE
+  
+  # list_to_data_frame creates _key column, not key column
+  d_expected <- d
+  names(d_expected)[names(d_expected) == 'key'] <- '_key'
+  expect_identical(d_expected, list_to_data_frame(a))  # TRUE
 })

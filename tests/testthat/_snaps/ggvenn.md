@@ -10,6 +10,9 @@
       [[1]]$B
        [1]  TRUE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE FALSE FALSE
       
+      [[1]]$label
+       [1]  1  3  5  7  9 13  2  8  6 10 12
+      
       [[1]]$PANEL
        [1] 1 1 1 1 1 1 1 1 1 1 1
       Levels: 1
@@ -49,6 +52,9 @@
       
       [[1]]$C
        [1]  TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE FALSE
+      
+      [[1]]$label
+       [1]  1  3  5  7  9 13  2  8  6 10 12
       
       [[1]]$PANEL
        [1] 1 1 1 1 1 1 1 1 1 1 1
@@ -92,6 +98,9 @@
       
       [[1]]$D
        [1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE
+      
+      [[1]]$label
+       [1]  1  3  5  7  9 13  2  8  6 10 12
       
       [[1]]$PANEL
        [1] 1 1 1 1 1 1 1 1 1 1 1

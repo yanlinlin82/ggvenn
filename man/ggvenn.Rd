@@ -7,6 +7,7 @@
 ggvenn(
   data,
   columns = NULL,
+  element_column = NULL,
   show_elements = FALSE,
   show_set_totals = "none",
   show_stats = c("cp", "c", "p"),
@@ -37,6 +38,9 @@ ggvenn(
 \item{data}{A data.frame or a list as input data.}
 
 \item{columns}{A character vector use as index to select columns/elements.}
+
+\item{element_column}{A single character value use as column name to select elements.
+It is only allowed when data is a data.frame.}
 
 \item{show_elements}{Show set elements instead of count/percentage.}
 
@@ -83,6 +87,10 @@ Pass a string like "cp" to show both. Any other string like "none" to hide both.
 \item{comma_sep}{Whether to use comma as separator for displaying numbers.}
 
 \item{padding}{Padding for the plot. Change this to allow longer labels to be displayed.}
+
+\item{max_elements}{Maximum number of elements to display when show_elements=TRUE.}
+
+\item{text_truncate}{Whether to truncate text when elements exceed max_elements.}
 }
 \value{
 The ggplot object to print or save to file.
@@ -120,7 +128,8 @@ ggvenn(d, c("Set 1", "Set 2"), digits = 2)
 
 # show elements instead of count/percentage
 ggvenn(a, show_elements = TRUE)
-ggvenn(d, show_elements = "value")
+ggvenn(d, show_elements = TRUE, element_column = "value")
+
 }
 \seealso{
 geom_venn

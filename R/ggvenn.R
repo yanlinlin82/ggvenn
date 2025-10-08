@@ -6,6 +6,8 @@ library(ggplot2)
 #' @name ggvenn
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
+#' @param element_column A single character value use as column name to select elements.
+#' It is only allowed when data is a data.frame.
 #' @param show_elements Show set elements instead of count/percentage.
 #' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
@@ -30,6 +32,8 @@ library(ggplot2)
 #' @param auto_scale Allow automatically resizing circles according to element counts.
 #' @param comma_sep Whether to use comma as separator for displaying numbers.
 #' @param padding Padding for the plot. Change this to allow longer labels to be displayed.
+#' @param max_elements Maximum number of elements to display when show_elements=TRUE.
+#' @param text_truncate Whether to truncate text when elements exceed max_elements.
 #' @return The ggplot object to print or save to file.
 #' @examples
 #' library(ggvenn)
@@ -61,7 +65,8 @@ library(ggplot2)
 #'
 #' # show elements instead of count/percentage
 #' ggvenn(a, show_elements = TRUE)
-#' ggvenn(d, show_elements = "value")
+#' ggvenn(d, show_elements = TRUE, element_column = "value")
+#'
 #' @seealso geom_venn
 #' @importFrom dplyr tibble tribble as_tibble %>% select_if mutate count filter inner_join
 #' @importFrom ggplot2 ggplot aes geom_polygon geom_segment geom_text scale_x_continuous
@@ -72,6 +77,7 @@ library(ggplot2)
 ggvenn <- function(
   data,
   columns = NULL,
+  element_column = NULL,
   show_elements = FALSE,
   show_set_totals = "none",
   show_stats = c("cp", "c", "p"),
@@ -101,9 +107,19 @@ ggvenn <- function(
 
   if (!is.data.frame(data)) {
     if (is.list(data)) {
+      if (!missing(element_column)) {
+        stop("element_column is only allowed when data is a data.frame")
+      }
       data <- list_to_data_frame(data)
+      element_column <- "_key"
     } else {
       stop("data must be a list or a data.frame")
+    }
+  } else {
+    if (!missing(element_column)) {
+      stopifnot(is.character(element_column))
+      stopifnot(length(element_column) == 1)
+      stopifnot(element_column %in% names(data))
     }
   }
 
@@ -157,16 +173,8 @@ ggvenn <- function(
     aes_list[[LETTERS[i]]] <- sym(set_names[[i]])
   }
 
-  if (is.logical(show_elements)) {
-    if (show_elements) {
-      show_elements <- "key"
-      aes_list[["label"]] <- sym("key")
-    }
-  } else if (!is.character(show_elements)) {
-    stop("show_elements must be a logical or a character vector")
-  } else {
-    stopifnot(show_elements %in% names(data))
-    aes_list[["label"]] <- sym(show_elements)
+  if (!is.null(element_column)) {
+    aes_list[["label"]] <- sym(element_column)
   }
 
   the_aes <- do.call(aes, aes_list)
@@ -200,4 +208,50 @@ ggvenn <- function(
     coord_fixed() +
     theme_void()
   g
+}
+
+#' Extract Venn diagram data table from ggvenn plot
+#'
+#' @param g A ggplot object created by ggvenn()
+#' @return A data frame containing the Venn diagram intersection data
+#' @export
+#' @examples
+#' library(ggvenn)
+#' g <- ggvenn(list(A = 1:5, B = 4:9, C = c(2:3, 8:12), D = c(1, 5, 9)))
+#' get_venn_table(g)
+get_venn_table <- function(g) {
+  # Check if input is a ggplot object
+  if (!inherits(g, "ggplot")) {
+    stop("Input must be a ggplot object")
+  }
+
+  # Check if there are layers
+  if (length(g$layers) == 0) {
+    stop("ggplot object has no layers")
+  }
+
+  # Check if the first layer is GeomVenn
+  first_geom <- g$layers[[1]]$geom
+  if (!inherits(first_geom, "GeomVenn")) {
+    stop("First layer must be geom_venn()")
+  }
+
+  # Build the plot and get data
+  built_plot <- ggplot_build(g)
+
+  # Check if the built layer has venn_data
+  built_geom <- built_plot$plot$layers[[1]]$geom
+  if (is.null(built_geom$venn_data)) {
+    stop("Failed to extract venn data from geom_venn")
+  }
+
+  # Check if venn_data has elements component
+  if (is.null(built_geom$venn_data$elements)) {
+    stop("venn_data does not contain elements component")
+  }
+
+  # Extract data
+  df <- built_geom$venn_data$elements
+  df[["text"]] <- NULL
+  df
 }

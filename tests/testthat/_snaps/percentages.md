@@ -10,6 +10,9 @@
       [[1]]$B
       [1]  TRUE  TRUE FALSE FALSE FALSE
       
+      [[1]]$label
+      [1] 1 2 3 4 5
+      
       [[1]]$PANEL
       [1] 1 1 1 1 1
       Levels: 1
@@ -45,6 +48,9 @@
       [[1]]$B
       [1]  TRUE  TRUE FALSE FALSE FALSE
       
+      [[1]]$label
+      [1] 1 2 3 4 5
+      
       [[1]]$PANEL
       [1] 1 1 1 1 1
       Levels: 1
@@ -79,6 +85,9 @@
       
       [[1]]$B
       [1]  TRUE  TRUE FALSE FALSE FALSE
+      
+      [[1]]$label
+      [1] 1 2 3 4 5
       
       [[1]]$PANEL
       [1] 1 1 1 1 1

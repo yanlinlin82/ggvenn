@@ -11,6 +11,8 @@ geom_venn(
   position = "identity",
   ...,
   set_names = NULL,
+  element_column = NULL,
+  show_elements = FALSE,
   show_set_totals = "none",
   show_stats = c("cp", "c", "p"),
   show_counts = TRUE,
