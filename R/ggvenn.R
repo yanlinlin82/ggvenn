@@ -12,24 +12,24 @@ library(ggplot2)
 #' @param show_set_totals Show total count (c) and/or percentage (p) for each set.
 #' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param show_stats Show count (c) and/or percentage (p) for each set.
+#' Pass a string like "cp" to show both. Any other string like "none" to hide both.
 #' @param show_counts Show count for each set.
 #' @param show_percentage Show percentage for each set.
-#' Pass a string like "cp" to show both. Any other string like "none" to hide both.
-#' @param digits The desired number of digits after the decimal point
-#' @param fill_color Filling colors in circles.
-#' @param fill_alpha Transparency for filling circles.
-#' @param stroke_color Stroke color for drawing circles.
-#' @param stroke_alpha Transparency for drawing circles.
-#' @param stroke_size Stroke size for drawing circles.
-#' @param stroke_linetype Line type for drawing circles.
+#' @param digits The desired number of digits after the decimal point.
+#' @param fill_color Filling colors in circles. Can be a single color or a vector of colors for each set.
+#' @param fill_alpha Transparency for filling circles. Can be a single value or a vector for each set.
+#' @param stroke_color Stroke color for drawing circles. Can be a single color or a vector of colors for each set.
+#' @param stroke_alpha Transparency for drawing circles. Can be a single value or a vector for each set.
+#' @param stroke_size Stroke size for drawing circles. Can be a single value or a vector for each set.
+#' @param stroke_linetype Line type for drawing circles. Can be a single value or a vector for each set.
 #' @param set_name_color Text color for set names.
 #' @param set_name_size Text size for set names.
 #' @param text_color Text color for intersect contents.
 #' @param text_size Text size for intersect contents.
 #' @param label_sep Separator character for displaying elements.
 #' @param count_column Specify column for element repeat count.
-#' @param show_outside Show outside elements (not belongs to any set).
-#' @param auto_scale Allow automatically resizing circles according to element counts.
+#' @param show_outside Show outside elements (not belongs to any set). Options: "auto", "none", "always".
+#' @param auto_scale Allow automatically resizing circles according to element counts (only for 2-set diagrams).
 #' @param comma_sep Whether to use comma as separator for displaying numbers.
 #' @param padding Padding for the plot. Change this to allow longer labels to be displayed.
 #' @param max_elements Maximum number of elements to display when show_elements=TRUE.

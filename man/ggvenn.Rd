@@ -47,34 +47,34 @@ It is only allowed when data is a data.frame.}
 \item{show_set_totals}{Show total count (c) and/or percentage (p) for each set.
 Pass a string like "cp" to show both. Any other string like "none" to hide both.}
 
-\item{show_stats}{Show count (c) and/or percentage (p) for each set.}
+\item{show_stats}{Show count (c) and/or percentage (p) for each set.
+Pass a string like "cp" to show both. Any other string like "none" to hide both.}
 
 \item{show_counts}{Show count for each set.}
 
-\item{show_percentage}{Show percentage for each set.
-Pass a string like "cp" to show both. Any other string like "none" to hide both.}
+\item{show_percentage}{Show percentage for each set.}
 
-\item{digits}{The desired number of digits after the decimal point}
+\item{digits}{The desired number of digits after the decimal point.}
 
 \item{label_sep}{Separator character for displaying elements.}
 
 \item{count_column}{Specify column for element repeat count.}
 
-\item{show_outside}{Show outside elements (not belongs to any set).}
+\item{show_outside}{Show outside elements (not belongs to any set). Options: "auto", "none", "always".}
 
-\item{auto_scale}{Allow automatically resizing circles according to element counts.}
+\item{auto_scale}{Allow automatically resizing circles according to element counts (only for 2-set diagrams).}
 
-\item{fill_color}{Filling colors in circles.}
+\item{fill_color}{Filling colors in circles. Can be a single color or a vector of colors for each set.}
 
-\item{fill_alpha}{Transparency for filling circles.}
+\item{fill_alpha}{Transparency for filling circles. Can be a single value or a vector for each set.}
 
-\item{stroke_color}{Stroke color for drawing circles.}
+\item{stroke_color}{Stroke color for drawing circles. Can be a single color or a vector of colors for each set.}
 
-\item{stroke_alpha}{Transparency for drawing circles.}
+\item{stroke_alpha}{Transparency for drawing circles. Can be a single value or a vector for each set.}
 
-\item{stroke_size}{Stroke size for drawing circles.}
+\item{stroke_size}{Stroke size for drawing circles. Can be a single value or a vector for each set.}
 
-\item{stroke_linetype}{Line type for drawing circles.}
+\item{stroke_linetype}{Line type for drawing circles. Can be a single value or a vector for each set.}
 
 \item{set_name_color}{Text color for set names.}
 

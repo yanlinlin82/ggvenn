@@ -91,6 +91,10 @@ lists which parameters it can accept.
 
 \item{set_names}{Set names, use column names if omitted.}
 
+\item{element_column}{A single character value use as column name to select elements.}
+
+\item{show_elements}{Show set elements instead of count/percentage.}
+
 \item{show_set_totals}{Show total count (c) and/or percentage (p) for each set.
 Pass a string like "cp" to show both. Any other string like "none" to hide both.}
 
@@ -101,27 +105,27 @@ Pass a string like "cp" to show both.}
 
 \item{show_percentage}{Show percentage for each set.}
 
-\item{digits}{The desired number of digits after the decimal point}
+\item{digits}{The desired number of digits after the decimal point.}
 
-\item{label_sep}{separator character for displaying elements.}
+\item{label_sep}{Separator character for displaying elements.}
 
 \item{count_column}{Specify column for element repeat count.}
 
-\item{show_outside}{Show outside elements (not belongs to any set).}
+\item{show_outside}{Show outside elements (not belongs to any set). Options: "auto", "none", "always".}
 
-\item{auto_scale}{Allow automatically resizing circles according to element counts.}
+\item{auto_scale}{Allow automatically resizing circles according to element counts (only for 2-set diagrams).}
 
-\item{fill_color}{Filling colors in circles.}
+\item{fill_color}{Filling colors in circles. Can be a single color or a vector of colors for each set.}
 
-\item{fill_alpha}{Transparency for filling circles.}
+\item{fill_alpha}{Transparency for filling circles. Can be a single value or a vector for each set.}
 
-\item{stroke_color}{Stroke color for drawing circles.}
+\item{stroke_color}{Stroke color for drawing circles. Can be a single color or a vector of colors for each set.}
 
-\item{stroke_alpha}{Transparency for drawing circles.}
+\item{stroke_alpha}{Transparency for drawing circles. Can be a single value or a vector for each set.}
 
-\item{stroke_size}{Stroke size for drawing circles.}
+\item{stroke_size}{Stroke size for drawing circles. Can be a single value or a vector for each set.}
 
-\item{stroke_linetype}{Line type for drawing circles.}
+\item{stroke_linetype}{Line type for drawing circles. Can be a single value or a vector for each set.}
 
 \item{set_name_color}{Text color for set names.}
 
@@ -130,9 +134,17 @@ Pass a string like "cp" to show both.}
 \item{text_color}{Text color for intersect contents.}
 
 \item{text_size}{Text size for intersect contents.}
+
+\item{comma_sep}{Whether to use comma as separator for displaying numbers.}
+
+\item{padding}{Padding for the plot. Change this to allow longer labels to be displayed.}
+
+\item{max_elements}{Maximum number of elements to display when show_elements=TRUE.}
+
+\item{text_truncate}{Whether to truncate text when elements exceed max_elements.}
 }
 \value{
-The ggplot object to print or save to file.
+A ggplot layer object to add to a ggplot.
 }
 \description{
 Plot venn diagram as a ggplot layer object. It supports only data frame as input.

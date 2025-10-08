@@ -1,14 +1,23 @@
 # ggvenn NEWS
 
+## Version 0.1.18 (2025-10-08)
+
+* Feature: Extend Venn diagram support from 4 to 5 sets (with geometry functions for up to 8 sets)
+* Feature: Add `get_venn_table()` function to extract Venn diagram intersection data
+* Feature: Add text truncation and element display options with `max_elements` and `text_truncate` parameters
+* Feature: Remove lifecycle dependency and enhance parameter flexibility
+* Fix: Correct intersection calculation and display with `auto_scale=TRUE`
+* Fix: Improve element display logic and label positioning
+* Refactor: Consolidate data conversion functions and improve code organization
+
 ## Version 0.1.17 (2025-10-06)
 
-* Fix: Allow individual stroke color/alpha settings for each set (#33)
 * Feature: Add `show_set_totals` and `show_stats` arguments for enhanced display flexibility
 * Feature: Add data conversion utility functions (`data_frame_to_list`, `list_to_data_frame`)
-* Refactor: Improve `geom_venn` function structure and readability
-* Fix: Replace deprecated `size` aesthetic with `linewidth` for ggplot2 3.4.0 compatibility
 * Feature: Add comma separation option for large numbers (#42)
-* Documentation: Improve package documentation and add GitHub Actions workflows
+* Fix: Allow individual stroke color/alpha settings for each set (#33)
+* Fix: Replace deprecated `size` aesthetic with `linewidth` for ggplot2 3.4.0 compatibility
+* Refactor: Improve `geom_venn` function structure and readability
 
 ## Version 0.1.10 (2023-03-31)
 
