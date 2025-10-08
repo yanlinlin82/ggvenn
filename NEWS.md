@@ -1,5 +1,10 @@
 # ggvenn NEWS
 
+## Version 0.1.19 (2025-10-08, a quick fix)
+
+* Fix: Resolve count and percentage display issues in Venn diagrams
+* Enhancement: Improve README documentation with comprehensive usage examples and feature descriptions
+
 ## Version 0.1.18 (2025-10-08)
 
 * Feature: Extend Venn diagram support from 4 to 5 sets (with geometry functions for up to 8 sets)

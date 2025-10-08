@@ -1,6 +1,6 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
-Version: 0.1.18
+Version: 0.1.19
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
