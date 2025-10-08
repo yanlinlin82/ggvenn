@@ -120,11 +120,13 @@ gen_text_pos_2 <- function(scale_info, min_overlap_for_text = 0.2) {
         df$x[[2]] <- x_dist + overlap_size
         df$x[[3]] <- -x_dist + a_radius - overlap_size
       }
-      if (a_radius <= overlap_size) {
-        df <- df %>% filter(name != "A")
-      } else if (b_radius <= overlap_size) {
-        df <- df %>% filter(name != "B")
-      }
+      # Don't filter out individual sets even if radius <= overlap_size
+      # This ensures that sets with elements are always displayed
+      # if (a_radius <= overlap_size) {
+      #   df <- df %>% filter(name != "A")
+      # } else if (b_radius <= overlap_size) {
+      #   df <- df %>% filter(name != "B")
+      # }
     }
   }
   df

@@ -3,6 +3,27 @@ library(dplyr)
 
 #==========================================================#
 
+# Helper function to truncate text when showing elements
+truncate_element_text <- function(elements, max_elements, label_sep, text_truncate = TRUE) {
+  if (!text_truncate || length(elements) <= max_elements) {
+    return(paste(elements, collapse = label_sep))
+  }
+  
+  if (max_elements <= 0) {
+    return("")
+  }
+  
+  # Show first max_elements elements and add "..."
+  visible_elements <- elements[1:max_elements]
+  text <- paste(visible_elements, collapse = label_sep)
+  
+  if (length(elements) > max_elements) {
+    text <- paste0(text, label_sep, "... (+", length(elements) - max_elements, " more)")
+  }
+  
+  return(text)
+}
+
 #' Utility functions for data type conversion between data.frame and list.
 #'
 #' @name data_preparation
@@ -128,6 +149,8 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
   print(n_sets)
   if (auto_scale) {
     stopifnot(length(n_sets) == 4)
+    print("n_sets: ")
+    print(n_sets)
     ab_shared <- n_sets[[1]]
     b_specific <- n_sets[[2]]
     a_specific <- n_sets[[3]]
@@ -147,34 +170,34 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
     } else if (ab_shared == 0) {
       if (a_specific > b_specific) {
         a_radius <- 1
-        b_radius <- sqrt(b_specific / a_specific)
+        b_radius <- max(sqrt(b_specific / a_specific), 1 / max_scale_diff)
         overlap_size <- -spacing_size
       } else {
-        a_radius <- sqrt(a_specific / b_specific)
+        a_radius <- max(sqrt(a_specific / b_specific), 1 / max_scale_diff)
         b_radius <- 1
         overlap_size <- -spacing_size
       }
     } else if (a_specific + b_specific == 0) { # both sets are empty
       a_radius <- 1
       b_radius <- 1
-      overlap_size <- 0.95
+      overlap_size <- 0.99
     } else if (a_specific == 0) { # B contains A
-      a_radius <- sqrt(ab_shared / (ab_shared + b_specific))
+      a_radius <- max(sqrt(ab_shared / (ab_shared + b_specific)), 1 / max_scale_diff)
       b_radius <- 1
       overlap_size <- a_radius
     } else if (b_specific == 0) { # A contains B
       a_radius <- 1
-      b_radius <- sqrt(ab_shared / (ab_shared + a_specific))
+      b_radius <- max(sqrt(ab_shared / (ab_shared + a_specific)), 1 / max_scale_diff)
       overlap_size <- b_radius
     } else {
       if (a_specific > b_specific) { # A is larger than B
         a_radius <- 1
-        b_radius <- sqrt((ab_shared + b_specific) / (a_specific + b_specific))
-        overlap_size <- sqrt(ab_shared / (a_specific + b_specific))
+        b_radius <- max(sqrt((ab_shared + b_specific) / (ab_shared + a_specific)), 1 / max_scale_diff)
+        overlap_size <- b_radius * (ab_shared / (ab_shared + b_specific))
       } else { # B is larger than A
-        a_radius <- sqrt((ab_shared + a_specific) / (a_specific + b_specific))
+        a_radius <- max(sqrt((ab_shared + a_specific) / (ab_shared + b_specific)), 1 / max_scale_diff)
         b_radius <- 1
-        overlap_size <- sqrt(ab_shared / (a_specific + b_specific))
+        overlap_size <- a_radius * (ab_shared / (ab_shared + a_specific))
       }
     }
   } else {
@@ -182,6 +205,12 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
     b_radius <- 1
     overlap_size <- 1 / 3
   }
+  print("a_radius: ")
+  print(a_radius)
+  print("b_radius: ")
+  print(b_radius)
+  print("overlap_size: ")
+  print(overlap_size)
   c(
     auto_scale = auto_scale,
     a_radius = a_radius,
@@ -191,7 +220,7 @@ calc_scale_info_2 <- function(auto_scale, n_sets, max_scale_diff = 5, spacing_si
 }
 
 # Helper function to process data frame elements
-process_data_frame_elements <- function(data, columns, n_sets, count_column, show_elements, label_sep) {
+process_data_frame_elements <- function(data, columns, n_sets, count_column, show_elements, label_sep, max_elements = 10, text_truncate = TRUE) {
   # Validate logical columns
   for (i in seq_len(n_sets)) {
     stopifnot(is.logical(as_tibble(data)[, columns[[i]], drop = TRUE]))
@@ -223,7 +252,8 @@ process_data_frame_elements <- function(data, columns, n_sets, count_column, sho
 
     # Add text if showing elements
     if (!identical(show_elements, FALSE)) {
-      df_element$text[[i]] <- paste(unlist(as_tibble(data)[idx, show_elements]), collapse = label_sep)
+      elements <- unlist(as_tibble(data)[idx, show_elements])
+      df_element$text[[i]] <- truncate_element_text(elements, max_elements, label_sep, text_truncate)
     }
   }
 
@@ -307,7 +337,9 @@ prepare_venn_data <- function(
   count_column = NULL,
   show_outside = c("auto", "none", "always"),
   auto_scale = FALSE,
-  comma_sep = FALSE
+  comma_sep = FALSE,
+  max_elements = 10,
+  text_truncate = TRUE
 ) {
   show_outside <- match.arg(show_outside)
 
@@ -346,10 +378,8 @@ prepare_venn_data <- function(
   }
 
   df_element <- process_data_frame_elements(
-    data, columns, length(columns), count_column, show_elements, label_sep
+    data, columns, length(columns), count_column, show_elements, label_sep, max_elements, text_truncate
   )
-  print("df_element: ")
-  print(df_element)
 
   if (auto_scale) {
     if (is.null(venn_funcs[["calc_scale_info"]])) {

@@ -31,7 +31,9 @@ geom_venn(
   text_color = "black",
   text_size = 4,
   comma_sep = FALSE,
-  padding = 1
+  padding = 1,
+  max_elements = 6,
+  text_truncate = TRUE
 )
 }
 \arguments{

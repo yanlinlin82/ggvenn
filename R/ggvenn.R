@@ -93,7 +93,9 @@ ggvenn <- function(
   text_color = "black",
   text_size = 4,
   comma_sep = FALSE,
-  padding = 0.2
+  padding = 1,
+  max_elements = 6,
+  text_truncate = TRUE
 ) {
   show_outside <- match.arg(show_outside)
 
@@ -191,7 +193,9 @@ ggvenn <- function(
       text_color = text_color,
       text_size = text_size,
       comma_sep = comma_sep,
-      padding = padding
+      padding = padding,
+      max_elements = max_elements,
+      text_truncate = text_truncate
     ) +
     coord_fixed() +
     theme_void()

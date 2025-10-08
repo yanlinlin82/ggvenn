@@ -107,7 +107,9 @@ geom_venn <- function(
   text_color = "black",
   text_size = 4,
   comma_sep = FALSE,
-  padding = 1
+  padding = 1,
+  max_elements = 6,
+  text_truncate = TRUE
 ) {
   show_outside <- match.arg(show_outside)
 
@@ -146,7 +148,8 @@ geom_venn <- function(
         data, sets,
         show_elements, show_set_totals, show_counts, show_percentage,
         digits, label_sep, count_column,
-        show_outside, auto_scale
+        show_outside, auto_scale, comma_sep,
+        max_elements, text_truncate
       )
 
       all_x <- c(
