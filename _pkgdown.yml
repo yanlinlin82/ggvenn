@@ -17,6 +17,7 @@ reference:
   contents:
   - data_frame_to_list
   - list_to_data_frame
+  - get_venn_table
 
 news:
   releases:

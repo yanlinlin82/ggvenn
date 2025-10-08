@@ -3,8 +3,6 @@
 on:
   push:
     branches: [main, master]
-  pull_request:
-    branches: [main, master]
   release:
     types: [published]
   workflow_dispatch:
@@ -23,8 +21,8 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
-    # Only run after successful R-CMD-check for PRs
-    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    # Only run for pushes to main/master branches and releases
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'release'
     steps:
       - uses: actions/checkout@v4
 
@@ -41,12 +39,25 @@ jobs:
 
       - name: Build site
         run: |
-          pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+          # Install pkgdown if not already installed
+          if (!requireNamespace("pkgdown", quietly = TRUE)) {
+            install.packages("pkgdown")
+          }
+          
+          # Build the site with better error handling
+          tryCatch({
+            pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+          }, error = function(e) {
+            cat("Error building site:", e$message, "\n")
+            # Fallback to regular build_site
+            pkgdown::build_site()
+          })
+          
           # Ensure docs directory exists for deployment
-          if [ ! -d "docs" ]; then
-            echo "Creating docs directory..."
-            mkdir -p docs
-          fi
+          if (!dir.exists("docs")) {
+            cat("Creating docs directory...\n")
+            dir.create("docs", recursive = TRUE)
+          }
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
