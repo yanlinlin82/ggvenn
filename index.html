@@ -60,17 +60,12 @@
 <div class="section level2">
 <h2 id="screenshots">Screenshots<a class="anchor" aria-label="anchor" href="#screenshots"></a>
 </h2>
-<table width="100%" class="table"><tr>
-<td>
-<img width="300" height="300" src="reference/figures/venn-2.svg" alt="Venn 2">
-</td>
-<td>
-<img width="300" height="300" src="reference/figures/venn-3.svg" alt="Venn 3">
-</td>
-<td>
-<img width="300" height="300" src="reference/figures/venn-4.svg" alt="Venn 4">
-</td>
-</tr></table>
+<div class="float">
+<img src="figures/ggvenn_list.png" alt="Venn Plot from list"><div class="figcaption">Venn Plot from list</div>
+</div>
+<div class="float">
+<img src="figures/ggvenn_data.frame.png" alt="Venn Plot from data.frame"><div class="figcaption">Venn Plot from data.frame</div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -82,24 +77,51 @@
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
-<p>This package supports both <code>list</code> and <code>data.frame</code> type data as input.</p>
+<p>This package provides two main functions: <code><a href="reference/ggvenn.html">ggvenn()</a></code> and <code><a href="reference/geom_venn.html">geom_venn()</a></code>. It supports both <code>list</code> and <code>data.frame</code> type data as input.</p>
+<div class="section level3">
+<h3 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
+</h3>
 <p>For <code>list</code> data (each element is a set):</p>
 <p>```{r} library(ggvenn)</p>
-<p>a &lt;- list(<code>Set 1</code> = c(1, 3, 5, 7, 9), <code>Set 2</code> = c(1, 5, 9, 13), <code>Set 3</code> = c(1, 2, 8, 9), <code>Set 4</code> = c(6, 7, 10, 12)) ggvenn(a, c(“Set 1”, “Set 2”)) # draw two-set venn ggvenn(a, c(“Set 1”, “Set 2”, “Set 3”)) # draw three-set venn ggvenn(a) # without set names, the first 4 elements in list will be chose to draw four-set venn</p>
+<p>a &lt;- list(A = 1:5, B = 4:9, C = 3:7, D = 1:20, E = 15:19) ggvenn(a, c(“A”, “B”)) # draw two-set venn ggvenn(a, c(“A”, “B”, “C”)) # draw three-set venn ggvenn(a, c(“A”, “B”, “C”, “D”)) # draw four-set venn ggvenn(a) # without set names, all elements in list will be chosen to draw venn</p>
 <pre><code>
 For `data.frame` data (each logical column is a set):
 
 ```{r}
-d &lt;- dplyr::tibble(value   = c(1,     2,     3,     5,     6,     7,     8,     9),
-            `Set 1` = c(TRUE,  FALSE, TRUE,  TRUE,  FALSE, TRUE,  FALSE, TRUE),
-            `Set 2` = c(TRUE,  FALSE, FALSE, TRUE,  FALSE, FALSE, FALSE, TRUE),
-            `Set 3` = c(TRUE,  TRUE,  FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE),
-            `Set 4` = c(FALSE, FALSE, FALSE, FALSE, TRUE,  TRUE,  FALSE, FALSE))
-ggvenn(d, c("Set 1", "Set 2"))           # draw two-set venn
-ggvenn(d, c("Set 1", "Set 2", "Set 3"))  # draw three-set venn
-ggvenn(d)   # without set names, the first 4 logical column in data.frame will be chose to draw four-set venn</code></pre>
+d &lt;- data.frame(
+  id = 1:32,
+  A = 1:32 %% 2 == 1,
+  B = (1:32 %/% 2) %% 2 == 1,
+  C = (1:32 %/% 4) %% 2 == 1,
+  D = (1:32 %/% 8) %% 2 == 1,
+  E = (1:32 %/% 16) %% 2 == 1
+)
+ggvenn(d, c("A", "B"))            # draw two-set venn
+ggvenn(d, c("A", "B", "C"))       # draw three-set venn
+ggvenn(d, c("A", "B", "C", "D"))  # draw four-set venn
+ggvenn(d)  # without set names, all logical columns in data.frame will be chosen to draw venn
+ggvenn(d, element_column = "id", show_elements = TRUE)</code></pre>
+</div>
+<div class="section level3">
+<h3 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h3>
+<ul>
+<li>
+<strong>Two functions</strong>: <code><a href="reference/ggvenn.html">ggvenn()</a></code> for standalone plots, <code><a href="reference/geom_venn.html">geom_venn()</a></code> for ggplot2 grammar</li>
+<li>
+<strong>Multiple sets</strong>: Supports 2-8 sets (optimal for 2-4 sets)</li>
+<li>
+<strong>Flexible input</strong>: Works with both lists and data.frames</li>
+<li>
+<strong>Customizable</strong>: Colors, sizes, transparency, and text options</li>
+<li>
+<strong>Show elements</strong>: Display actual elements instead of just counts</li>
+<li>
+<strong>Auto-scaling</strong>: Automatically resize circles based on element counts (2-set diagrams)</li>
+</ul>
 <p>For <code>data.frame</code> data, there is also another way to plot in ggplot grammar:</p>
 <p>``<code>{r} # draw two-set venn (use A, B in aes) ggplot(d, aes(A =</code>Set 1<code>, B =</code>Set 2`)) + geom_venn() + theme_void() + coord_fixed()</p>
+</div>
 </div>
 </div>
 <div class="section level1">
@@ -120,25 +142,25 @@ There are more options for customizing the venn diagram.
 
     For filling:
 
-    * `fill_color` - default is c("blue", "yellow", "green", "red")
-    * `fill_alpha` - default is 0.5
+    - `fill_color` - default is c("blue", "yellow", "green", "red")
+    - `fill_alpha` - default is 0.5
 
     For stroke:
 
-    * `stroke_color` - default is "black"
-    * `stroke_alpha` - default is 1
-    * `stroke_size` - default is 1
-    * `stroke_linetype` - default is "solid"
+    - `stroke_color` - default is "black"
+    - `stroke_alpha` - default is 1
+    - `stroke_size` - default is 1
+    - `stroke_linetype` - default is "solid"
 
     For set name:
 
-    * `set_name_color` - default is "black"
-    * `set_name_size` - default is 6
+    - `set_name_color` - default is "black"
+    - `set_name_size` - default is 6
 
     For text:
 
-    * `text_color` - default is "black"
-    * `text_size` - default is 4
+    - `text_color` - default is "black"
+    - `text_size` - default is 4
 
     All parameters above could be used in both `ggvenn()` and `geom_venn()`.
 
@@ -153,8 +175,8 @@ There are more options for customizing the venn diagram.
 
 2. Show elements
 
-    * `show_elements` - default is FALSE
-    * `label_sep` - text used to concatenate elements, default is ","
+    - `show_elements` - default is FALSE
+    - `label_sep` - text used to concatenate elements, default is ","
 
     For example:
 
@@ -168,7 +190,7 @@ There are more options for customizing the venn diagram.
 
 3. Hide percentage
 
-    * `show_percentage` - default is TRUE
+    - `show_percentage` - default is TRUE
 
     For example:
 
@@ -179,7 +201,7 @@ There are more options for customizing the venn diagram.
 
 4. Change digits of percentage
 
-    * `digits` - default is 1
+    - `digits` - default is 1
 
     For example:
 
@@ -188,18 +210,74 @@ There are more options for customizing the venn diagram.
     ggvenn(a, digits = 2)
     ```
 
-## Data Format
+5. Show/hide statistics
 
-The `ggvenn` support two types of input data: list and data.frame. Two functions (`data_frame_to_list()` and `list_to_data_frame()`) can convert data between the two types.
+    - `show_stats` - control what to display: "cp" (count + percentage), "c" (count only), "p" (percentage only)
+    - `show_set_totals` - show totals for each set: "cp", "c", "p", or "none"
 
-```r
-a &lt;- list(A = 1:5, B = 4:6)
-d &lt;- dplyr::tibble(key = 1:6,
-            A = c(rep(TRUE, 5), FALSE),
-            B = rep(c(FALSE, TRUE), each = 3))
+    For example:
 
-identical(a, data_frame_to_list(d))  # TRUE
-identical(d, list_to_data_frame(a))  # TRUE</code></pre>
+    ```{r}
+    a &lt;- list(A = 1:5, B = 1:2)
+    ggvenn(a, show_stats = "c")        # show only counts
+    ggvenn(a, show_stats = "p")        # show only percentages
+    ggvenn(a, show_set_totals = "cp")  # show set totals
+    ```
+
+6. Control outside elements
+
+    - `show_outside` - show elements not belonging to any set: "auto", "none", "always"
+
+    For example:
+
+    ```{r}
+    a &lt;- list(A = 1:5, B = 4:8, C = 10:15)  # element 10-15 are outside A and B
+    ggvenn(a, c("A", "B"), show_outside = "always")
+    ```
+
+7. Auto-scaling (2-set diagrams only)
+
+    - `auto_scale` - automatically resize circles based on element counts
+
+    For example:
+
+    ```{r}
+    a &lt;- list(A = 1:100, B = 50:150)  # very different sizes
+    ggvenn(a, auto_scale = TRUE)
+    ```
+
+## Multiple Plots Layout
+
+When creating multiple venn diagrams, you can use `patchwork` or `gridExtra` for layout:
+
+```{r}
+library(ggvenn)
+library(patchwork)  # or library(gridExtra)
+
+# Create multiple plots
+g1 &lt;- ggvenn(list(A = 1:5, B = 4:8))
+g2 &lt;- ggvenn(list(A = 1:5, B = 4:8, C = 3:7))
+g3 &lt;- ggvenn(list(A = 1:5, B = 4:8, C = 3:7, D = 1:20))
+g4 &lt;- ggvenn(list(A = 1:5, B = 4:8, C = 3:7, D = 1:20, E = 15:19))
+
+# Using patchwork (recommended)
+(g1 | g2) / (g3 | g4)
+
+# Using gridExtra
+# gridExtra::grid.arrange(g1, g2, g3, g4, ncol = 2, nrow = 2)</code></pre>
+<div class="section level2">
+<h2 id="data-format">Data Format<a class="anchor" aria-label="anchor" href="#data-format"></a>
+</h2>
+<p>The <code>ggvenn</code> support two types of input data: list and data.frame. Two functions (<code><a href="reference/data_preparation.html">data_frame_to_list()</a></code> and <code><a href="reference/data_preparation.html">list_to_data_frame()</a></code>) can convert data between the two types.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, B <span class="op">=</span> <span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>key <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,</span>
+<span>            A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fl">5</span><span class="op">)</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>            B <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="cn">TRUE</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span>, <span class="fu"><a href="reference/data_preparation.html">data_frame_to_list</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span>  <span class="co"># TRUE</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">d</span>, <span class="fu"><a href="reference/data_preparation.html">list_to_data_frame</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">)</span>  <span class="co"># TRUE</span></span></code></pre></div>
+</div>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
