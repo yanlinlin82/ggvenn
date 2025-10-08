@@ -114,6 +114,7 @@ calculate_totals <- function(data, columns, show_set_totals, digits, comma_sep) 
 }
 
 # Helper function to generate element data frames for different set counts
+#' @importFrom rlang syms
 generate_element_df <- function(n_sets) {
   sets <- LETTERS[seq_len(n_sets)]
 
@@ -137,7 +138,7 @@ generate_element_df <- function(n_sets) {
 
   # Verify uniqueness
   count_cols <- sets
-  count_result <- df %>% dplyr::count(!!!syms(count_cols))
+  count_result <- df %>% dplyr::count(!!!rlang::syms(count_cols))
   stopifnot(all(count_result$n == 1))
 
   df <- df %>% mutate(n = 0, text = "")

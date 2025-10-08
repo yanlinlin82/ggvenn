@@ -1,6 +1,6 @@
 # ggvenn
 
-Venn Diagram by ggplot2, with really easy-to-use API. This package is inspired by [Venny](http://bioinfogp.cnb.csic.es/tools/venny/index.html)
+Venn Diagram by ggplot2, with really easy-to-use API.
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/yanlinlin82/ggvenn/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yanlinlin82/ggvenn/actions/workflows/R-CMD-check.yaml)

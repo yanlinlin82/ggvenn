@@ -1,12 +1,12 @@
 Package: ggvenn
 Title: Draw Venn Diagram by 'ggplot2'
 Version: 0.1.18
-Author: Linlin Yan [aut, cre]
-Maintainer: Linlin Yan <yanlinlin82@gmail.com>
 Authors@R: person(given = "Linlin", family = "Yan",
                   role = c("aut", "cre"),
                   email = "yanlinlin82@gmail.com",
                   comment = c(ORCID = "0000-0002-4990-6239"))
+Author: Linlin Yan [aut, cre] (<https://orcid.org/0000-0002-4990-6239>)
+Maintainer: Linlin Yan <yanlinlin82@gmail.com>
 Description: An easy-to-use way to draw pretty Venn diagrams using 'ggplot2'.
     This package provides functions to create Venn diagrams with customizable
     colors, labels, and styling options.
@@ -17,13 +17,12 @@ Encoding: UTF-8
 RoxygenNote: 7.3.3
 Depends: ggplot2
 Suggests: 
-    knitr,
     rmarkdown,
     testthat (>= 3.0.0)
 Imports: 
     dplyr (>= 1.1.0),
     grid,
+    rlang,
     scales (>= 1.2.0)
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-VignetteBuilder: knitr

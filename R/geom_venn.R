@@ -1,3 +1,6 @@
+# Conversion factor for points to other units (same as ggplot2:::.pt)
+.pt <- 72.27 / 25.4
+
 #' Plot venn diagram as a ggplot layer object. It supports only data frame as input.
 #'
 #' @name geom_venn
@@ -274,7 +277,7 @@ geom_venn <- function(
         )
       }
 
-      ggplot2:::ggname("geom_venn", grid::grobTree(gl))
+      grid::grobTree(gl, name = "geom_venn")
     }
   )
 

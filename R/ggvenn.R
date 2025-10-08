@@ -4,6 +4,8 @@ library(ggplot2)
 #' Plot venn diagram as an independent function. It supports both data frame and list as input.
 #'
 #' @name ggvenn
+#' @importFrom ggplot2 ggplot_build
+#' @importFrom rlang sym
 #' @param data A data.frame or a list as input data.
 #' @param columns A character vector use as index to select columns/elements.
 #' @param element_column A single character value use as column name to select elements.
@@ -215,6 +217,7 @@ ggvenn <- function(
 #'
 #' @param g A ggplot object created by ggvenn()
 #' @return A data frame containing the Venn diagram intersection data
+#' @importFrom ggplot2 ggplot_build
 #' @export
 #' @examples
 #' library(ggvenn)

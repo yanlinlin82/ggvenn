@@ -1,8 +1,15 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-LICENSE.md
-plots
+^LICENSE\.md$
+^plots$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
 ^\.github$
+^\.lintr$
+^\.git$
+^\.gitignore$
+^\.RData$
+^\.Rhistory$
+^Rplots\.pdf$
+^.*\.Rcheck$

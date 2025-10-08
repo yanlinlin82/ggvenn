@@ -6,3 +6,4 @@ ggvenn.Rcheck/
 DESCRIPTION
 ggvenn_*.tar.gz
 docs
+..Rcheck/
