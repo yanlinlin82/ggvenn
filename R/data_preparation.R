@@ -62,7 +62,11 @@ data_frame_to_list <- function(x) {
 #' @rdname data_preparation
 #' @export
 list_to_data_frame <- function(x) {
-  df <- tibble("_key" = unique(unlist(x)))
+  keys <- unique(unlist(x))
+  if (length(keys) == 0) {
+    keys <- character(0)
+  }
+  df <- tibble("_key" = keys)
   for (name in names(x)) {
     df[, name] <- df$`_key` %in% x[[name]]
   }
